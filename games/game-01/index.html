@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Word Unscramble Presentation</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png/" href="../../Favicon.png"
+    
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden; /* Strict fit for 13-inch displays */
+        }
+
+        body {
+            background: #0b1523;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(244, 180, 0, 0.18) 0px, transparent 45%),
+                radial-gradient(at 100% 100%, rgba(30, 58, 95, 0.85) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(11, 21, 35, 0.98) 0px, transparent 100%);
+            color: #F8F9FA;
+        }
+
+        .glass-panel {
+            background: rgba(30, 58, 95, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(217, 217, 217, 0.25);
+            box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(248, 249, 250, 0.15);
+        }
+
+        .glass-card {
+            background: rgba(15, 30, 51, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(217, 217, 217, 0.2);
+        }
+
+        /* Animated Scrambled Tiles with Gold/Navy Theme */
+        .tile-scrambled {
+            background: linear-gradient(135deg, #F4B400 0%, #d39e00 100%);
+            border: 2px solid #F8F9FA;
+            color: #1E3A5F;
+            box-shadow: 0 10px 25px -5px rgba(244, 180, 0, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tile-revealed {
+            background: linear-gradient(135deg, #1E3A5F 0%, #0f1e33 100%);
+            border: 2px solid #F4B400;
+            color: #F4B400;
+            box-shadow: 0 10px 25px -5px rgba(30, 58, 95, 0.6), inset 0 2px 4px rgba(248, 249, 250, 0.2);
+        }
+
+        .tile-blank {
+            background: rgba(15, 30, 51, 0.6);
+            border: 2px dashed rgba(217, 217, 217, 0.4);
+            color: #D9D9D9;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7) translateY(10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .animate-pop-in {
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(30, 58, 95, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(244, 180, 0, 0.35); }
+        }
+
+        .animate-pulse-glow {
+            animation: pulseGlow 3s infinite;
+        }
+
+        .modal-overlay {
+            background: rgba(11, 21, 35, 0.92);
+            backdrop-filter: blur(14px);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 30, 51, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(244, 180, 0, 0.5);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between relative text-[#F8F9FA] p-2 sm:p-4">
+
+    <!-- Canvas Confetti Overlay -->
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <header class="w-full max-w-7xl mx-auto flex justify-between items-center px-3 py-2 glass-panel rounded-2xl border border-[#D9D9D9]/20 shadow-lg shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#F4B400] text-[#1E3A5F] flex items-center justify-center text-lg font-black shadow-lg shadow-[#F4B400]/20 border border-[#F8F9FA]/40">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-lg md:text-xl tracking-tight text-[#F8F9FA] leading-none">
+                    CLASSROOM <span class="text-[#F4B400]">WORD UNSCRAMBLE</span>
+                </h1>
+                <p class="text-[10px] md:text-xs text-[#D9D9D9] font-semibold uppercase tracking-wider mt-0.5">Professional, Policy & General Vocab Edition</p>
+            </div>
+        </div>
+
+        <!-- Class Stats Header HUD -->
+        <div id="topStatsBar" class="hidden flex items-center gap-3 md:gap-5">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-card border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-layer-group text-[#F4B400] text-sm"></i>
+                <div>
+                    <p class="text-[9px] uppercase font-bold text-[#D9D9D9] leading-none">Round</p>
+                    <p id="topRoundDisplay" class="text-sm font-black text-[#F4B400] leading-none mt-0.5">1</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-card border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-trophy text-[#F4B400] text-sm"></i>
+                <div>
+                    <p class="text-[9px] uppercase font-bold text-[#D9D9D9] leading-none">Score</p>
+                    <p id="topScoreDisplay" class="text-sm font-black text-[#F4B400] leading-none mt-0.5">0</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-card border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+                <div>
+                    <p class="text-[9px] uppercase font-bold text-[#D9D9D9] leading-none">Solved</p>
+                    <p id="topSolvedDisplay" class="text-sm font-black text-emerald-400 leading-none mt-0.5">0</p>
+                </div>
+            </div>
+
+            <!-- Sound Toggle Button -->
+            <button id="soundToggleBtn" title="Toggle Sound" class="w-8 h-8 rounded-xl glass-card flex items-center justify-center text-[#F8F9FA] hover:bg-[#1E3A5F] transition-all border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-volume-high text-xs" id="soundIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col justify-center items-center relative z-10 py-2 my-auto overflow-hidden">
+
+        <!-- ==========================================================================
+             1. SETUP SCREEN
+             ========================================================================== -->
+        <section id="setupScreen" class="w-full max-w-3xl glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-[#D9D9D9]/25 animate-pop-in my-auto text-center">
+            <div class="w-16 h-16 rounded-2xl bg-[#F4B400]/20 text-[#F4B400] flex items-center justify-center text-3xl mx-auto mb-3 border border-[#F4B400]/30 shadow-lg shadow-[#F4B400]/10">
+                <i class="fa-solid fa-shuffle"></i>
+            </div>
+            
+            <span class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-[#F4B400]/20 text-[#F4B400] border border-[#F4B400]/30 uppercase tracking-widest inline-block mb-2">
+                ROUND-BASED PRESENTATION MODE
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black text-[#F8F9FA]">Master Vocabulary Challenge</h2>
+            <p class="text-[#D9D9D9] text-xs md:text-sm mt-1 mb-5 max-w-xl mx-auto">
+                An interactive presentation vocabulary game for Public Policy, Public Administration, & General English.
+            </p>
+
+            <!-- How to Play & Scoring Rules Card -->
+            <div class="bg-[#0f1e33]/90 rounded-2xl p-4 border border-[#D9D9D9]/20 mb-6 text-left shadow-inner">
+                <div class="flex items-center gap-2 mb-3 border-b border-[#D9D9D9]/20 pb-2">
+                    <i class="fa-solid fa-book-open-reader text-[#F4B400] text-base"></i>
+                    <h3 class="text-xs md:text-sm font-extrabold uppercase tracking-wider text-[#F8F9FA]">How to Play & Scoring Rules</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-[#F8F9FA]">
+                    <!-- Rules Column -->
+                    <div class="space-y-2">
+                        <p class="font-bold text-[#F4B400] text-[11px] uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-gamepad text-[#F4B400]"></i> Gameplay Rules
+                        </p>
+                        <ul class="space-y-1.5 text-[11px] text-[#D9D9D9]">
+                            <li class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-circle-dot text-[8px] text-[#F4B400] mt-1 shrink-0"></i>
+                                <span>Each round consists of <b>10 randomized words</b>.</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-circle-dot text-[8px] text-[#F4B400] mt-1 shrink-0"></i>
+                                <span>Students guess the word out loud from the scrambled letters displayed on screen.</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-circle-dot text-[8px] text-[#F4B400] mt-1 shrink-0"></i>
+                                <span>Use lecturer controls/hotkeys to reveal <b>Hints</b> or <b>Target Letters</b> if students get stuck.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Scoring Column -->
+                    <div class="space-y-2">
+                        <p class="font-bold text-[#F4B400] text-[11px] uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-trophy text-[#F4B400]"></i> Scoring System
+                        </p>
+                        <div class="p-3 rounded-xl bg-[#F4B400]/10 border border-[#F4B400]/25 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-[#F4B400] text-[#1E3A5F] flex items-center justify-center font-black text-base shrink-0 border border-[#F8F9FA]/40 shadow-md">
+                                +1
+                            </div>
+                            <div>
+                                <p class="font-black text-[#F4B400] text-xs">+1 Point per Correct Answer</p>
+                                <p class="text-[10px] text-[#D9D9D9] mt-0.5 leading-snug">
+                                    Each correctly answered word awards 1 point toward the round and cumulative total score.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="startSessionBtn" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-black text-sm shadow-xl shadow-[#F4B400]/20 transition-all flex items-center justify-center gap-2 border border-[#F8F9FA]/40">
+                    <i class="fa-solid fa-play text-lg"></i>
+                    <span>Start Round 1 (10 Words)</span>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ==========================================================================
+             2. GAME PRESENTATION DISPLAY SCREEN
+             ========================================================================== -->
+        <section id="gameScreen" class="w-full max-w-6xl hidden flex-col justify-between h-full py-1 gap-3">
+
+            <!-- Round Header Bar -->
+            <div class="w-full glass-panel px-4 py-2 rounded-2xl flex justify-between items-center border border-[#D9D9D9]/20 shadow-lg shrink-0">
+                <div class="flex items-center gap-3">
+                    <span id="roundBadge" class="px-3 py-1 rounded-xl text-xs font-black bg-[#F4B400]/20 text-[#F4B400] border border-[#F4B400]/40 uppercase tracking-wider">
+                        ROUND 1
+                    </span>
+                    <span id="wordCategoryBadge" class="px-3 py-1 rounded-xl text-xs font-bold bg-[#1E3A5F] text-[#F8F9FA] border border-[#D9D9D9]/30 uppercase tracking-wider">
+                        POLICY
+                    </span>
+                    <span class="text-[#D9D9D9] font-bold text-xs md:text-sm">
+                        Question <span id="currentWordNum" class="text-[#F8F9FA] font-black">1</span> of <span id="totalWordNum">10</span>
+                    </span>
+                </div>
+
+                <!-- Large Timer Display -->
+                <div class="flex items-center gap-3 bg-[#0f1e33] px-4 py-1 rounded-xl border border-[#D9D9D9]/20">
+                    <i class="fa-solid fa-stopwatch text-[#F4B400] text-base"></i>
+                    <span id="timerText" class="font-mono text-lg md:text-xl font-black text-[#F8F9FA]">00:45</span>
+                    <button id="toggleTimerBtn" class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] transition-colors">
+                        Pause
+                    </button>
+                </div>
+            </div>
+
+            <!-- MAIN PROJECTOR DISPLAY AREA -->
+            <div class="w-full flex-1 glass-panel px-6 py-4 rounded-3xl flex flex-col items-center justify-between border border-[#D9D9D9]/20 shadow-2xl relative overflow-hidden animate-pulse-glow min-h-0">
+                
+                <!-- Definition Hint Box -->
+                <div id="hintBox" class="hidden w-full max-w-3xl p-3 rounded-2xl bg-[#0f1e33]/90 border border-[#F4B400]/40 text-center animate-pop-in shrink-0">
+                    <p class="text-[10px] uppercase font-extrabold tracking-widest text-[#F4B400] mb-0.5">
+                        <i class="fa-solid fa-lightbulb text-[#F4B400] mr-1.5"></i>DEFINITION / CONTEXT CLUE
+                    </p>
+                    <p id="hintContentText" class="text-xs md:text-sm font-bold text-[#F8F9FA] italic leading-snug">
+                        "Hint text placeholder..."
+                    </p>
+                </div>
+
+                <!-- GIANT SCRAMBLED LETTER TILES -->
+                <div class="my-auto flex flex-col items-center justify-center gap-3 w-full">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#D9D9D9]">SCRAMBLED LETTERS</p>
+                    <div id="projectorTilesContainer" class="flex flex-wrap justify-center items-center gap-2 md:gap-3 max-w-5xl">
+                        <!-- Tiles dynamically injected here -->
+                    </div>
+
+                    <!-- REVEALED / ANSWER TARGET SLOTS GRID -->
+                    <div class="mt-1 flex flex-col items-center gap-1">
+                        <p class="text-[9px] font-extrabold uppercase tracking-widest text-[#F4B400]/80">TARGET ANSWER REVEAL</p>
+                        <div id="targetSlotsContainer" class="flex flex-wrap justify-center items-center gap-1.5">
+                            <!-- Answer slots dynamically injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Feedback Banner -->
+                <div id="feedbackBanner" class="hidden px-6 py-1.5 rounded-xl font-black text-xs md:text-sm tracking-wide uppercase animate-pop-in shrink-0">
+                    <!-- Dynamic Feedback Text -->
+                </div>
+            </div>
+
+
+            <!-- ==========================================================================
+                 3. PRESENTER/FACILITATOR CONTROL TOOLBAR
+                 ========================================================================== -->
+            <div class="w-full glass-panel p-2.5 rounded-2xl border border-[#D9D9D9]/20 shadow-xl shrink-0">
+                <div class="flex justify-between items-center px-1 mb-1.5">
+                    <p class="text-[10px] uppercase font-extrabold tracking-widest text-[#D9D9D9] flex items-center gap-1.5">
+                        <i class="fa-solid fa-sliders text-[#F4B400]"></i> Facilitator Controls
+                    </p>
+                    <p class="text-[10px] text-[#D9D9D9] font-medium hidden sm:block">
+                        Hotkeys: <kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">Space</kbd> Correct (+1) | <kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">H</kbd> Hint | <kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">R</kbd> Letter | <kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">S</kbd> Shuffle | <kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">A</kbd> Answer
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <button id="btnToggleHint" class="py-2 px-3 rounded-xl bg-[#0f1e33] hover:bg-[#152843] text-[#F8F9FA] border border-[#D9D9D9]/30 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                        <i class="fa-solid fa-lightbulb text-[#F4B400]"></i>
+                        <span id="hintBtnText">Show Hint (H)</span>
+                    </button>
+
+                    <button id="btnRevealLetter" class="py-2 px-3 rounded-xl bg-[#0f1e33] hover:bg-[#152843] text-[#F8F9FA] border border-[#D9D9D9]/30 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                        <i class="fa-solid fa-eye text-cyan-400"></i>
+                        <span>Reveal Letter (R)</span>
+                    </button>
+
+                    <button id="btnReshuffle" class="py-2 px-3 rounded-xl bg-[#0f1e33] hover:bg-[#152843] text-[#F8F9FA] border border-[#D9D9D9]/30 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                        <i class="fa-solid fa-shuffle text-amber-400"></i>
+                        <span>Shuffle (S)</span>
+                    </button>
+
+                    <button id="btnMarkCorrect" class="py-2 px-3 rounded-xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md shadow-[#F4B400]/20 border border-[#F8F9FA]/40">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Correct (+1 Pt)</span>
+                    </button>
+
+                    <button id="btnRevealAnswer" class="py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md shadow-rose-600/20 col-span-2 sm:col-span-1">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Reveal All (A)</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==========================================================================
+             4. ROUND SUMMARY MODAL / SCREEN
+             ========================================================================== -->
+        <section id="roundSummaryScreen" class="w-full max-w-3xl glass-panel p-6 rounded-3xl shadow-2xl border border-[#D9D9D9]/25 hidden flex-col items-center text-center animate-pop-in my-auto">
+            <div class="w-14 h-14 rounded-2xl bg-[#F4B400]/20 text-[#F4B400] flex items-center justify-center text-2xl mb-2 border border-[#F4B400]/30">
+                <i class="fa-solid fa-flag-checkered"></i>
+            </div>
+            <h2 id="roundSummaryTitle" class="text-2xl font-black text-[#F8F9FA]">Round 1 Completed!</h2>
+            <p class="text-[#D9D9D9] text-xs mt-0.5 mb-4">Here is the summary performance for this 10-word round.</p>
+
+            <!-- Final Performance Cards -->
+            <div class="grid grid-cols-4 gap-2.5 w-full mb-4">
+                <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
+                    <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-0.5">ROUND SCORE</p>
+                    <p id="roundScoreText" class="text-xl font-black text-[#F4B400]">+0</p>
+                </div>
+                <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
+                    <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-0.5">TOTAL SCORE</p>
+                    <p id="totalScoreText" class="text-xl font-black text-[#F4B400]">0</p>
+                </div>
+                <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
+                    <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-0.5">SOLVED</p>
+                    <p id="roundSolvedText" class="text-xl font-black text-emerald-400">0 / 10</p>
+                </div>
+                <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
+                    <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-0.5">ACCURACY</p>
+                    <p id="roundAccuracyText" class="text-xl font-black text-cyan-400">0%</p>
+                </div>
+            </div>
+
+            <!-- Word Recap Table -->
+            <div class="w-full bg-[#0f1e33] rounded-2xl border border-[#D9D9D9]/20 overflow-hidden mb-4 text-left max-h-40 overflow-y-auto">
+                <table class="w-full text-xs">
+                    <thead class="bg-[#152843] text-[9px] font-extrabold text-[#D9D9D9] uppercase tracking-wider sticky top-0">
+                        <tr>
+                            <th class="p-2.5">#</th>
+                            <th class="p-2.5">Word</th>
+                            <th class="p-2.5">Definition</th>
+                            <th class="p-2.5 text-center">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roundRecapTableBody" class="divide-y divide-[#D9D9D9]/10 text-[#F8F9FA]">
+                        <!-- Table Rows injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap justify-center gap-3 w-full">
+                <button id="btnNextRound" class="py-3 px-6 rounded-xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-extrabold text-xs shadow-lg shadow-[#F4B400]/20 transition-all border border-[#F8F9FA]/40">
+                    <i class="fa-solid fa-forward mr-1.5"></i> Start Next Round (10 Words)
+                </button>
+                <button id="btnFinishSession" class="py-3 px-6 rounded-xl glass-card hover:bg-[#1E3A5F] text-[#F8F9FA] font-extrabold text-xs border border-[#D9D9D9]/30 transition-all">
+                    <i class="fa-solid fa-circle-stop mr-1.5"></i> Finish Game Session
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* ==========================================================================
+           1. HUGE MASSIVE COMBINED VOCABULARY BANK (100+ WORDS)
+           ========================================================================== */
+        const VOCAB_BANK = [
+            // PUBLIC POLICY & GOVERNANCE
+            { word: "ACCELERATION", hint: "The rate of change of velocity or increase in policy progress", topic: "General" },
+            { word: "ACCOUNTABILITY", hint: "Obligation of public officials to report and justify outcomes to citizens", topic: "Governance" },
+            { word: "ADMINISTRATION", hint: "The management of public or private affairs and institutions", topic: "Public Admin" },
+            { word: "ADVOCACY", hint: "Public support for or recommendation of a particular cause or policy", topic: "Civil Society" },
+            { word: "ALGORITHM", hint: "Process or set of rules followed in calculations or decision making", topic: "Technology" },
+            { word: "ALLOCATION", hint: "Distribution of public resources or duties for a specific purpose", topic: "Finance" },
+            { word: "AMENDMENT", hint: "A formal or minor change in a document, law, or policy", topic: "Policy" },
+            { word: "BENCHMARK", hint: "Standard or point of reference against which things may be measured", topic: "Strategy" },
+            { word: "BUREAUCRACY", hint: "Administrative system marked by officialism and standardized procedures", topic: "Public Admin" },
+            { word: "COLLABORATION", hint: "The action of working with someone to produce or create something", topic: "Workplace" },
+            { word: "COMPLIANCE", hint: "Action or fact of complying with a law, rule, or policy standard", topic: "Ethics" },
+            { word: "CONSENSUS", hint: "General agreement among members of a deliberative policy group", topic: "Governance" },
+            { word: "CONTINGENCY", hint: "A future event or circumstance which is possible but cannot be predicted with certainty", topic: "Strategy" },
+            { word: "DECENTRALIZATION", hint: "Transfer of authority and decision-making from central to local bodies", topic: "Public Admin" },
+            { word: "DELIBERATION", hint: "Long and careful discussion before making a public policy decision", topic: "Governance" },
+            { word: "DIVERSITY", hint: "Inclusion of different types of people in a group or organization", topic: "Workplace" },
+            { word: "DISCRETION", hint: "Freedom of a public official to act according to professional judgment", topic: "Public Admin" },
+            { word: "DIPLOMACY", hint: "The profession or skill of managing international relations", topic: "Policy" },
+            { word: "EFFICIENCY", hint: "Achieving maximum public benefit with minimum wasted effort or expense", topic: "Workplace" },
+            { word: "EMPOWERMENT", hint: "Authority or power given to someone to do something", topic: "Governance" },
+            { word: "ENGAGEMENT", hint: "The degree of involvement and commitment of citizens or staff", topic: "Civil Society" },
+            { word: "ENTREPRENEUR", hint: "A person who sets up a business taking on financial risks for profit", topic: "Business" },
+            { word: "EQUITY", hint: "Fairness and impartiality in the distribution of public resources", topic: "Social Policy" },
+            { word: "EXECUTIVE", hint: "Branch of government responsible for putting policies into law and effect", topic: "Governance" },
+            { word: "FEASIBILITY", hint: "Assessment of the practicality of a proposed policy or project", topic: "Strategy" },
+            { word: "FISCAL", hint: "Relating to government revenues, taxation, and public spending", topic: "Finance" },
+            { word: "GOVERNANCE", hint: "Processes and institutions by which authority in a country is exercised", topic: "Governance" },
+            { word: "INFRASTRUCTURE", hint: "Basic physical and organizational structures needed for society", topic: "Public Works" },
+            { word: "INNOVATION", hint: "Action or process of innovating new methods, ideas, or products", topic: "Business" },
+            { word: "INTEGRITY", hint: "Adherence to moral and ethical principles in public office", topic: "Ethics" },
+            { word: "JURISDICTION", hint: "Official power to make legal decisions and judgments in an area", topic: "Law" },
+            { word: "KNOWLEDGE", hint: "Information and skills acquired through experience or education", topic: "General" },
+            { word: "LEADERSHIP", hint: "The action of leading a group of people or an organization", topic: "Workplace" },
+            { word: "LEGISLATION", hint: "Laws enacted by a governing body or legislative assembly", topic: "Policy" },
+            { word: "MERITOCRACY", hint: "System where advancement is based on intellectual ability and achievement", topic: "Public Admin" },
+            { word: "METHODOLOGY", hint: "A system of methods used in a particular area of study or activity", topic: "General" },
+            { word: "NEGOTIATION", hint: "Discussion aimed at reaching an agreement", topic: "Workplace" },
+            { word: "NETWORKING", hint: "Interacting with others to exchange information and develop contacts", topic: "Business" },
+            { word: "OMBUDSPERSON", hint: "Official appointed to investigate individuals' complaints against administration", topic: "Ethics" },
+            { word: "OPTIMIZATION", hint: "Action of making a public service or system as effective as possible", topic: "Strategy" },
+            { word: "OUTSPOKEN", hint: "Frank in stating one's opinions especially when controversial", topic: "General" },
+            { word: "PARTICIPATION", hint: "The action of taking part in something or civic engagement", topic: "Civil Society" },
+            { word: "PERSPECTIVE", hint: "A particular attitude toward or way of regarding something", topic: "General" },
+            { word: "PHILANTHROPY", hint: "The desire to promote the welfare of others expressed by donation", topic: "Social Policy" },
+            { word: "POLICYMAKING", hint: "The act of formulating policies especially in politics or government", topic: "Policy" },
+            { word: "PRAGMATIC", hint: "Dealing with things sensibly and realistically in a way based on practical considerations", topic: "Strategy" },
+            { word: "PRIVACY", hint: "The state or condition of being free from public attention or intrusion", topic: "Law" },
+            { word: "PROTRACTED", hint: "Lasting for a long time or longer than expected", topic: "General" },
+            { word: "RATIFICATION", hint: "Formal consent or validation giving legal force to a treaty or policy", topic: "Law" },
+            { word: "REGULATION", hint: "Rule or order issued by an executive authority having the force of law", topic: "Policy" },
+            { word: "RESILIENCE", hint: "The capacity to withstand or recover quickly from difficulties", topic: "Strategy" },
+            { word: "REVENUE", hint: "Income received by a government from taxes and non-tax sources", topic: "Finance" },
+            { word: "SOVEREIGNTY", hint: "Supreme power or authority of a state to govern itself", topic: "Governance" },
+            { word: "STAKEHOLDER", hint: "Party that has an interest in a public policy or organization", topic: "Strategy" },
+            { word: "SUSTAINABILITY", hint: "Ability to maintain or support a process continuously over time", topic: "Policy" },
+            { word: "SYNERGY", hint: "Interaction producing a combined effect greater than the sum of separate parts", topic: "Workplace" },
+            { word: "TRANSPARENCY", hint: "Openness of government operations and accessibility of public information", topic: "Governance" },
+            { word: "VULNERABILITY", hint: "The quality or state of being exposed to the possibility of harm", topic: "Social Policy" },
+            { word: "WORKFORCE", hint: "The people engaged in or available for work in a country or region", topic: "Workplace" },
+
+            // ADDITIONAL GENERAL & BUSINESS VOCABULARY
+            { word: "APPROPRIATION", hint: "Lawful setting aside of public money for a specific purpose", topic: "Finance" },
+            { word: "ASSESSMENT", hint: "Systematic evaluation of policy performance and societal impact", topic: "Strategy" },
+            { word: "CAPACITY", hint: "Ability of an administrative institution to perform public functions", topic: "Public Admin" },
+            { word: "DELIVERABLE", hint: "Tangible output produced as a result of a project or policy initiative", topic: "Workplace" },
+            { word: "EXPENDITURE", hint: "Action of spending funds by government departments", topic: "Finance" },
+            { word: "IMPLEMENTATION", hint: "Process of putting a decision or policy plan into effect", topic: "Public Admin" },
+            { word: "PROTOCOL", hint: "Official procedure or system of rules governing state affairs", topic: "Public Admin" },
+            { word: "SUBSIDY", hint: "Sum of money granted by government to assist an industry or public", topic: "Finance" },
+            { word: "TARIFF", hint: "Tax or duty to be paid on a particular class of imports or exports", topic: "Trade" },
+            { word: "TAXATION", hint: "Means by which a government finances its expenditure through levies", topic: "Finance" },
+
+            { word: "AMBITION", hint: "A strong desire to do or to achieve something great", topic: "General" },
+            { word: "AUSTERITY", hint: "Sternness or severity in government fiscal policies", topic: "Economics" },
+            { word: "CAPITALISM", hint: "Economic system in which country trade and industry are controlled by private owners", topic: "Economics" },
+            { word: "CHANCELLOR", hint: "A senior state or legal official in government", topic: "Governance" },
+            { word: "COALITION", hint: "A temporary alliance for combined action especially of political parties", topic: "Governance" },
+            { word: "DEMOCRACY", hint: "System of government by the whole population through elected representatives", topic: "Governance" },
+            { word: "EMBARGO", hint: "An official ban on trade or other commercial activity with a country", topic: "Trade" },
+            { word: "IDEOLOGY", hint: "A system of ideas and ideals especially forming the basis of economic or political theory", topic: "Policy" },
+            { word: "INFLATION", hint: "General increase in prices and fall in the purchasing value of money", topic: "Economics" },
+            { word: "INITIATIVE", hint: "An act or strategy intended to resolve a difficulty or improve a situation", topic: "Strategy" },
+            { word: "MANDATE", hint: "An official order or commission to do something", topic: "Law" },
+            { word: "MONOPOLY", hint: "The exclusive possession or control of the supply or trade in a service", topic: "Economics" },
+            { word: "PARLIAMENT", hint: "The highest legislature consisting of the sovereign and the elected assembly", topic: "Governance" },
+            { word: "REFERENDUM", hint: "A general vote by the electorate on a single political question", topic: "Civil Society" },
+            { word: "RESOLUTION", hint: "A formal expression of opinion or intention agreed on by a decision-making body", topic: "Governance" },
+            { word: "SANCTION", hint: "A threatened penalty for disobeying a law or rule", topic: "Law" },
+            { word: "STIMULUS", hint: "An action or policy that quickens activity or fiscal growth", topic: "Economics" },
+            { word: "STRATEGY", hint: "A plan of action designed to achieve a long-term or overall aim", topic: "Strategy" },
+            { word: "BARTENDER", hint: "A person who serves drinks at a bar", topic: "General" },
+            { word: "CHAMPION", hint: "A person who has defeated all rivals in a competition", topic: "General" },
+            { word: "DELICATE", hint: "Very fine or subtle in quality or texture", topic: "General" },
+            { word: "ELEGANT", hint: "Pleasingly graceful and stylish in appearance or manner", topic: "General" },
+            { word: "FORESIGHT", hint: "The ability to predict what will happen or be needed in the future", topic: "Strategy" },
+            { word: "HARMONY", hint: "Agreement or concord between people or policy interests", topic: "General" },
+            { word: "INFLUENCE", hint: "The capacity to have an effect on the character, development, or behavior of someone", topic: "General" },
+            { word: "JOURNALISM", hint: "The activity or profession of writing for newspapers or news broadcasts", topic: "Civil Society" },
+            { word: "MILESTONE", hint: "An action or event marking a significant stage in a development", topic: "Workplace" },
+            { word: "NAVIGATION", hint: "The process or activity of accurately ascertaining one's position and planning a route", topic: "General" },
+            { word: "OPTIMISM", hint: "Hopefulness and confidence about the future or the success of something", topic: "General" },
+            { word: "PIONEER", hint: "A person who is among the first to explore or settle a new area or policy idea", topic: "General" },
+            { word: "QUALIFIED", hint: "Officially recognized as practitioner of a particular profession", topic: "Workplace" },
+            { word: "REVOLUTION", hint: "A forcible overthrow of a government or social order for a new system", topic: "Governance" },
+            { word: "TRANSITION", hint: "The process or a period of changing from one state or condition to another", topic: "General" },
+            { word: "UNITY", hint: "The state of being united or joined as a whole", topic: "Civil Society" },
+            { word: "VISIONARY", hint: "Thinking about or planning the future with imagination or wisdom", topic: "Strategy" }
+        ];
+
+        /* ==========================================================================
+           2. SYNTHESIZED WEB AUDIO & CONFETTI ENGINE
+           ========================================================================== */
+        class WebAudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            playCorrectChime() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.3);
+                });
+            }
+
+            playRevealSound() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(640, this.ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.12);
+            }
+
+            playTick() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.02);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.02);
+            }
+        }
+
+        const audio = new WebAudioEngine();
+
+        // Canvas Confetti
+        function triggerConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#F4B400', '#1E3A5F', '#F8F9FA', '#D9D9D9', '#10b981'];
+
+            for (let i = 0; i < 70; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: (Math.random() - 0.7) * 14,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rSpeed: (Math.random() - 0.5) * 10,
+                    opacity: 1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+
+                particles.forEach(p => {
+                    if (p.opacity > 0) {
+                        alive = true;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.3; // Gravity
+                        p.opacity -= 0.025;
+                        p.rotation += p.rSpeed;
+
+                        ctx.save();
+                        ctx.globalAlpha = Math.max(0, p.opacity);
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate((p.rotation * Math.PI) / 180);
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                        ctx.restore();
+                    }
+                });
+
+                if (alive) requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        /* ==========================================================================
+           3. APPLICATION STATE & DOM ELEMENTS
+           ========================================================================== */
+        const WORDS_PER_ROUND = 10;
+        const SCORE_PER_CORRECT = 1; // 1 point per correct answer
+
+        const state = {
+            masterPool: [],
+            shuffledQueue: [],
+            
+            currentRound: 1,
+            wordIndexInRound: 0, // 0 to 9
+            
+            roundScore: 0,
+            roundSolvedCount: 0,
+            cumulativeScore: 0,
+            cumulativeSolvedCount: 0,
+            
+            timerSeconds: 45,
+            timerInterval: null,
+            timerRunning: false,
+            
+            currentWordObj: null,
+            scrambledLetters: [],
+            revealedIndices: [],
+            isResolved: false,
+            
+            roundRecapHistory: []
+        };
+
+        const screens = {
+            setup: document.getElementById('setupScreen'),
+            game: document.getElementById('gameScreen'),
+            roundSummary: document.getElementById('roundSummaryScreen')
+        };
+
+        const ui = {
+            topStatsBar: document.getElementById('topStatsBar'),
+            topRoundDisplay: document.getElementById('topRoundDisplay'),
+            topScoreDisplay: document.getElementById('topScoreDisplay'),
+            topSolvedDisplay: document.getElementById('topSolvedDisplay'),
+            soundToggleBtn: document.getElementById('soundToggleBtn'),
+            soundIcon: document.getElementById('soundIcon'),
+            
+            roundBadge: document.getElementById('roundBadge'),
+            wordCategoryBadge: document.getElementById('wordCategoryBadge'),
+            currentWordNum: document.getElementById('currentWordNum'),
+            totalWordNum: document.getElementById('totalWordNum'),
+            timerText: document.getElementById('timerText'),
+            toggleTimerBtn: document.getElementById('toggleTimerBtn'),
+            
+            hintBox: document.getElementById('hintBox'),
+            hintContentText: document.getElementById('hintContentText'),
+            hintBtnText: document.getElementById('hintBtnText'),
+            projectorTilesContainer: document.getElementById('projectorTilesContainer'),
+            targetSlotsContainer: document.getElementById('targetSlotsContainer'),
+            feedbackBanner: document.getElementById('feedbackBanner'),
+            
+            btnToggleHint: document.getElementById('btnToggleHint'),
+            btnRevealLetter: document.getElementById('btnRevealLetter'),
+            btnReshuffle: document.getElementById('btnReshuffle'),
+            btnMarkCorrect: document.getElementById('btnMarkCorrect'),
+            btnRevealAnswer: document.getElementById('btnRevealAnswer'),
+            
+            roundSummaryTitle: document.getElementById('roundSummaryTitle'),
+            roundScoreText: document.getElementById('roundScoreText'),
+            totalScoreText: document.getElementById('totalScoreText'),
+            roundSolvedText: document.getElementById('roundSolvedText'),
+            roundAccuracyText: document.getElementById('roundAccuracyText'),
+            roundRecapTableBody: document.getElementById('roundRecapTableBody')
+        };
+
+        /* ==========================================================================
+           4. PRESENTATION FLOW LOGIC
+           ========================================================================== */
+        function switchScreen(screenName) {
+            Object.keys(screens).forEach(key => screens[key].classList.add('hidden'));
+            screens[screenName].classList.remove('hidden');
+            if (screenName === 'game') screens[screenName].classList.add('flex');
+        }
+
+        function initFullGameSession() {
+            // Shuffle all 100+ words
+            state.shuffledQueue = [...VOCAB_BANK].sort(() => Math.random() - 0.5);
+            state.currentRound = 1;
+            state.cumulativeScore = 0;
+            state.cumulativeSolvedCount = 0;
+            
+            startNewRound();
+        }
+
+        function startNewRound() {
+            state.wordIndexInRound = 0;
+            state.roundScore = 0;
+            state.roundSolvedCount = 0;
+            state.roundRecapHistory = [];
+
+            ui.topStatsBar.classList.remove('hidden');
+            ui.totalWordNum.textContent = WORDS_PER_ROUND;
+            ui.roundBadge.textContent = `ROUND ${state.currentRound}`;
+
+            updateTopStats();
+            switchScreen('game');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Check if queue ran out, reshuffle if needed
+            if (state.shuffledQueue.length === 0) {
+                state.shuffledQueue = [...VOCAB_BANK].sort(() => Math.random() - 0.5);
+            }
+
+            // Get current word
+            state.currentWordObj = state.shuffledQueue.pop();
+            state.revealedIndices = [];
+            state.isResolved = false;
+
+            ui.currentWordNum.textContent = state.wordIndexInRound + 1;
+            ui.wordCategoryBadge.textContent = state.currentWordObj.topic || 'GENERAL';
+            
+            ui.hintBox.classList.add('hidden');
+            ui.hintContentText.textContent = `"${state.currentWordObj.hint}"`;
+            ui.hintBtnText.textContent = "Show Hint (H)";
+
+            ui.feedbackBanner.classList.add('hidden');
+
+            scrambleWord();
+            renderTiles();
+            renderTargetSlots();
+            startTimer(45);
+        }
+
+        function scrambleWord() {
+            const word = state.currentWordObj.word;
+            let arr = word.split('');
+            do {
+                arr.sort(() => Math.random() - 0.5);
+            } while (arr.join('') === word && word.length > 3);
+
+            state.scrambledLetters = arr;
+        }
+
+        function renderTiles() {
+            ui.projectorTilesContainer.innerHTML = '';
+            const targetWord = state.currentWordObj.word;
+            const len = targetWord.length;
+
+            // Sizing optimal for 13-inch screen fit
+            let sizeClasses = "w-11 h-13 md:w-13 md:h-15 text-xl md:text-2xl";
+            if (len > 10) sizeClasses = "w-9 h-11 md:w-11 md:h-13 text-base md:text-xl";
+            if (len > 13) sizeClasses = "w-8 h-10 md:w-9 md:h-11 text-sm md:text-lg";
+
+            state.scrambledLetters.forEach((char, idx) => {
+                const tile = document.createElement('div');
+                tile.className = `${sizeClasses} rounded-xl font-black flex items-center justify-center animate-pop-in tile-scrambled text-indigo-100 cursor-pointer hover:scale-105 transition-transform`;
+                tile.style.animationDelay = `${idx * 0.03}s`;
+                tile.textContent = char;
+
+                tile.addEventListener('click', () => {
+                    audio.playClick();
+                    revealNextLetter();
+                });
+
+                ui.projectorTilesContainer.appendChild(tile);
+            });
+        }
+
+        function renderTargetSlots() {
+            ui.targetSlotsContainer.innerHTML = '';
+            const targetWord = state.currentWordObj.word;
+            const len = targetWord.length;
+
+            let sizeClasses = "w-9 h-11 md:w-11 md:h-13 text-base md:text-xl";
+            if (len > 10) sizeClasses = "w-8 h-10 md:w-9 md:h-11 text-sm md:text-lg";
+
+            targetWord.split('').forEach((char, idx) => {
+                const slot = document.createElement('div');
+                const isRevealed = state.revealedIndices.includes(idx) || state.isResolved;
+
+                if (isRevealed) {
+                    slot.className = `${sizeClasses} rounded-xl font-black flex items-center justify-center tile-revealed text-white scale-105 animate-pop-in`;
+                    slot.textContent = char;
+                } else {
+                    slot.className = `${sizeClasses} rounded-xl font-black flex items-center justify-center tile-blank text-slate-500`;
+                    slot.textContent = '_';
+                }
+
+                ui.targetSlotsContainer.appendChild(slot);
+            });
+        }
+
+        function reshuffleTiles() {
+            if (state.isResolved) return;
+            audio.playClick();
+            scrambleWord();
+            renderTiles();
+        }
+
+        function toggleHint() {
+            audio.playClick();
+            const isHidden = ui.hintBox.classList.contains('hidden');
+            if (isHidden) {
+                ui.hintBox.classList.remove('hidden');
+                ui.hintBtnText.textContent = "Hide Hint (H)";
+            } else {
+                ui.hintBox.classList.add('hidden');
+                ui.hintBtnText.textContent = "Show Hint (H)";
+            }
+        }
+
+        function revealNextLetter() {
+            if (state.isResolved) return;
+
+            const targetWord = state.currentWordObj.word;
+            for (let i = 0; i < targetWord.length; i++) {
+                if (!state.revealedIndices.includes(i)) {
+                    state.revealedIndices.push(i);
+                    audio.playRevealSound();
+                    break;
+                }
+            }
+
+            if (state.revealedIndices.length >= targetWord.length) {
+                state.isResolved = true;
+            }
+
+            renderTargetSlots();
+        }
+
+        function markCorrect() {
+            if (state.isResolved) return;
+            state.isResolved = true;
+            stopTimer();
+
+            audio.playCorrectChime();
+            triggerConfetti();
+
+            state.roundScore += SCORE_PER_CORRECT;
+            state.cumulativeScore += SCORE_PER_CORRECT;
+            state.roundSolvedCount++;
+            state.cumulativeSolvedCount++;
+
+            state.roundRecapHistory.push({
+                word: state.currentWordObj.word,
+                hint: state.currentWordObj.hint,
+                status: 'CORRECT'
+            });
+
+            updateTopStats();
+            renderTargetSlots();
+
+            ui.feedbackBanner.className = "px-6 py-1.5 rounded-xl font-black text-xs md:text-sm tracking-wide uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pop-in";
+            ui.feedbackBanner.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Correct Answer! +${SCORE_PER_CORRECT} Point`;
+            ui.feedbackBanner.classList.remove('hidden');
+
+            advanceNextQuestion();
+        }
+
+        function revealAnswerAndSkip() {
+            if (state.isResolved) return;
+            state.isResolved = true;
+            stopTimer();
+
+            audio.playRevealSound();
+
+            state.roundRecapHistory.push({
+                word: state.currentWordObj.word,
+                hint: state.currentWordObj.hint,
+                status: 'REVEALED'
+            });
+
+            renderTargetSlots();
+
+            ui.feedbackBanner.className = "px-6 py-1.5 rounded-xl font-black text-xs md:text-sm tracking-wide uppercase bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pop-in";
+            ui.feedbackBanner.innerHTML = `<i class="fa-solid fa-key mr-2"></i> Term Revealed: ${state.currentWordObj.word}`;
+            ui.feedbackBanner.classList.remove('hidden');
+
+            advanceNextQuestion();
+        }
+
+        function advanceNextQuestion() {
+            setTimeout(() => {
+                state.wordIndexInRound++;
+                if (state.wordIndexInRound >= WORDS_PER_ROUND) {
+                    showRoundSummary();
+                } else {
+                    loadQuestion();
+                }
+            }, 1800);
+        }
+
+        /* ==========================================================================
+           5. TIMER & HUD REFRESH
+           ========================================================================== */
+        function startTimer(seconds) {
+            stopTimer();
+            state.timerSeconds = seconds;
+            state.timerRunning = true;
+            updateTimerDisplay();
+
+            state.timerInterval = setInterval(() => {
+                if (!state.timerRunning) return;
+                state.timerSeconds--;
+                updateTimerDisplay();
+
+                if (state.timerSeconds <= 5 && state.timerSeconds > 0) audio.playTick();
+                if (state.timerSeconds <= 0) stopTimer();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+            state.timerRunning = false;
+        }
+
+        function toggleTimer() {
+            audio.playClick();
+            state.timerRunning = !state.timerRunning;
+            ui.toggleTimerBtn.textContent = state.timerRunning ? 'Pause' : 'Resume';
+            ui.toggleTimerBtn.className = state.timerRunning 
+                ? 'text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors'
+                : 'text-[10px] font-bold px-2 py-0.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors';
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(state.timerSeconds / 60);
+            const secs = state.timerSeconds % 60;
+            ui.timerText.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTopStats() {
+            ui.topRoundDisplay.textContent = state.currentRound;
+            ui.topScoreDisplay.textContent = state.cumulativeScore;
+            ui.topSolvedDisplay.textContent = state.cumulativeSolvedCount;
+        }
+
+        function showRoundSummary() {
+            stopTimer();
+            switchScreen('roundSummary');
+
+            const accuracy = Math.round((state.roundSolvedCount / WORDS_PER_ROUND) * 100);
+
+            ui.roundSummaryTitle.textContent = `Round ${state.currentRound} Completed!`;
+            ui.roundScoreText.textContent = `+${state.roundScore}`;
+            ui.totalScoreText.textContent = state.cumulativeScore;
+            ui.roundSolvedText.textContent = `${state.roundSolvedCount} / ${WORDS_PER_ROUND}`;
+            ui.roundAccuracyText.textContent = `${accuracy}%`;
+
+            ui.roundRecapTableBody.innerHTML = '';
+            state.roundRecapHistory.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-2 font-bold text-slate-500">${index + 1}</td>
+                    <td class="p-2 font-black text-indigo-300 tracking-wide">${item.word}</td>
+                    <td class="p-2 text-slate-300 italic truncate max-w-xs">${item.hint}</td>
+                    <td class="p-2 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
+                            item.status === 'CORRECT' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                        }">
+                            ${item.status}
+                        </span>
+                    </td>
+                `;
+                ui.roundRecapTableBody.appendChild(tr);
+            });
+        }
+
+        /* ==========================================================================
+           6. EVENT CONTROLLERS & HOTKEYS
+           ========================================================================== */
+        document.getElementById('startSessionBtn').addEventListener('click', () => {
+            audio.playClick();
+            initFullGameSession();
+        });
+
+        ui.btnToggleHint.addEventListener('click', toggleHint);
+        ui.btnRevealLetter.addEventListener('click', revealNextLetter);
+        ui.btnReshuffle.addEventListener('click', reshuffleTiles);
+        ui.btnMarkCorrect.addEventListener('click', markCorrect);
+        ui.btnRevealAnswer.addEventListener('click', revealAnswerAndSkip);
+        ui.toggleTimerBtn.addEventListener('click', toggleTimer);
+
+        document.getElementById('btnNextRound').addEventListener('click', () => {
+            audio.playClick();
+            state.currentRound++;
+            startNewRound();
+        });
+
+        document.getElementById('btnFinishSession').addEventListener('click', () => {
+            audio.playClick();
+            ui.topStatsBar.classList.add('hidden');
+            switchScreen('setup');
+        });
+
+        ui.soundToggleBtn.addEventListener('click', () => {
+            audio.enabled = !audio.enabled;
+            ui.soundIcon.className = audio.enabled ? 'fa-solid fa-volume-high text-xs' : 'fa-solid fa-volume-xmark text-xs text-slate-500';
+        });
+
+        // Facilitator Keyboard Hotkeys
+        window.addEventListener('keydown', (e) => {
+            if (screens.game.classList.contains('hidden')) return;
+
+            if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                markCorrect();
+            } else if (e.key === 'h' || e.key === 'H') {
+                toggleHint();
+            } else if (e.key === 's' || e.key === 'S') {
+                reshuffleTiles();
+            } else if (e.key === 'r' || e.key === 'R') {
+                revealNextLetter();
+            } else if (e.key === 'a' || e.key === 'A') {
+                revealAnswerAndSkip();
+            }
+        });
+    </script>
+</body>
+</html>
