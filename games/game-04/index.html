@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-Minute Impromptu: Speak Up!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="../../Favicon.png">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden; /* Strict fit for 13-inch displays and projectors */
+        }
+
+        body {
+            background: #0b1523;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(244, 180, 0, 0.18) 0px, transparent 45%),
+                radial-gradient(at 100% 100%, rgba(30, 58, 95, 0.85) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(11, 21, 35, 0.98) 0px, transparent 100%);
+            color: #F8F9FA;
+        }
+
+        .glass-panel {
+            background: rgba(30, 58, 95, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(217, 217, 217, 0.25);
+            box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(248, 249, 250, 0.15);
+        }
+
+        .glass-card {
+            background: rgba(15, 30, 51, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(217, 217, 217, 0.2);
+        }
+
+        .topic-card {
+            background: linear-gradient(145deg, rgba(30, 58, 95, 0.95), rgba(15, 30, 51, 0.98));
+            border: 2px solid #F4B400;
+            box-shadow: 0 16px 32px -8px rgba(244, 180, 0, 0.25), inset 0 1px 2px rgba(248, 249, 250, 0.2);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.88) translateY(8px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .animate-pop-in {
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .animate-shake {
+            animation: shake 0.35s ease-in-out;
+        }
+
+        /* Circular Timer Progress Ring */
+        .timer-ring-circle {
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 30, 51, 0.5);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #F4B400;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between relative text-[#F8F9FA] p-2 sm:p-3">
+
+    <!-- HEADER / TOP HUD -->
+    <header class="w-full max-w-7xl mx-auto flex justify-between items-center px-4 py-2 glass-panel rounded-2xl border border-[#D9D9D9]/20 shadow-lg shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-[#F4B400] text-[#1E3A5F] flex items-center justify-center text-lg font-black shadow-lg shadow-[#F4B400]/20 border border-[#F8F9FA]/40">
+                <i class="fa-solid fa-microphone-lines"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-base md:text-lg tracking-tight text-[#F8F9FA] leading-none">
+                    1-MINUTE <span class="text-[#F4B400]">IMPROMPTU</span>
+                </h1>
+                <p class="text-[9px] md:text-[10px] text-[#D9D9D9] font-semibold uppercase tracking-wider mt-0.5">Campus English Classroom Edition</p>
+            </div>
+        </div>
+
+        <!-- Class Stats Header HUD -->
+        <div id="topStatsBar" class="hidden flex items-center gap-2.5 md:gap-4">
+            <div class="flex items-center gap-2 px-2.5 py-1 rounded-xl glass-card border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-layer-group text-[#F4B400] text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-[#D9D9D9] leading-none">Session Mode</p>
+                    <p id="topRoundDisplay" class="text-xs font-black text-[#F4B400] leading-none mt-0.5">OPEN DECK</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 px-2.5 py-1 rounded-xl glass-card border border-[#F4B400]/40 bg-[#F4B400]/10">
+                <i class="fa-solid fa-comments text-[#F4B400] text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-[#D9D9D9] leading-none">Topics Done</p>
+                    <p id="topTopicCounter" class="text-xs font-black text-[#F4B400] leading-none mt-0.5">TOPIC 1</p>
+                </div>
+            </div>
+
+            <!-- Active Team Display HUD -->
+            <div id="hudTeamA" class="flex items-center gap-2 px-3 py-1 rounded-xl glass-card border-2 border-[#F4B400] bg-[#F4B400]/10 transition-all cursor-pointer">
+                <i class="fa-solid fa-users text-[#F4B400] text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-[#D9D9D9] leading-none">Team A</p>
+                    <p id="topScoreA" class="text-xs font-black text-[#F4B400] leading-none mt-0.5">0 PTS</p>
+                </div>
+            </div>
+
+            <div id="hudTeamB" class="flex items-center gap-2 px-3 py-1 rounded-xl glass-card border border-[#D9D9D9]/20 opacity-60 transition-all cursor-pointer">
+                <i class="fa-solid fa-users text-[#D9D9D9] text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-[#D9D9D9] leading-none">Team B</p>
+                    <p id="topScoreB" class="text-xs font-black text-[#F8F9FA] leading-none mt-0.5">0 PTS</p>
+                </div>
+            </div>
+
+            <!-- End Session Button -->
+            <button id="btnEndSession" title="End Game Session" class="px-3 py-1.5 rounded-xl bg-rose-600/30 border border-rose-500/50 hover:bg-rose-600/60 text-rose-300 transition-all flex items-center gap-1.5 text-xs font-black cursor-pointer active:scale-95">
+                <i class="fa-solid fa-flag-checkered text-rose-400"></i>
+                <span class="hidden sm:inline">END SESSION</span>
+            </button>
+
+            <!-- Sound Toggle Button -->
+            <button id="soundToggleBtn" title="Toggle Sound" class="w-8 h-8 rounded-xl glass-card flex items-center justify-center text-[#F8F9FA] hover:bg-[#1E3A5F] transition-all border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-volume-high text-xs" id="soundIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN GAME AREA -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col justify-center items-center relative z-10 py-1 my-auto overflow-hidden">
+
+        <!-- ==========================================================================
+             1. SETUP SCREEN
+             ========================================================================== -->
+        <section id="setupScreen" class="w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-[#D9D9D9]/25 animate-pop-in my-auto text-center">
+            <div class="w-14 h-14 rounded-2xl bg-[#F4B400]/20 text-[#F4B400] flex items-center justify-center text-3xl mx-auto mb-3 border border-[#F4B400]/30 shadow-lg shadow-[#F4B400]/10">
+                <i class="fa-solid fa-[#F4B400] fa-comments"></i>
+            </div>
+            
+            <span class="px-4 py-1 rounded-full text-xs font-extrabold bg-[#F4B400]/20 text-[#F4B400] border border-[#F4B400]/30 uppercase tracking-widest inline-block mb-2">
+                1-MINUTE IMPROMPTU CHALLENGE
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black text-[#F8F9FA]">Speak Up or Pass!</h2>
+            <p class="text-[#D9D9D9] text-xs md:text-sm mt-1 mb-5 max-w-xl mx-auto">
+                No prep time! Get a random relatable topic, read the guiding prompts, and talk continuously in English for 60 seconds!
+            </p>
+
+            <!-- Gameplay Rules and Hotkeys -->
+            <div class="bg-[#0f1e33]/90 rounded-2xl p-4 sm:p-5 border border-[#D9D9D9]/20 mb-6 text-left shadow-inner">
+                <div class="flex items-center gap-2 mb-3 border-b border-[#D9D9D9]/20 pb-2">
+                    <i class="fa-solid fa-book-open-reader text-[#F4B400] text-sm"></i>
+                    <h3 class="text-xs md:text-sm font-extrabold uppercase tracking-wider text-[#F8F9FA]">Session Rules & Hotkeys</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-xs md:text-sm text-[#F8F9FA]">
+                    <div class="space-y-1.5">
+                        <p class="font-bold text-[#F4B400] text-xs uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-bullhorn"></i> How To Play
+                        </p>
+                        <ul class="space-y-1 text-xs text-[#D9D9D9]">
+                            <li class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-circle-dot text-[8px] text-[#F4B400] mt-1 shrink-0"></i>
+                                <span><b>1 Minute Timer:</b> Speak until the chime sounds!</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-circle-dot text-[8px] text-[#F4B400] mt-1 shrink-0"></i>
+                                <span><b>Use Prompts:</b> Follow the 3 guiding bullet points if you get stuck.</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-circle-dot text-[8px] text-[#F4B400] mt-1 shrink-0"></i>
+                                <span><b>Scoring:</b> Complete 60s continuously = <b>+1 Point</b> for active team.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <p class="font-bold text-[#F4B400] text-xs uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-keyboard"></i> Facilitator Hotkeys
+                        </p>
+                        <ul class="space-y-1 text-xs text-[#D9D9D9]">
+                            <li><kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono text-xs">Space</kbd> Start Timer / Spin Next Topic</li>
+                            <li><kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono text-xs">C</kbd> / <kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono text-xs">Enter</kbd> Mark Completed (+1 Pt)</li>
+                            <li><kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono text-xs">S</kbd> Skip Topic | <kbd class="px-1.5 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono text-xs">P</kbd> Pause/Resume Timer</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team & Mode Options -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mb-6">
+                <!-- Select Starting Team -->
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-[#D9D9D9]">First Turn:</span>
+                    <div class="flex gap-2">
+                        <button class="team-opt px-4 py-1.5 rounded-xl bg-[#0f1e33] border border-[#F4B400] text-[#F4B400] font-black text-xs md:text-sm" data-team="TEAM A">Team A</button>
+                        <button class="team-opt px-4 py-1.5 rounded-xl bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#D9D9D9] font-bold text-xs md:text-sm" data-team="TEAM B">Team B</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button id="startGameBtn" class="px-8 py-3.5 rounded-2xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-black text-xs md:text-sm shadow-xl shadow-[#F4B400]/20 transition-all flex items-center justify-center gap-2 border border-[#F8F9FA]/40 mx-auto active:scale-95">
+                <i class="fa-solid fa-play text-base"></i>
+                <span>Start Impromptu Session</span>
+            </button>
+        </section>
+
+        <!-- ==========================================================================
+             2. GAME PLAY SCREEN (COMPACT 100VH FIT FOR 13-INCH SCREEN & PROJECTOR)
+             ========================================================================== -->
+        <section id="gameScreen" class="w-full max-w-5xl hidden flex-col justify-between h-full py-1 gap-2">
+
+            <!-- Round Header Bar -->
+            <div class="w-full glass-panel px-3 py-1.5 rounded-2xl flex justify-between items-center border border-[#D9D9D9]/20 shadow-md shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="topicCategoryBadge" class="px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-[#F4B400]/20 text-[#F4B400] border border-[#F4B400]/40 uppercase tracking-wider">
+                        💖 RELATIONSHIPS & DATING
+                    </span>
+                </div>
+
+                <!-- Active Turn Badge -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] uppercase font-bold text-[#D9D9D9]">ACTIVE SPEAKER:</span>
+                    <span id="activeTurnBadge" class="px-3 py-1 rounded-xl bg-[#F4B400] text-[#1E3A5F] font-black text-xs uppercase shadow-md shadow-[#F4B400]/20">
+                        TEAM A
+                    </span>
+                </div>
+
+                <!-- Controls Pause -->
+                <div class="flex items-center gap-2">
+                    <button id="pauseTimerBtn" class="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-[#0f1e33] border border-[#D9D9D9]/30 hover:bg-[#152843] text-[#F8F9FA] transition-colors flex items-center gap-1">
+                        <i id="pauseIcon" class="fa-solid fa-pause text-[#F4B400]"></i>
+                        <span id="pauseText">Pause</span> <kbd class="bg-[#1E3A5F] text-[#F4B400] px-1 rounded text-[8px] font-mono">P</kbd>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MAIN TOPIC DISPLAY CARD -->
+            <div id="cardContainer" class="w-full flex-1 max-w-4xl mx-auto topic-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden animate-pop-in shrink min-h-0 my-1">
+                
+                <!-- Circular Animated Timer Bar Header -->
+                <div class="w-full flex justify-between items-center px-4 border-b border-[#F4B400]/20 pb-2 shrink-0">
+                    <div class="text-left">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-[#D9D9D9]">SPEECH DURATION</span>
+                        <h4 class="text-xs font-extrabold text-[#F4B400] uppercase tracking-wider">
+                            60 SECONDS
+                        </h4>
+                    </div>
+
+                    <!-- Circular Timer Graphic -->
+                    <div class="relative w-16 h-16 flex items-center justify-center">
+                        <svg class="w-16 h-16">
+                            <circle class="text-[#0f1e33]" stroke-width="4" stroke="currentColor" fill="transparent" r="26" cx="32" cy="32"/>
+                            <circle id="timerRing" class="timer-ring-circle text-[#F4B400]" stroke-width="4" stroke-dasharray="163" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="26" cx="32" cy="32"/>
+                        </svg>
+                        <span id="timerText" class="absolute font-black text-lg text-[#F8F9FA]">60</span>
+                    </div>
+
+                    <div class="text-right">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-[#D9D9D9]">STATUS</span>
+                        <div class="flex items-center justify-end gap-1">
+                            <span id="speechStatus" class="text-xs font-black text-emerald-400 uppercase">READY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Topic Title & Prompts -->
+                <div class="my-auto py-2 shrink-0 w-full px-2">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-[#F4B400] mb-1 block">
+                        TODAY'S TOPIC
+                    </span>
+                    
+                    <h2 id="currentTopicTitle" class="text-2xl sm:text-3xl md:text-4xl font-black text-[#F8F9FA] tracking-tight leading-snug mb-3">
+                        "Ghosting vs Talking Stage: Why do people suddenly disappear?"
+                    </h2>
+
+                    <!-- Guiding Prompts Box -->
+                    <div class="bg-[#0f1e33]/90 rounded-2xl p-3 border border-[#D9D9D9]/20 max-w-2xl mx-auto text-left shadow-inner">
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#F4B400] block mb-1">
+                            <i class="fa-solid fa-lightbulb mr-1"></i> Guiding Prompts (Helpful Ideas):
+                        </span>
+                        <ul id="guidingPromptsList" class="space-y-1 text-xs text-[#D9D9D9]">
+                            <li class="flex items-start gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-[#F4B400] mt-0.5 shrink-0"></i> <span>Have you ever been ghosted or ghosted someone? Why?</span></li>
+                            <li class="flex items-start gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-[#F4B400] mt-0.5 shrink-0"></i> <span>Is it better to tell the truth or just block someone?</span></li>
+                            <li class="flex items-start gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-[#F4B400] mt-0.5 shrink-0"></i> <span>What is the biggest red flag during the talking stage?</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Timer Controls Bar -->
+                <div class="w-full flex justify-center items-center gap-3 shrink-0 mt-1">
+                    <button id="btnStartTimer" class="px-6 py-2 rounded-xl bg-[#F4B400] text-[#1E3A5F] font-black text-xs hover:bg-[#e0a500] transition-all shadow-lg active:scale-95 flex items-center gap-1.5">
+                        <i class="fa-solid fa-play"></i> START 60s TIMER
+                    </button>
+                </div>
+            </div>
+
+            <!-- FACILITATOR CONTROLS WITH HOTKEY BADGES -->
+            <div class="w-full glass-panel p-2 rounded-2xl border border-[#D9D9D9]/20 shadow-lg shrink-0">
+                <div class="grid grid-cols-3 gap-2 max-w-2xl mx-auto">
+                    <button id="btnSkip" class="py-2.5 px-2 rounded-xl bg-[#0f1e33] hover:bg-[#152843] text-[#F8F9FA] border border-[#D9D9D9]/30 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                        <i class="fa-solid fa-arrows-rotate text-amber-400 text-xs"></i>
+                        <span>SKIP TOPIC</span>
+                        <kbd class="hidden sm:inline-block bg-[#1a3357] text-amber-300 px-1 py-0.5 rounded text-[9px] font-mono">S</kbd>
+                    </button>
+
+                    <button id="btnSpinNext" class="py-2.5 px-2 rounded-xl bg-[#1E3A5F] hover:bg-[#254773] text-[#F4B400] border border-[#F4B400]/40 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                        <i class="fa-solid fa-dice text-sm"></i>
+                        <span>SPIN NEW TOPIC</span>
+                        <kbd class="hidden sm:inline-block bg-[#0f1e33] text-[#F4B400] px-1 py-0.5 rounded text-[9px] font-mono">Space</kbd>
+                    </button>
+
+                    <button id="btnComplete" class="py-2.5 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95 border border-[#F8F9FA]/40">
+                        <i class="fa-solid fa-circle-check text-sm"></i>
+                        <span>COMPLETE (+1 PT)</span>
+                        <kbd class="hidden sm:inline-block bg-emerald-900 text-emerald-200 px-1 py-0.5 rounded text-[9px] font-mono">C / Enter</kbd>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             3. FINAL SUMMARY MODAL
+             ========================================================================== -->
+        <section id="summaryScreen" class="w-full max-w-xl glass-panel p-5 rounded-3xl shadow-2xl border border-[#D9D9D9]/25 hidden flex-col items-center text-center animate-pop-in my-auto">
+            <div class="w-12 h-12 rounded-2xl bg-[#F4B400]/20 text-[#F4B400] flex items-center justify-center text-2xl mb-2 border border-[#F4B400]/30">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 class="text-2xl font-black text-[#F8F9FA]">Session Complete!</h2>
+            <p id="summaryWinner" class="text-[#F4B400] font-black text-lg mt-0.5 mb-4 uppercase tracking-wide">
+                🏆 TEAM A WINS THE MATCH!
+            </p>
+
+            <div class="grid grid-cols-2 gap-3 w-full mb-5">
+                <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
+                    <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-1">TEAM A FINAL SCORE</p>
+                    <p id="summaryScoreA" class="text-3xl font-black text-[#F4B400]">0 PTS</p>
+                </div>
+                <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
+                    <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-1">TEAM B FINAL SCORE</p>
+                    <p id="summaryScoreB" class="text-3xl font-black text-[#F8F9FA]">0 PTS</p>
+                </div>
+            </div>
+
+            <button id="btnBackToSetup" class="py-2.5 px-6 rounded-xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-black text-xs shadow-lg shadow-[#F4B400]/20 transition-all border border-[#F8F9FA]/40">
+                <i class="fa-solid fa-house mr-1.5"></i> Start New Session
+            </button>
+        </section>
+
+    </main>
+
+    <script>
+        /* ==========================================================================
+           1. TOPICS & GUIDING PROMPTS BANK (60+ SHORT CONCEPT TOPICS)
+           ========================================================================== */
+        const TOPIC_BANK = [
+            // 💖 RELATIONSHIPS & DATING
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "GHOSTING",
+                prompts: [
+                    "Have you ever been ghosted or ghosted someone? Why?",
+                    "Is it better to tell the harsh truth or just block someone?",
+                    "What is the biggest red flag during the talking stage?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "LDR (LONG DISTANCE)",
+                prompts: [
+                    "Can long-distance relationships really survive long term?",
+                    "What is the hardest part about maintaining trust from far away?",
+                    "Does technology make LDR easier or more suffocating?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "RED FLAGS",
+                prompts: [
+                    "What is an instant red flag in someone's behavior?",
+                    "Have you ever ignored a red flag because you liked someone?",
+                    "Is being overly attached early on a red flag or sweet?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "SITUATIONSHIP",
+                prompts: [
+                    "Why do so many young people avoid official labels?",
+                    "What is the main difference between dating and a situationship?",
+                    "How do you get out of a situationship without getting hurt?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "STAYING FRIENDS WITH AN EX",
+                prompts: [
+                    "Can exes genuinely stay purely platonic friends?",
+                    "How would your future partner feel about your ex-friend?",
+                    "When is it mandatory to cut ties completely?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "LOVE LANGUAGES",
+                prompts: [
+                    "What is your primary love language (words, gifts, touch)?",
+                    "Can two people with opposite love languages survive?",
+                    "How do you express care when you are busy or stressed?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "FIRST DATES & BILL SPLITTING",
+                prompts: [
+                    "Who should pay on the first date and why?",
+                    "What is the worst possible location for a first date?",
+                    "How do you know if a first date went really well?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "CRUSH & HEARTBREAK",
+                prompts: [
+                    "What is the fastest way to get over someone you liked?",
+                    "Have you ever confessed your feelings and gotten rejected?",
+                    "Is it better to love someone or be loved by someone?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "MEETING THE PARENTS",
+                prompts: [
+                    "What is the most nerve-wracking part about meeting a partner's family?",
+                    "How do you make a great first impression on parents?",
+                    "What if your parents don't approve of your partner?"
+                ]
+            },
+            {
+                category: "💖 RELATIONSHIPS & DATING",
+                title: "JEALOUSY & INSECURITY",
+                prompts: [
+                    "Is a little bit of jealousy healthy in a relationship?",
+                    "How do you handle it when your partner has close attractive friends?",
+                    "What causes insecurity in modern relationships?"
+                ]
+            },
+
+            // 📱 TECH & SOCIAL MEDIA
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "DOOMSCROLLING",
+                prompts: [
+                    "How many hours do you spend on short videos daily?",
+                    "Do short videos ruin your daily focus and attention span?",
+                    "What would you do if social media was banned for a month?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "AI & CHATGPT",
+                prompts: [
+                    "Do you use AI tools for assignments or brainstorming ideas?",
+                    "Is relying on AI making students lazy or more productive?",
+                    "What job will AI never be able to replace?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "FINSTA & SECRET ACCOUNTS",
+                prompts: [
+                    "Why do people create second private accounts on social media?",
+                    "Do people post fake happy lives on their main profile?",
+                    "Should your lecturer or boss follow your personal account?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "CANCEL CULTURE",
+                prompts: [
+                    "Is cancel culture effective accountability or internet bullying?",
+                    "Should people be forgiven for mistakes they made years ago?",
+                    "Have you ever unfollowed an influencer because of a controversy?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "DIGITAL DETOX",
+                prompts: [
+                    "How long could you survive without checking your smartphone?",
+                    "Do you feel anxious when your battery drops below 10%?",
+                    "What are the benefits of turning off all notifications?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "BRAIN ROT & INTERNET SLANG",
+                prompts: [
+                    "What is the most annoying internet slang phrase right now?",
+                    "Does online meme culture make our vocabulary worse or funnier?",
+                    "How do you explain modern internet humor to older generations?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "ONLINE SHOPPING & IMPULSE BUYS",
+                prompts: [
+                    "What is the most useless thing you bought because of a sale?",
+                    "Do targeted online ads feel convenient or creepy?",
+                    "How do you stop yourself from adding items to your cart late at night?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "E-SPORTS & GAMING",
+                prompts: [
+                    "Is playing video games a valid career path or just a hobby?",
+                    "Have you ever lost sleep or skipped class because of a game?",
+                    "Why do people get so emotional and toxic while gaming?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "CYBERBULLYING & ANONYMITY",
+                prompts: [
+                    "Why are people meaner when commenting anonymously online?",
+                    "How can social media platforms protect young users better?",
+                    "Have you ever witnessed or defended someone getting hate online?"
+                ]
+            },
+            {
+                category: "📱 TECH & SOCIAL MEDIA",
+                title: "INFLUENCER CULTURE",
+                prompts: [
+                    "Do you trust product recommendations from influencers?",
+                    "Is being a content creator harder than a traditional job?",
+                    "Who is your favorite content creator and why?"
+                ]
+            },
+
+            // ☕ FOOD & LIFESTYLE
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "COFFEE ADDICTION",
+                prompts: [
+                    "Is coffee holding your life together or can you survive without it?",
+                    "What is your exact coffee order when you visit a cafe?",
+                    "How much money do you spend on drinks per week?"
+                ]
+            },
+            {
+                category: "🍕 FOOD & LIFESTYLE",
+                title: "PINEAPPLE ON PIZZA",
+                prompts: [
+                    "Is pineapple acceptable on pizza or an absolute crime?",
+                    "What popular food or drink do you secretly hate?",
+                    "What is your ultimate late-night comfort snack?"
+                ]
+            },
+            {
+                category: "🍕 FOOD & LIFESTYLE",
+                title: "STREET FOOD vs FINE DINING",
+                prompts: [
+                    "Why does street food often taste better than expensive restaurants?",
+                    "What is the best street food dish in your city?",
+                    "Have you ever gotten food poisoning from eating out?"
+                ]
+            },
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "SLOW LIVING vs HUSTLE",
+                prompts: [
+                    "Do you prefer a peaceful slow life or a busy fast-paced environment?",
+                    "Is glorifying working 18 hours a day healthy or toxic?",
+                    "What does a perfect relaxing weekend look like for you?"
+                ]
+            },
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "FAST FASHION & THRIFTING",
+                prompts: [
+                    "Do you buy secondhand clothes or prefer brand new items?",
+                    "Is fast fashion ethical considering its impact on the planet?",
+                    "How would you describe your personal daily style?"
+                ]
+            },
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "MINIMALISM",
+                prompts: [
+                    "Could you live with only 100 personal items?",
+                    "Does owning fewer things make a person happier?",
+                    "What room in your house has the most unnecessary clutter?"
+                ]
+            },
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "PET PARENTING",
+                prompts: [
+                    "Are you a cat person, a dog person, or neither?",
+                    "Is treating pets like actual human children normal or extreme?",
+                    "What is the funniest thing your pet has ever done?"
+                ]
+            },
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "SOLO TRAVEL",
+                prompts: [
+                    "Would you ever travel to a foreign country completely alone?",
+                    "What are the advantages of solo trips over group vacations?",
+                    "Where is your dream destination in the world?"
+                ]
+            },
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "GYM & FITNESS TRENDS",
+                prompts: [
+                    "Do you go to the gym for health or just aesthetics?",
+                    "What is the hardest workout or sport you have tried?",
+                    "How do you motivate yourself to exercise when tired?"
+                ]
+            },
+            {
+                category: "☕ FOOD & LIFESTYLE",
+                title: "NIGHT OWL vs EARLY BIRD",
+                prompts: [
+                    "At what time of day do you feel most creative and productive?",
+                    "Can a natural night owl force themselves to become an early bird?",
+                    "What is your regular sleeping schedule on weekends?"
+                ]
+            },
+
+            // 🏫 CAMPUS & CAREER
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "PROCRASTINATION",
+                prompts: [
+                    "Why do we delay tasks until 2 hours before the deadline?",
+                    "What is your favorite activity to do when avoiding studying?",
+                    "How do you force yourself to start working on a hard task?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "GROUP PROJECTS",
+                prompts: [
+                    "Have you ever carried teammates who contributed nothing?",
+                    "How do you politely confront someone who misses team deadlines?",
+                    "Do you prefer working completely solo or in a group?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "IMPOSTER SYNDROME",
+                prompts: [
+                    "Have you ever felt like you didn't deserve your achievements?",
+                    "How do you deal with self-doubt when around smart peers?",
+                    "Who do you talk to when feeling incompetent?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "PUBLIC SPEAKING",
+                prompts: [
+                    "Do your hands shake or heart race when speaking on stage?",
+                    "What is your secret trick to stay calm during presentations?",
+                    "Is public speaking a natural talent or a learned skill?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "SIDE HUSTLE",
+                prompts: [
+                    "Should every student have a side business or freelance job?",
+                    "What is a creative way for students to earn extra income?",
+                    "How do you balance working while studying full time?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "NEPO BABY & FAVORTISM",
+                prompts: [
+                    "Is family background more important than hard work today?",
+                    "Have you ever experienced unfair treatment in class or work?",
+                    "How do you build connections if you don't have insiders?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "BURNOUT",
+                prompts: [
+                    "What are the physical symptoms when you are overworking?",
+                    "How do you recover when you feel mentally exhausted?",
+                    "Is taking a semester break a smart idea or a delay?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "WORK-LIFE BALANCE",
+                prompts: [
+                    "Is it possible to achieve true balance as a college student?",
+                    "Should you answer work or campus messages after 8 PM?",
+                    "What activity helps you unplug completely from tasks?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "CAMPUS ORGANIZATIONS",
+                prompts: [
+                    "Are campus committees worth the stress and lost sleep?",
+                    "What key leadership skill did you learn outside lectures?",
+                    "Is joining too many student clubs a mistake?"
+                ]
+            },
+            {
+                category: "🏫 CAMPUS & CAREER",
+                title: "SCHOLARSHIP HUNTING",
+                prompts: [
+                    "What is the most difficult part of scholarship essays?",
+                    "How do you make your resume stand out from thousands?",
+                    "Would you study abroad if given a full scholarship?"
+                ]
+            },
+
+            // ☕ GOSSIP & POP CULTURE
+            {
+                category: "☕ GOSSIP & POP CULTURE",
+                title: "NEPO BABIES IN HOLLYWOOD",
+                prompts: [
+                    "Is famous parents' influence unfair to self-made artists?",
+                    "Can a nepo baby still be genuinely talented and deserving?",
+                    "Who is a famous person you admire for working hard?"
+                ]
+            },
+            {
+                category: "☕ GOSSIP & POP CULTURE",
+                title: "REALITY TV & DRAMA",
+                prompts: [
+                    "Why is watching staged argument drama so entertaining?",
+                    "What reality show or competition do you secretly watch?",
+                    "Would you ever agree to participate in a reality TV show?"
+                ]
+            },
+            {
+                category: "☕ GOSSIP & POP CULTURE",
+                title: "NETFLIX BINGE-WATCHING",
+                prompts: [
+                    "What series did you finish in a single weekend?",
+                    "Is binge-watching ruining our appreciation for movies?",
+                    "Do you prefer watching shows alone or with friends?"
+                ]
+            },
+            {
+                category: "☕ GOSSIP & POP CULTURE",
+                title: "SPOILERS & FAN THEORIES",
+                prompts: [
+                    "How do you react when someone spoils a movie ending?",
+                    "Have you ever spent hours reading crazy fan theories online?",
+                    "What is a movie ending that completely disappointed you?"
+                ]
+            },
+            {
+                category: "☕ GOSSIP & POP CULTURE",
+                title: "UNPOPULAR OPINIONS",
+                prompts: [
+                    "What popular movie or music artist do you think is overrated?",
+                    "Share one opinion that usually gets people arguing with you.",
+                    "Why do people feel defensive about their entertainment taste?"
+                ]
+            },
+            {
+                category: "☕ GOSSIP & POP CULTURE",
+                title: "CONCERT TICKETS & SCALPERS",
+                prompts: [
+                    "How much money is too much money for a 2-hour concert?",
+                    "Have you ever fought online to buy ticket queues?",
+                    "Is watching live music worth standing in crowds for hours?"
+                ]
+            },
+
+            // 🧠 MINDSET & WELLNESS
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "FOMO (FEAR OF MISSING OUT)",
+                prompts: [
+                    "Do you say 'yes' to events just so you aren't left out?",
+                    "How do you feel when friends hangout without inviting you?",
+                    "Is JOMO (Joy of Missing Out) better for mental peace?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "TOXIC POSITIVITY",
+                prompts: [
+                    "Is telling someone to 'just be happy' unhelpful or harmful?",
+                    "Why is it important to allow ourselves to feel sad or angry?",
+                    "How do you offer real comfort to a struggling friend?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "OVERTHINKING",
+                prompts: [
+                    "What memory keeps you awake at 2 AM in the morning?",
+                    "How do you stop your mind from creating fake scenarios?",
+                    "Do you make decisions quickly or analyze every detail?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "PERSONAL BOUNDARIES",
+                prompts: [
+                    "Is it difficult for you to say 'no' to people?",
+                    "How do you handle friends who overstep your boundaries?",
+                    "Why is protecting your personal space crucial for peace?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "BODY POSITIVITY",
+                prompts: [
+                    "How does social media affect how people view their bodies?",
+                    "What is a toxic beauty standard in today's society?",
+                    "How can we build healthier self-confidence every day?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "ME-TIME",
+                prompts: [
+                    "What is your ultimate way to spend a solo day off?",
+                    "Do you feel awkward eating alone in a restaurant?",
+                    "Why is spending time by yourself necessary for energy?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "FINANCIAL INDEPENDENCE",
+                prompts: [
+                    "What is the first thing you want to buy with your own money?",
+                    "Did your family teach you how to budget or save money?",
+                    "Is buying experience (travel) better than buying things?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "DISCIPLINE vs MOTIVATION",
+                prompts: [
+                    "Why does motivation fade after a few days of a new goal?",
+                    "How do you force yourself to do things when you don't feel like it?",
+                    "What habit transformed your daily lifestyle the most?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "CHILDHOOD MEMORIES",
+                prompts: [
+                    "What cartoon or game made your childhood special?",
+                    "What is something kids today miss out on compared to your era?",
+                    "What advice would you give your 12-year-old self?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "FUTURE DREAMS",
+                prompts: [
+                    "Where do you genuinely see yourself in 5 years?",
+                    "Is having a clear long-term career plan necessary?",
+                    "What is your biggest goal before turning 30?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "FIRST IMPRESSIONS",
+                prompts: [
+                    "What do you notice first when meeting a new person?",
+                    "Have you ever been completely wrong about a first impression?",
+                    "How do you want people to perceive you when you enter a room?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "ROOMMATE DRAMA",
+                prompts: [
+                    "What is the most annoying habit a roommate or sibling can have?",
+                    "How do you split chores without getting into passive fights?",
+                    "Is living alone better than living with close friends?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "GEN Z vs MILLENNIALS",
+                prompts: [
+                    "What is the biggest misunderstanding between generations?",
+                    "Which generation has a harder economic reality today?",
+                    "What trend from older generations should come back?"
+                ]
+            },
+            {
+                category: "🧠 MINDSET & WELLNESS",
+                title: "CREATIVE BLOCK",
+                prompts: [
+                    "What do you do when you run out of ideas for a project?",
+                    "Where do you draw inspiration from when creating things?",
+                    "Does deadline pressure help or destroy your creativity?"
+                ]
+            }
+        ];
+
+        /* ==========================================================================
+           2. SOUND ENGINE (WEB AUDIO API)
+           ========================================================================== */
+        class SoundEngine {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+            }
+
+            playOsc(freq, type, duration, vol = 0.1) {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    if (this.ctx.state === 'suspended') this.ctx.resume();
+                    
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            playTick() {
+                this.playOsc(800, 'sine', 0.05, 0.03);
+            }
+
+            playApplause() {
+                this.playOsc(523.25, 'sine', 0.1, 0.1);
+                setTimeout(() => this.playOsc(659.25, 'sine', 0.15, 0.1), 80);
+                setTimeout(() => this.playOsc(783.99, 'sine', 0.2, 0.1), 160);
+                setTimeout(() => this.playOsc(1046.50, 'triangle', 0.3, 0.15), 240);
+            }
+
+            playBuzzer() {
+                this.playOsc(150, 'sawtooth', 0.3, 0.15);
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        /* ==========================================================================
+           3. GAME STATE MANAGEMENT
+           ========================================================================== */
+        let topicIndex = 0;
+        let totalTopicsPlayed = 1;
+
+        let topicDeck = [];
+
+        function resetTopicDeck() {
+            // Fill topic deck with all available indices
+            topicDeck = Array.from({ length: TOPIC_BANK.length }, (_, i) => i);
+            // Fisher-Yates shuffle
+            for (let i = topicDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [topicDeck[i], topicDeck[j]] = [topicDeck[j], topicDeck[i]];
+            }
+        }
+
+        let timerSeconds = 60;
+        const turnTimeMax = 60;
+        let timerInterval = null;
+        let isPaused = false;
+        let isRunning = false;
+
+        let activeTeam = "TEAM A";
+        let teamScores = { "TEAM A": 0, "TEAM B": 0 };
+
+        const screens = {
+            setup: document.getElementById('setupScreen'),
+            game: document.getElementById('gameScreen'),
+            summary: document.getElementById('summaryScreen')
+        };
+
+        function setScreen(screen) {
+            Object.keys(screens).forEach(key => screens[key].classList.add('hidden'));
+            screens[screen].classList.remove('hidden');
+            if (screen === 'game') screens[screen].classList.add('flex');
+        }
+
+        function spinNewTopic() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            timerSeconds = 60;
+
+            // If deck is empty, reshuffle topics without repeating until exhausted
+            if (topicDeck.length === 0) {
+                resetTopicDeck();
+            }
+
+            topicIndex = topicDeck.pop();
+            const topic = TOPIC_BANK[topicIndex];
+
+            document.getElementById('topicCategoryBadge').textContent = topic.category;
+            document.getElementById('currentTopicTitle').textContent = `"${topic.title}"`;
+            
+            const listEl = document.getElementById('guidingPromptsList');
+            listEl.innerHTML = '';
+            topic.prompts.forEach(p => {
+                const li = document.createElement('li');
+                li.className = "flex items-start gap-1.5";
+                li.innerHTML = `<i class="fa-solid fa-chevron-right text-[10px] text-[#F4B400] mt-0.5 shrink-0"></i> <span>${p}</span>`;
+                listEl.appendChild(li);
+            });
+
+            document.getElementById('speechStatus').textContent = "READY";
+            document.getElementById('speechStatus').className = "text-xs font-black text-emerald-400 uppercase";
+
+            updateTimerGraphic();
+
+            const cardEl = document.getElementById('cardContainer');
+            cardEl.classList.remove('animate-pop-in', 'animate-shake');
+            void cardEl.offsetWidth;
+            cardEl.classList.add('animate-pop-in');
+        }
+
+        // Initialize topic deck on page load
+        resetTopicDeck();
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            isPaused = false;
+            document.getElementById('speechStatus').textContent = "SPEAKING...";
+            document.getElementById('speechStatus').className = "text-xs font-black text-[#F4B400] uppercase animate-pulse";
+
+            timerInterval = setInterval(() => {
+                if (isPaused) return;
+
+                timerSeconds--;
+                updateTimerGraphic();
+                sound.playTick();
+
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    sound.playBuzzer();
+                    document.getElementById('speechStatus').textContent = "TIME UP!";
+                    document.getElementById('speechStatus').className = "text-xs font-black text-rose-400 uppercase";
+                }
+            }, 1000);
+        }
+
+        function updateTimerGraphic() {
+            document.getElementById('timerText').textContent = timerSeconds;
+            const ring = document.getElementById('timerRing');
+            const totalDash = 163;
+            const offset = totalDash - (timerSeconds / turnTimeMax) * totalDash;
+            ring.style.strokeDashoffset = offset;
+
+            if (timerSeconds <= 10) {
+                ring.setAttribute('class', 'timer-ring-circle text-rose-500');
+            } else {
+                ring.setAttribute('class', 'timer-ring-circle text-[#F4B400]');
+            }
+        }
+
+        function updateScoreboardUI() {
+            document.getElementById('topScoreA').textContent = `${teamScores["TEAM A"]} PTS`;
+            document.getElementById('topScoreB').textContent = `${teamScores["TEAM B"]} PTS`;
+
+            const hudA = document.getElementById('hudTeamA');
+            const hudB = document.getElementById('hudTeamB');
+            const turnBadge = document.getElementById('activeTurnBadge');
+
+            if (activeTeam === "TEAM A") {
+                hudA.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card border-2 border-[#F4B400] bg-[#F4B400]/10 transition-all cursor-pointer";
+                hudB.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card border border-[#D9D9D9]/20 opacity-60 transition-all cursor-pointer";
+                turnBadge.textContent = "TEAM A";
+            } else {
+                hudB.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card border-2 border-[#F4B400] bg-[#F4B400]/10 transition-all cursor-pointer";
+                hudA.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card border border-[#D9D9D9]/20 opacity-60 transition-all cursor-pointer";
+                turnBadge.textContent = "TEAM B";
+            }
+
+            document.getElementById('topTopicCounter').textContent = `TOPIC ${totalTopicsPlayed} / ${TOPIC_BANK.length}`;
+        }
+
+        function switchTurn() {
+            activeTeam = activeTeam === "TEAM A" ? "TEAM B" : "TEAM A";
+            totalTopicsPlayed++;
+            updateScoreboardUI();
+            spinNewTopic();
+        }
+
+        function markCompleted() {
+            sound.playApplause();
+            teamScores[activeTeam]++;
+            switchTurn();
+        }
+
+        function togglePause() {
+            if (!isRunning) return;
+            isPaused = !isPaused;
+            document.getElementById('pauseIcon').className = isPaused ? "fa-solid fa-play text-[#F4B400]" : "fa-solid fa-pause text-[#F4B400]";
+            document.getElementById('pauseText').textContent = isPaused ? "Resume" : "Pause";
+        }
+
+        function endSession() {
+            clearInterval(timerInterval);
+            let winnerText = "🏆 MATCH TIE!";
+            if (teamScores["TEAM A"] > teamScores["TEAM B"]) {
+                winnerText = "🏆 TEAM A WINS THE MATCH!";
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else if (teamScores["TEAM B"] > teamScores["TEAM A"]) {
+                winnerText = "🏆 TEAM B WINS THE MATCH!";
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+
+            document.getElementById('summaryWinner').textContent = winnerText;
+            document.getElementById('summaryScoreA').textContent = `${teamScores["TEAM A"]} PTS`;
+            document.getElementById('summaryScoreB').textContent = `${teamScores["TEAM B"]} PTS`;
+
+            setScreen('summary');
+        }
+
+        /* ==========================================================================
+           4. EVENT LISTENERS & HOTKEYS
+           ========================================================================== */
+        document.getElementById('startGameBtn').addEventListener('click', () => {
+            teamScores["TEAM A"] = 0;
+            teamScores["TEAM B"] = 0;
+            totalTopicsPlayed = 1;
+            document.getElementById('topStatsBar').classList.remove('hidden');
+            updateScoreboardUI();
+            setScreen('game');
+            spinNewTopic();
+        });
+
+        document.getElementById('btnStartTimer').addEventListener('click', startTimer);
+        document.getElementById('btnSpinNext').addEventListener('click', spinNewTopic);
+        document.getElementById('btnSkip').addEventListener('click', spinNewTopic);
+        document.getElementById('btnComplete').addEventListener('click', markCompleted);
+        document.getElementById('pauseTimerBtn').addEventListener('click', togglePause);
+        document.getElementById('btnEndSession').addEventListener('click', endSession);
+        document.getElementById('btnBackToSetup').addEventListener('click', () => setScreen('setup'));
+
+        // Allow clicking HUD to manually switch teams
+        document.getElementById('hudTeamA').addEventListener('click', () => {
+            activeTeam = "TEAM A";
+            updateScoreboardUI();
+        });
+        document.getElementById('hudTeamB').addEventListener('click', () => {
+            activeTeam = "TEAM B";
+            updateScoreboardUI();
+        });
+
+        // Sound Toggle
+        document.getElementById('soundToggleBtn').addEventListener('click', () => {
+            sound.enabled = !sound.enabled;
+            document.getElementById('soundIcon').className = sound.enabled ? "fa-solid fa-volume-high text-xs" : "fa-solid fa-volume-xmark text-xs text-rose-400";
+        });
+
+        // Team Selection
+        document.querySelectorAll('.team-opt').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.team-opt').forEach(b => {
+                    b.className = "team-opt px-4 py-1.5 rounded-xl bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#D9D9D9] font-bold text-xs md:text-sm";
+                });
+                btn.className = "team-opt px-4 py-1.5 rounded-xl bg-[#0f1e33] border border-[#F4B400] text-[#F4B400] font-black text-xs md:text-sm";
+                activeTeam = btn.getAttribute('data-team');
+            });
+        });
+
+        // Facilitator Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (screens.game.classList.contains('hidden')) return;
+
+            if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                if (!isRunning) {
+                    startTimer();
+                } else {
+                    spinNewTopic();
+                }
+            } else if (e.key === 'c' || e.key === 'C' || e.key === 'Enter') {
+                markCompleted();
+            } else if (e.key === 's' || e.key === 'S') {
+                spinNewTopic();
+            } else if (e.key === 'p' || e.key === 'P') {
+                togglePause();
+            }
+        });
+    </script>
+</body>
+</html>
