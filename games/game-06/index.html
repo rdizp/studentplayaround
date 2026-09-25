@@ -145,24 +145,62 @@
         
         <!-- SETUP TOP HUD HEADER -->
         <header class="w-full py-2.5 px-5 flex justify-between items-center glass-panel rounded-2xl shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-                    <i class="fa-solid fa-stopwatch-20 text-sm"></i>
-                </div>
-                <div>
-                    <h1 class="font-display font-black text-base text-white leading-tight flex items-center gap-2">
-                        5-SECOND RULE <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-extrabold uppercase tracking-widest">SETUP HUD</span>
-                    </h1>
-                </div>
-            </div>
 
-            <div class="flex items-center gap-3">
-                <button id="btnSetupToggleMute" title="Toggle Sound FX" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition-all cursor-pointer border border-slate-700">
-                    <i class="fa-solid fa-volume-high text-xs text-amber-400" id="setupSoundIcon"></i>
-                </button>
-                <span class="text-xs font-bold text-slate-400 hidden sm:inline"><i class="fa-solid fa-chalkboard-user text-amber-400 mr-1"></i> Facilitator Control Mode</span>
-            </div>
-        </header>
+    <div class="flex items-center gap-3">
+
+        <!-- BACK TO GAMES -->
+        <a href="../../"
+           title="Back to Games"
+           class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl
+                  bg-slate-800 hover:bg-slate-700
+                  text-slate-300 hover:text-white
+                  border border-slate-700 hover:border-amber-500/50
+                  transition-all text-xs font-bold">
+
+            <i class="fa-solid fa-arrow-left text-amber-400"></i>
+
+            <span class="hidden sm:inline">
+                Back to Games
+            </span>
+
+        </a>
+
+        <div class="h-5 w-px bg-slate-700"></div>
+
+        <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+            <i class="fa-solid fa-stopwatch-20 text-sm"></i>
+        </div>
+
+        <div>
+            <h1 class="font-display font-black text-base text-white leading-tight flex items-center gap-2">
+                5-SECOND RULE
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-extrabold uppercase tracking-widest">
+                    SETUP HUD
+                </span>
+            </h1>
+        </div>
+
+    </div>
+
+    <div class="flex items-center gap-3">
+        <button id="btnSetupToggleMute"
+                title="Toggle Sound FX"
+                class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700
+                       text-slate-200 flex items-center justify-center
+                       transition-all cursor-pointer border border-slate-700">
+
+            <i class="fa-solid fa-volume-high text-xs text-amber-400"
+               id="setupSoundIcon"></i>
+
+        </button>
+
+        <span class="text-xs font-bold text-slate-400 hidden sm:inline">
+            <i class="fa-solid fa-chalkboard-user text-amber-400 mr-1"></i>
+            Facilitator Control Mode
+        </span>
+    </div>
+
+</header>
 
         <!-- SETUP MAIN CARD CONTAINER -->
         <div class="w-full max-w-5xl mx-auto flex-1 min-h-0 glass-panel card-glow-amber rounded-3xl p-5 md:p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
