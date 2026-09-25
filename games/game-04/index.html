@@ -999,18 +999,19 @@
             }
 
             playTick() {
-                this.playOsc(800, 'sine', 0.05, 0.03);
+                this.playOsc(1000, 'square', 0.08, 0.18);
             }
 
             playApplause() {
-                this.playOsc(523.25, 'sine', 0.1, 0.1);
-                setTimeout(() => this.playOsc(659.25, 'sine', 0.15, 0.1), 80);
-                setTimeout(() => this.playOsc(783.99, 'sine', 0.2, 0.1), 160);
-                setTimeout(() => this.playOsc(1046.50, 'triangle', 0.3, 0.15), 240);
+                this.playOsc(523.25, 'triangle', 0.12, 0.18);
+                setTimeout(() => this.playOsc(659.25, 'triangle', 0.12, 0.18), 100);
+                setTimeout(() => this.playOsc(783.99, 'triangle', 0.12, 0.18), 200);
+                setTimeout(() => this.playOsc(1046.50, 'triangle', 0.30, 0.22), 300);
             }
 
             playBuzzer() {
-                this.playOsc(150, 'sawtooth', 0.3, 0.15);
+                this.playOsc(180, 'square', 0.20, 0.25);
+                setTimeOut(() => this.PlayOsc(120, 'square', 0.35, 0.25), 220);
             }
         }
 
