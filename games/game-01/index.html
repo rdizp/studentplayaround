@@ -1,1 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Bee: Listen & Spell</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
+        .font-mono-letter {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: #090e17;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(244, 180, 0, 0.15) 0px, transparent 40%),
+                radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.12) 0px, transparent 45%),
+                radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.98) 0px, transparent 100%);
+            color: #F8F9FA;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spell-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            border: 2px solid #F4B400;
+            box-shadow: 0 20px 40px -10px rgba(244, 180, 0, 0.2);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.92) translateY(10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .animate-pop {
+            animation: popIn 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes pulseAudio {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 180, 0, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 18px rgba(244, 180, 0, 0); }
+        }
+
+        .animate-audio-pulse {
+            animation: pulseAudio 1.8s infinite;
+        }
+
+        .letter-box {
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid rgba(244, 180, 0, 0.5);
+            transition: all 0.15s ease;
+        }
+
+        .letter-box:focus-within {
+            border-color: #F4B400;
+            box-shadow: 0 0 15px rgba(244, 180, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between p-2 sm:p-3 relative text-slate-100">
+
+    <!-- TOP HUD / HEADER -->
+    <header class="w-full max-w-7xl mx-auto flex justify-between items-center px-4 py-2 glass-panel rounded-2xl shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center text-lg font-black shadow-lg shadow-amber-400/20">
+                <i class="fa-solid fa-spell-check"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-base md:text-lg tracking-tight text-white leading-none">
+                    SPELLING <span class="text-amber-400">BEE</span>
+                </h1>
+                <p class="text-[9px] md:text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">15 Words Turn System</p>
+            </div>
+        </div>
+
+        <!-- Class Stats HUD -->
+        <div id="topStatsBar" class="hidden flex items-center gap-2.5 md:gap-4">
+            <!-- Round Badge -->
+            <div class="flex items-center gap-2 px-3 py-1 rounded-xl glass-card border border-amber-400/30">
+                <i class="fa-solid fa-trophy text-amber-400 text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-slate-400 leading-none">Stage</p>
+                    <p id="hudRoundNumber" class="text-xs font-black text-amber-400 leading-none mt-0.5">ROUND 1</p>
+                </div>
+            </div>
+
+            <!-- Team A Score -->
+            <div id="hudTeamA" class="flex items-center gap-2 px-3 py-1 rounded-xl glass-card border-2 border-amber-400 bg-amber-400/10 cursor-pointer">
+                <i class="fa-solid fa-users text-amber-400 text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-slate-300 leading-none">Team A</p>
+                    <p id="scoreA" class="text-xs font-black text-amber-400 leading-none mt-0.5">0 PTS</p>
+                </div>
+            </div>
+
+            <!-- Team B Score -->
+            <div id="hudTeamB" class="flex items-center gap-2 px-3 py-1 rounded-xl glass-card opacity-60 cursor-pointer">
+                <i class="fa-solid fa-users text-slate-300 text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-slate-400 leading-none">Team B</p>
+                    <p id="scoreB" class="text-xs font-black text-white leading-none mt-0.5">0 PTS</p>
+                </div>
+            </div>
+
+            <!-- Custom Word List Trigger -->
+            <button id="btnCustomWords" title="Add Custom Words" class="px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-600 hover:bg-slate-700 text-slate-200 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer">
+                <i class="fa-solid fa-plus text-amber-400"></i>
+                <span class="hidden md:inline">Custom List</span>
+            </button>
+
+            <!-- Sound Toggle -->
+            <button id="soundToggleBtn" title="Toggle Audio" class="w-8 h-8 rounded-xl glass-card flex items-center justify-center hover:bg-slate-800 transition-all border border-slate-700">
+                <i class="fa-solid fa-volume-high text-xs text-amber-400" id="soundIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APPLICATION CONTAINER -->
+    <main class="flex-1 w-full max-w-6xl mx-auto flex flex-col justify-center items-center relative z-10 py-1 my-auto overflow-hidden">
+
+        <!-- ==========================================================================
+             1. SETUP SCREEN
+             ========================================================================== -->
+        <section id="setupScreen" class="w-full max-w-3xl glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-700/60 animate-pop my-auto text-center">
+            <div class="w-14 h-14 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center text-3xl mx-auto mb-3 border border-amber-400/30">
+                <i class="fa-solid fa-headphones-simple"></i>
+            </div>
+            
+            <span class="px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-400/20 text-amber-400 border border-amber-400/30 uppercase tracking-widest inline-block mb-2">
+                ROUND SYSTEM • 15 UNIQUE WORDS PER TEAM
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black text-white">Listen carefully & Spell it out!</h2>
+            <p class="text-slate-300 text-xs md:text-sm mt-1 mb-5 max-w-lg mx-auto">
+                Each team gets <span class="text-amber-400 font-bold">15 unique words</span> per round. Team A plays 15 words first, followed by Team B's turn with brand new words.
+            </p>
+
+            <!-- Word Bank Category Selection -->
+            <div class="mb-6 text-left">
+                <label class="text-xs font-extrabold uppercase tracking-wider text-amber-400 block mb-2">
+                    <i class="fa-solid fa-book-bookmark mr-1"></i> Select Category / Word Deck:
+                </label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <button class="cat-btn p-3 rounded-2xl glass-card border border-amber-400 text-left active-cat" data-cat="ACADEMIC">
+                        <p class="text-xs font-black text-amber-400">🎓 Academic (40+)</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Campus & TOEFL vocab</p>
+                    </button>
+                    <button class="cat-btn p-3 rounded-2xl glass-card border border-slate-700 text-left opacity-70" data-cat="MISSPELLED">
+                        <p class="text-xs font-black text-white">⚠️ Tricky Words (35+)</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Commonly misspelled</p>
+                    </button>
+                    <button class="cat-btn p-3 rounded-2xl glass-card border border-slate-700 text-left opacity-70" data-cat="BUSINESS">
+                        <p class="text-xs font-black text-white">💼 Business & Tech (35+)</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Corporate & digital</p>
+                    </button>
+                    <button class="cat-btn p-3 rounded-2xl glass-card border border-slate-700 text-left opacity-70" data-cat="ALL">
+                        <p class="text-xs font-black text-white">🔥 Master Deck (110+)</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">All categories combined</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Facilitator Hotkeys Guide -->
+            <div class="bg-slate-950/80 rounded-2xl p-4 border border-slate-800 text-left mb-6 text-xs text-slate-300">
+                <p class="font-extrabold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-keyboard"></i> Instructor Hotkeys
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+                    <div><kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono">Space</kbd> Play Audio</div>
+                    <div><kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono">Shift+Space</kbd> Play Slow Audio</div>
+                    <div><kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono">Enter</kbd> Verify / Submit</div>
+                    <div><kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono">H</kbd> Toggle Hint</div>
+                </div>
+            </div>
+
+            <!-- Start Session Button -->
+            <button id="btnStartGame" class="px-8 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-sm shadow-xl shadow-amber-400/20 transition-all flex items-center justify-center gap-2 border border-white/40 mx-auto active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-play text-base"></i>
+                <span>Start Match (Round 1)</span>
+            </button>
+        </section>
+
+        <!-- ==========================================================================
+             2. GAME PLAY SCREEN
+             ========================================================================== -->
+        <section id="gameScreen" class="w-full max-w-4xl hidden flex-col justify-between gap-3 h-full py-1">
+
+            <!-- Turn Bar -->
+            <div class="w-full glass-panel px-4 py-2 rounded-2xl flex justify-between items-center border border-slate-700 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="badgeWordCounter" class="px-2.5 py-0.5 rounded-lg text-xs font-black bg-amber-400/20 text-amber-400 border border-amber-400/40 uppercase">
+                        WORD 1 / 15
+                    </span>
+                    <span id="badgeCategory" class="hidden sm:inline-block px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                        ACADEMIC
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] uppercase font-extrabold text-slate-400">ACTIVE TURN:</span>
+                    <span id="activeSpeakerBadge" class="px-3 py-1 rounded-xl bg-amber-400 text-slate-900 font-black text-xs uppercase shadow-md shadow-amber-400/20">
+                        TEAM A
+                    </span>
+                </div>
+            </div>
+
+            <!-- AUDIO & SPELLING MAIN CARD -->
+            <div class="w-full flex-1 spell-card p-5 rounded-3xl flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden animate-pop my-auto">
+                
+                <!-- TOP AUDIO CONTROLS (AUDIO ONLY DISPLAY) -->
+                <div class="w-full flex flex-col items-center justify-center py-2">
+                    
+                    <!-- Giant Audio Trigger Button -->
+                    <div class="relative my-2">
+                        <button id="btnPlayAudio" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex flex-col items-center justify-center shadow-2xl shadow-amber-400/30 transition-all border-4 border-white/40 active:scale-95 animate-audio-pulse cursor-pointer">
+                            <i class="fa-solid fa-volume-high text-3xl sm:text-4xl mb-1"></i>
+                            <span class="text-[10px] font-black uppercase tracking-wider">PLAY AUDIO</span>
+                        </button>
+                    </div>
+
+                    <!-- Speed & Voice Controls -->
+                    <div class="flex items-center gap-2 mt-2">
+                        <button id="btnPlaySlow" class="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-amber-400/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-turtle"></i>
+                            <span>Speak Slowly</span>
+                            <kbd class="hidden sm:inline-block bg-slate-900 px-1 text-[9px] font-mono rounded text-amber-400">Shift+Space</kbd>
+                        </button>
+
+                        <button id="btnRevealHint" class="px-3 py-1.5 rounded-xl bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                            <span>Get Hint</span>
+                            <kbd class="hidden sm:inline-block bg-indigo-900 px-1 text-[9px] font-mono rounded text-indigo-200">H</kbd>
+                        </button>
+                    </div>
+
+                    <!-- Hint Display Box (Accordion/Toggleable) -->
+                    <div id="hintBox" class="hidden w-full max-w-xl bg-slate-950/90 rounded-2xl p-3 border border-indigo-500/30 mt-3 text-left animate-pop">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-1 mb-1.5">
+                            <span id="hintPartOfSpeech" class="text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                                PART OF SPEECH: NOUN
+                            </span>
+                            <span id="hintLength" class="text-[10px] font-bold text-slate-400">
+                                9 LETTERS
+                            </span>
+                        </div>
+                        <p id="hintDefinition" class="text-xs text-slate-200 font-medium mb-1">
+                            <span class="text-amber-400 font-bold">Definition:</span> Something given or done as a reward.
+                        </p>
+                        <p id="hintSentence" class="text-xs text-slate-400 italic">
+                            <span class="text-amber-400 font-bold not-italic">Example:</span> "The professor gave us extra points as an _____."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- INSTRUCTOR INPUT BOX (Type student's verbal spelling) -->
+                <div class="w-full max-w-xl my-auto">
+                    <label class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 block mb-1">
+                        STUDENT SPELLING INPUT (INSTRUCTOR TYPING):
+                    </label>
+                    
+                    <div class="letter-box p-3 rounded-2xl flex items-center justify-between gap-2 bg-slate-900/90">
+                        <input type="text" id="studentSpellingInput" autocomplete="off" placeholder="Type spelled letters here..." 
+                               class="w-full bg-transparent font-mono-letter text-lg sm:text-xl md:text-2xl font-black text-amber-400 uppercase tracking-widest focus:outline-none placeholder:text-slate-600 placeholder:text-xs placeholder:font-sans placeholder:tracking-normal">
+                        
+                        <button id="btnClearInput" title="Clear Text" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs shrink-0 cursor-pointer">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="w-full max-w-xl flex items-center justify-center gap-3 pt-2">
+                    <button id="btnSkipWord" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer">
+                        <i class="fa-solid fa-forward text-amber-400"></i>
+                        <span>SKIP WORD</span>
+                        <kbd class="hidden sm:inline-block bg-slate-900 text-slate-400 px-1 py-0.5 rounded text-[9px] font-mono">Shift+Enter</kbd>
+                    </button>
+
+                    <button id="btnCheckSpelling" class="py-3 px-8 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all border border-white/40 cursor-pointer active:scale-95">
+                        <i class="fa-solid fa-circle-check text-base"></i>
+                        <span>VERIFY SPELLING</span>
+                        <kbd class="hidden sm:inline-block bg-emerald-950 text-emerald-200 px-1.5 py-0.5 rounded text-[10px] font-mono">Enter</kbd>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HOTKEYS PERSISTENT BAR -->
+            <div class="w-full glass-panel px-4 py-2 rounded-2xl flex flex-wrap items-center justify-center gap-x-6 gap-y-1 border border-slate-800 text-[11px] text-slate-300 shrink-0">
+                <div class="flex items-center gap-1.5">
+                    <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono font-bold text-[10px]">Space</kbd>
+                    <span>Play Audio</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono font-bold text-[10px]">Shift+Space</kbd>
+                    <span>Slow Audio</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono font-bold text-[10px]">Enter</kbd>
+                    <span>Verify / Submit</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono font-bold text-[10px]">Shift+Enter</kbd>
+                    <span>Skip Word</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-mono font-bold text-[10px]">H</kbd>
+                    <span>Toggle Hint</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             3. RESULT MODAL (CHECK RIGHT / WRONG)
+             ========================================================================== -->
+        <div id="resultModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+            <div id="resultCard" class="w-full max-w-lg glass-panel p-6 rounded-3xl border border-slate-700 text-center animate-pop shadow-2xl">
+                <div id="resIconBg" class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 border border-emerald-500/30">
+                    <i id="resIcon" class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <h3 id="resTitle" class="text-2xl font-black text-emerald-400">CORRECT SPELLING!</h3>
+                <p id="resSubtitle" class="text-slate-300 text-xs mt-1 mb-4">+1 Point added to Team A</p>
+
+                <div class="bg-slate-950/90 rounded-2xl p-4 border border-slate-800 text-left space-y-3 mb-5">
+                    <div>
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">TARGET WORD:</span>
+                        <div class="flex items-baseline gap-2">
+                            <p id="resTrueWord" class="text-2xl font-black text-amber-400 font-mono-letter tracking-wider">ACCOMMODATE</p>
+                            <span id="resPhonetic" class="text-xs text-slate-400 font-mono">/əˈkɒm.ə.deɪt/</span>
+                        </div>
+                    </div>
+
+                    <div id="studentAttemptBox">
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">STUDENT'S ATTEMPT:</span>
+                        <p id="resStudentSpelling" class="text-lg font-bold font-mono-letter text-slate-200 tracking-wider">A-C-C-O-M-O-D-A-T-E</p>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-2">
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">DEFINITION:</span>
+                        <p id="resFullDefinition" class="text-xs text-slate-300 mt-0.5">To provide sufficient space or lodging for someone.</p>
+                    </div>
+                </div>
+
+                <button id="btnNextWord" class="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm shadow-lg shadow-amber-400/20 transition-all flex items-center justify-center gap-2 border border-white/30 cursor-pointer">
+                    <span>NEXT WORD</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             4. TURN TRANSITION RECAP MODAL (TEAM A END -> TEAM B START)
+             ========================================================================== -->
+        <div id="turnRecapModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-lg hidden items-center justify-center z-50 p-4">
+            <div class="w-full max-w-md glass-panel p-6 rounded-3xl border border-amber-400/50 text-center animate-pop shadow-2xl">
+                <div class="w-16 h-16 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center text-3xl mx-auto mb-3 border border-amber-400/30">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                </div>
+
+                <span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-400/20 text-amber-400 border border-amber-400/30 uppercase tracking-widest inline-block mb-2">
+                    TEAM A TURN COMPLETED
+                </span>
+                
+                <h3 class="text-2xl font-black text-white">15 Words Finished!</h3>
+                <p class="text-slate-300 text-xs mt-1 mb-5">Team A scored <span id="recapScoreTeamA" class="text-amber-400 font-bold">0 / 15</span> correct spellings in this turn.</p>
+
+                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 mb-6">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">UP NEXT:</p>
+                    <p class="text-xl font-black text-amber-400 uppercase">TEAM B'S TURN</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Ready with 15 brand-new, unique words!</p>
+                </div>
+
+                <button id="btnStartTeamB" class="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm shadow-xl shadow-amber-400/20 transition-all flex items-center justify-center gap-2 border border-white/40 cursor-pointer">
+                    <i class="fa-solid fa-play"></i>
+                    <span>START TEAM B TURN</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             5. ROUND SUMMARY RECAP MODAL (AFTER BOTH TEAMS PLAYED)
+             ========================================================================== -->
+        <div id="roundRecapModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-lg hidden items-center justify-center z-50 p-4">
+            <div class="w-full max-w-lg glass-panel p-6 rounded-3xl border border-amber-400/50 text-center animate-pop shadow-2xl">
+                <div class="w-16 h-16 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center text-3xl mx-auto mb-3 border border-amber-400/30">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <span id="roundRecapBadge" class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-400/20 text-amber-400 border border-amber-400/30 uppercase tracking-widest inline-block mb-2">
+                    ROUND 1 COMPLETE
+                </span>
+                
+                <h3 id="roundWinnerTitle" class="text-2xl font-black text-white">TEAM A LEADS THE ROUND!</h3>
+                <p class="text-slate-300 text-xs mt-1 mb-5">Both teams completed their 15-word spelling decks.</p>
+
+                <!-- Side-by-Side Scores -->
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-amber-400/40">
+                        <p class="text-[10px] font-black uppercase text-amber-400">TEAM A</p>
+                        <p id="roundScoreA" class="text-3xl font-black text-white mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">points total</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-700">
+                        <p class="text-[10px] font-black uppercase text-slate-300">TEAM B</p>
+                        <p id="roundScoreB" class="text-3xl font-black text-white mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">points total</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button id="btnNextRound" class="flex-1 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-xl shadow-amber-400/20 transition-all border border-white/40 cursor-pointer">
+                        NEXT ROUND (NEW 15 WORDS)
+                    </button>
+                    <button id="btnEndSession" class="px-5 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 cursor-pointer">
+                        EXIT
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             6. CUSTOM WORDS MODAL
+             ========================================================================== -->
+        <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+            <div class="w-full max-w-lg glass-panel p-6 rounded-3xl border border-slate-700 text-left animate-pop shadow-2xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-400"></i>
+                        <span>Add Custom Word List</span>
+                    </h3>
+                    <button id="btnCloseCustom" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+
+                <p class="text-xs text-slate-300 mb-3">
+                    Enter custom vocabulary words (separated by commas or new lines):
+                </p>
+
+                <textarea id="customWordsInput" rows="5" placeholder="Example:&#10;entrepreneur&#10;pronunciation&#10;miscellaneous&#10;bureaucracy" 
+                          class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-sm font-mono text-amber-300 focus:outline-none focus:border-amber-400 mb-4"></textarea>
+
+                <div class="flex justify-end gap-2">
+                    <button id="btnSaveCustom" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs cursor-pointer">
+                        Use This List
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /* ==========================================================================
+           1. EXTENDED WORD BANK DATABASE (50+ Items per Category)
+           ========================================================================== */
+        const WORD_BANKS = {
+            ACADEMIC: [
+                { word: "ACCOMMODATE", pos: "verb", def: "To provide sufficient space or lodging for someone.", sentence: "The new auditorium can _____ up to 500 students.", phonetic: "/əˈkɒm.ə.deɪt/" },
+                { word: "ACQUAINTANCE", pos: "noun", def: "A person one knows slightly, but who is not a close friend.", sentence: "He is an old college _____, not a close relative.", phonetic: "/əˈkweɪn.təns/" },
+                { word: "BUREAUCRACY", pos: "noun", def: "A system of government in which most decisions are taken by state officials.", sentence: "The application was delayed due to excessive administrative _____.", phonetic: "/bjʊəˈrɒk.rə.si/" },
+                { word: "CONSCIENTIOUS", pos: "adjective", def: "Wishing to do one's work or duty well and thoroughly.", sentence: "She is a _____ student who never misses an assignment.", phonetic: "/ˌkɒn.ʃiˈen.ʃəs/" },
+                { word: "DISCREPANCY", pos: "noun", def: "An illogical or surprising lack of compatibility between two facts.", sentence: "There was a slight _____ between the two research reports.", phonetic: "/dɪsˈkrep.ən.si/" },
+                { word: "ENTREPRENEUR", pos: "noun", def: "A person who sets up a business taking on financial risks.", sentence: "The young _____ launched a successful tech startup.", phonetic: "/ˌɒn.trə.prəˈnɜːr/" },
+                { word: "HIERARCHY", pos: "noun", def: "A system in which members of an organization are ranked according to status.", sentence: "She rose quickly through the corporate _____.", phonetic: "/ˈhaɪə.rɑː.ki/" },
+                { word: "HYPOTHESIS", pos: "noun", def: "A proposed explanation made on the basis of limited evidence.", sentence: "The scientist tested her _____ in the laboratory.", phonetic: "/haɪˈpɒθ.ə.sɪs/" },
+                { word: "MISCELLANEOUS", pos: "adjective", def: "Consisting of many different kinds of things that do not fit together.", sentence: "The box contains _____ documents and receipts.", phonetic: "/ˌmɪs.əlˈeɪ.ni.əs/" },
+                { word: "PERSEVERANCE", pos: "noun", def: "Persistence in doing something despite difficulty or delay.", sentence: "Graduating with honors required years of hard work and _____.", phonetic: "/ˌpɜː.sɪˈvɪə.rəns/" },
+                { word: "PRONUNCIATION", pos: "noun", def: "The way in which a word is pronounced.", sentence: "Good English _____ improves overall speaking clarity.", phonetic: "/prəˌnʌn.siˈeɪ.ʃən/" },
+                { word: "SOVEREIGNTY", pos: "noun", def: "Supreme power or authority over a state or territory.", sentence: "The nation fought hard to maintain its national _____.", phonetic: "/ˈsɒv.rɪn.ti/" },
+                { word: "CURRICULUM", pos: "noun", def: "The subjects comprising a course of study in a school or college.", sentence: "The professor updated the syllabus for the new university _____.", phonetic: "/kəˈrɪk.jə.ləm/" },
+                { word: "METHODOLOGY", pos: "noun", def: "A system of methods used in a particular area of study.", sentence: "The thesis explains the research _____ used for data collection.", phonetic: "/ˌmeθ.əˈdɒl.ə.dʒi/" },
+                { word: "PLAUSIBLE", pos: "adjective", def: "Seeming reasonable or probable.", sentence: "His explanation for the experiment results sounded entirely _____.", phonetic: "/ˈplɔː.zə.bəl/" },
+                { word: "PHENOMENON", pos: "noun", def: "A fact or situation that is observed to exist or happen.", sentence: "Global warming is a complex climate _____.", phonetic: "/fəˈnɒm.ɪ.nən/" },
+                { word: "COGNITIVE", pos: "adjective", def: "Relating to mental processes of perception and reasoning.", sentence: "Puzzles help improve memory and overall _____ skills.", phonetic: "/ˈkɒɡ.nə.tɪv/" },
+                { word: "QUALITATIVE", pos: "adjective", def: "Relating to, measuring, or measured by the quality of something.", sentence: "The researchers conducted _____ interviews with participants.", phonetic: "/ˈkwɒl.ɪ.tə.tɪv/" },
+                { word: "QUANTITATIVE", pos: "adjective", def: "Relating to, measuring, or measured by the quantity of something.", sentence: "The survey gathered _____ statistical data.", phonetic: "/ˈkwɒn.tɪ.tə.tɪv/" },
+                { word: "PARADIGM", pos: "noun", def: "A typical example or pattern of something; a model.", sentence: "Artificial intelligence represents a new technological _____.", phonetic: "/ˈpær.ə.daɪm/" },
+                { word: "AMBIGUOUS", pos: "adjective", def: "Open to more than one interpretation; not clear.", sentence: "The policy guidelines were too _____ and caused confusion.", phonetic: "/æmˈbɪɡ.ju.əs/" },
+                { word: "ANALOGOUS", pos: "adjective", def: "Comparable in certain respects, typically in a way which makes clearer.", sentence: "The brain's neural network is _____ to a computer system.", phonetic: "/əˈnæl.ə.ɡəs/" },
+                { word: "COHERENT", pos: "adjective", def: "Logical and consistent in thought or argument.", sentence: "She presented a clear and _____ essay on public policy.", phonetic: "/kəʊˈhɪə.rənt/" },
+                { word: "DEVIATION", pos: "noun", def: "A departure from an established course or accepted standard.", sentence: "Any _____ from the safety protocol must be reported.", phonetic: "/ˌdiː.viˈeɪ.ʃən/" },
+                { word: "ELABORATE", pos: "verb", def: "Develop or present a theory, policy, or system in detail.", sentence: "Could you please _____ on your third research point?", phonetic: "/ɪˈlæb.ə.reɪt/" },
+                { word: "FACILITATE", pos: "verb", def: "Make an action or process easy or easier.", sentence: "Workshops were held to _____ student collaboration.", phonetic: "/fəˈsɪl.ɪ.teɪt/" },
+                { word: "IMPLICIT", pos: "adjective", def: "Implied though not plainly expressed.", sentence: "There was an _____ understanding that attendance was mandatory.", phonetic: "/ɪmˈplɪs.ɪt/" },
+                { word: "INHERENT", pos: "adjective", def: "Existing in something as a permanent, essential, or characteristic attribute.", sentence: "There are _____ risks in starting any new business venture.", phonetic: "/ɪnˈher.ənt/" },
+                { word: "JUXTAPOSE", pos: "verb", def: "Place or deal with close together for contrasting effect.", sentence: "The artist likes to _____ ancient history with modern art.", phonetic: "/ˌdʒʌk.stəˈpəʊz/" },
+                { word: "LEGITIMATE", pos: "adjective", def: "Conforming to the law or to rules.", sentence: "He raised a _____ concern during the faculty meeting.", phonetic: "/lɪˈdʒɪt.ə.mət/" },
+                { word: "SYNTHESIS", pos: "noun", def: "The combination of ideas to form a theory or system.", sentence: "Her paper was a brilliant _____ of literature and economics.", phonetic: "/ˈsɪn.θə.sɪs/" },
+                { word: "VALIDITY", pos: "noun", def: "The quality of being logically or factually sound.", sentence: "The supervisor questioned the _____ of the survey results.", phonetic: "/vəˈlɪd.ə.ti/" },
+                { word: "UNANIMOUS", pos: "adjective", def: "Fully in agreement by two or more people.", sentence: "The jury reached a _____ decision after brief deliberation.", phonetic: "/juːˈnæn.ɪ.məs/" },
+                { word: "VERSATILE", pos: "adjective", def: "Able to adapt or be adapted to many different functions or activities.", sentence: "A laptop is a highly _____ tool for modern students.", phonetic: "/ˈvɜː.sə.taɪl/" }
+            ],
+            MISSPELLED: [
+                { word: "EMBARRASS", pos: "verb", def: "Cause someone to feel awkward, self-conscious, or ashamed.", sentence: "Don't _____ him by asking personal questions in public.", phonetic: "/ɪmˈbær.əs/" },
+                { word: "MAINTENANCE", pos: "noun", def: "The process of preserving a condition or keeping equipment in repair.", sentence: "Regular car _____ prevents costly engine damage.", phonetic: "/ˈmeɪn.tən.əns/" },
+                { word: "OCCURRENCE", pos: "noun", def: "An incident or event that happens.", sentence: "Heavy rainfall is a frequent _____ during monsoon season.", phonetic: "/əˈkʌr.əns/" },
+                { word: "PRIVILEGE", pos: "noun", def: "A special right or advantage granted to a particular person.", sentence: "Higher education is a valuable _____ enjoyed by many.", phonetic: "/ˈprɪv.əl.ɪdʒ/" },
+                { word: "RECOMMEND", pos: "verb", def: "Put forward someone or something with approval as being suitable.", sentence: "Can you _____ a good textbook for beginner grammar?", phonetic: "/ˌrek.əˈmend/" },
+                { word: "RHYTHM", pos: "noun", def: "A strong, regular repeated pattern of movement or sound.", sentence: "She tapped her foot to the steady _____ of the music.", phonetic: "/ˈrɪð.əm/" },
+                { word: "SEPARATE", pos: "adjective", def: "Forming or viewed as a unit by itself; disconnected.", sentence: "Keep the raw food in a _____ container in the fridge.", phonetic: "/ˈsep.ər.ət/" },
+                { word: "UNNECESSARY", pos: "adjective", def: "Not needed, or more than is needed.", sentence: "Avoid spending money on _____ luxury items right now.", phonetic: "/ʌnˈnes.ə.ser.i/" },
+                { word: "CALENDAR", pos: "noun", def: "A chart showing days, weeks, and months of a year.", sentence: "Mark the exam dates on your academic _____.", phonetic: "/ˈkæl.ən.dər/" },
+                { word: "CEMETERY", pos: "noun", def: "A burial ground or graveyard.", sentence: "Historical monuments were preserved near the town _____.", phonetic: "/ˈsem.ə.tri/" },
+                { word: "COLLEAGUE", pos: "noun", def: "A person with whom one works in a profession or business.", sentence: "She discussed the proposal with her senior _____.", phonetic: "/ˈkɒl.iːɡ/" },
+                { word: "COMMITTEE", pos: "noun", def: "A group of people appointed for a specific function.", sentence: "The student _____ organized the annual campus festival.", phonetic: "/kəˈmɪt.i/" },
+                { word: "DEFINITELY", pos: "adverb", def: "Without doubt; clearly.", sentence: "I will _____ attend the guest lecture tomorrow.", phonetic: "/ˈdef.ɪ.nət.li/" },
+                { word: "DILEMMA", pos: "noun", def: "A situation in which a difficult choice has to be made.", sentence: "Choosing between two job offers was a difficult _____.", phonetic: "/daɪˈlem.ə/" },
+                { word: "EXAGGERATE", pos: "verb", def: "Represent something as being larger or greater than it really is.", sentence: "Try not to _____ the difficulty of the assignment.", phonetic: "/ɪɡˈzædʒ.ə.reɪt/" },
+                { word: "GUARANTEE", pos: "noun", def: "A formal promise that certain conditions will be fulfilled.", sentence: "The new laptop comes with a two-year _____.", phonetic: "/ˌɡær.ənˈtiː/" },
+                { word: "HARASSMENT", pos: "noun", def: "Aggressive pressure or intimidation.", sentence: "The campus maintains a zero-tolerance policy for _____.", phonetic: "/ˈhær.əs.mənt/" },
+                { word: "INDEPENDENT", pos: "adjective", def: "Free from outside control; not depending on another's authority.", sentence: "College helps students become more _____ thinkers.", phonetic: "/ˌɪn.dɪˈpen.dənt/" },
+                { word: "INTELLIGENCE", pos: "noun", def: "The ability to acquire and apply knowledge and skills.", sentence: "Emotional _____ is as important as academic talent.", phonetic: "/ɪnˈtel.ɪ.dʒəns/" },
+                { word: "LICENSE", pos: "noun", def: "A permit from an authority to own or use something.", sentence: "Make sure you carry your driver's _____ at all times.", phonetic: "/ˈlaɪ.səns/" },
+                { word: "NEIGHBOR", pos: "noun", def: "A person living next door to or very near to the speaker.", sentence: "Our next-door _____ helped us borrow a ladder.", phonetic: "/ˈneɪ.bər/" },
+                { word: "NOTICEABLE", pos: "adjective", def: "Easily seen or noticed; clear.", sentence: "There was a _____ improvement in her pronunciation.", phonetic: "/ˈnəʊ.tɪ.sə.bəl/" },
+                { word: "PARALLEL", pos: "adjective", def: "Side by side and having the same distance continuously between them.", sentence: "The two main roads run _____ to each other.", phonetic: "/ˈpær.ə.lel/" },
+                { word: "POSSESSION", pos: "noun", def: "The state of having or owning something.", sentence: "Laptops are a valuable _____ for college students.", phonetic: "/pəˈzeʃ.ən/" },
+                { word: "RECEIPT", pos: "noun", def: "A written acknowledgment of having received money or goods.", sentence: "Keep your purchase _____ in case you need a refund.", phonetic: "/rɪˈsiːt/" },
+                { word: "SCHEDULE", pos: "noun", def: "A plan that gives expected times for events or activities.", sentence: "Check your class _____ on the university portal.", phonetic: "/ˈʃed.juːl/" },
+                { word: "SUCCESSFUL", pos: "adjective", def: "Accomplishing an aim or purpose.", sentence: "Hard work is key to a _____ career.", phonetic: "/səkˈses.fəl/" },
+                { word: "TOMORROW", pos: "noun", def: "The day after today.", sentence: "The group presentation is scheduled for _____ morning.", phonetic: "/təˈmɒr.əʊ/" },
+                { word: "VACUUM", pos: "noun", def: "A space entirely devoid of matter.", sentence: "Light travels through a _____ at maximum speed.", phonetic: "/ˈvæk.juːm/" },
+                { word: "WEATHER", pos: "noun", def: "The state of the atmosphere at a place and time.", sentence: "Check the forecast before traveling in bad _____.", phonetic: "/ˈweð.ər/" }
+            ],
+            BUSINESS: [
+                { word: "COLLABORATION", pos: "noun", def: "The action of working with someone to produce something.", sentence: "The project was a successful _____ between departments.", phonetic: "/kəˌlæb.əˈreɪ.ʃən/" },
+                { word: "INFRASTRUCTURE", pos: "noun", def: "The basic physical structures needed for operation.", sentence: "Investing in digital _____ boosts economic growth.", phonetic: "/ˈɪn.frəˌstrʌk.tʃər/" },
+                { word: "IMPLEMENTATION", pos: "noun", def: "The process of putting a decision or plan into effect.", sentence: "The software _____ took three months to complete.", phonetic: "/ˌɪm.plɪ.menˈteɪ.ʃən/" },
+                { word: "NEGOTIATION", pos: "noun", def: "Discussion aimed at reaching an agreement.", sentence: "The contract terms were finalized after intense _____.", phonetic: "/nəˌɡəʊ.ʃiˈeɪ.ʃən/" },
+                { word: "REVENUE", pos: "noun", def: "Income received by an organization.", sentence: "The company reported a 20% increase in quarterly _____.", phonetic: "/ˈrev.ən.juː/" },
+                { word: "ACQUISITION", pos: "noun", def: "An asset or object bought or obtained.", sentence: "The corporate _____ expanded the firm's market reach.", phonetic: "/ˌæk.wɪˈzɪʃ.ən/" },
+                { word: "ACCOUNTABILITY", pos: "noun", def: "The state of being accountable or responsible.", sentence: "Public leaders must maintain high standards of _____.", phonetic: "/əˌkaʊn.təˈbɪl.ə.ti/" },
+                { word: "BENCHMARK", pos: "noun", def: "A standard or point of reference against which things may be compared.", sentence: "Customer satisfaction is our key performance _____.", phonetic: "/ˈbentʃ.mɑːk/" },
+                { word: "COMPLIANCE", pos: "noun", def: "The action of obeying an order, rule, or request.", sentence: "All employees must ensure strictly regulatory _____.", phonetic: "/kəmˈplaɪ.əns/" },
+                { word: "DECENTRALIZED", pos: "adjective", def: "Controlled by several local offices rather than one single group.", sentence: "The technology relies on a _____ network structure.", phonetic: "/ˌdiːˈsen.trə.laɪzd/" },
+                { word: "EFFICIENCY", pos: "noun", def: "The state or quality of achieving maximum productivity.", sentence: "Automation improved operational _____ significantly.", phonetic: "/ɪˈfɪʃ.ən.si/" },
+                { word: "FORECAST", pos: "noun", def: "A prediction or estimate of future events.", sentence: "The financial _____ predicts steady growth next year.", phonetic: "/ˈfɔː.kɑːst/" },
+                { word: "GOVERNANCE", pos: "noun", def: "The action or manner of governing a state or organization.", sentence: "Good corporate _____ protects shareholder interests.", phonetic: "/ˈɡʌv.ən.əns/" },
+                { word: "INCENTIVE", pos: "noun", def: "A thing that motivates or encourages someone to do something.", sentence: "The company offers performance bonuses as an _____.", phonetic: "/ɪnˈsen.tɪv/" },
+                { word: "JURISDICTION", pos: "noun", def: "The official power to make legal decisions and judgments.", sentence: "The case falls under international legal _____.", phonetic: "/ˌdʒʊə.rɪsˈdɪk.ʃən/" },
+                { word: "LIABILITY", pos: "noun", def: "The state of being responsible for something, especially by law.", sentence: "The insurance policy covers personal legal _____.", phonetic: "/ˌlaɪ.əˈbɪl.ə.ti/" },
+                { word: "MONETIZATION", pos: "noun", def: "The process of converting something into money.", sentence: "Social media apps focus heavily on user _____.", phonetic: "/ˌmʌn.ɪ.taɪˈzeɪ.ʃən/" },
+                { word: "OUTSOURCING", pos: "noun", def: "Obtaining goods or services from an outside supplier.", sentence: "IT _____ helped the company cut operational costs.", phonetic: "/ˈaʊtˌsɔː.sɪŋ/" },
+                { word: "PORTFOLIO", pos: "noun", def: "A range of investments held by a person or organization.", sentence: "She manages a diversified investment _____.", phonetic: "/pɔːtˈfəʊ.li.əʊ/" },
+                { word: "PROACTIVE", pos: "adjective", def: "Creating or controlling a situation rather than responding to it.", sentence: "Taking a _____ approach prevents customer complaints.", phonetic: "/prəʊˈæk.tɪv/" },
+                { word: "STRATEGY", pos: "noun", def: "A plan of action designed to achieve a long-term goal.", sentence: "The board approved a new digital marketing _____.", phonetic: "/ˈstræt.ə.dʒi/" },
+                { word: "SUBSIDY", pos: "noun", def: "A sum of money granted by the government to assist an industry.", sentence: "Renewable energy receives government financial _____.", phonetic: "/ˈsʌb.sɪ.di/" },
+                { word: "SUSTAINABILITY", pos: "noun", def: "The ability to be maintained at a certain rate or level.", sentence: "Eco-friendly packaging supports environmental _____.", phonetic: "/səˌsteɪ.nəˈbɪl.ə.ti/" },
+                { word: "SYNERGY", pos: "noun", def: "The interaction or cooperation of two or more organizations.", sentence: "The merger created strong operational _____.", phonetic: "/ˈsɪn.ə.dʒi/" },
+                { word: "TRANSPARENCY", pos: "noun", def: "The condition of being transparent and easy to understand.", sentence: "Open communication promotes workplace _____.", phonetic: "/trænˈspær.ən.si/" }
+            ]
+        };
+
+        /* ==========================================================================
+           2. SOUND ENGINE & SPEECH SYNTHESIS
+           ========================================================================== */
+        class AudioSystem {
+            constructor() {
+                this.enabled = true;
+                this.synth = window.speechSynthesis;
+                this.audioCtx = null;
+            }
+
+            initCtx() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) this.audioCtx = new AudioContext();
+                }
+            }
+
+            speakWord(text, rate = 0.9) {
+                if (!this.enabled || !this.synth) return;
+                this.synth.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = rate;
+                utterance.pitch = 1.0;
+                
+                const voices = this.synth.getVoices();
+                const englishVoice = voices.find(v => v.lang.startsWith('en'));
+                if (englishVoice) utterance.voice = englishVoice;
+
+                this.synth.speak(utterance);
+            }
+
+            playTone(freq, type, duration, vol = 0.1) {
+                if (!this.enabled) return;
+                try {
+                    this.initCtx();
+                    if (!this.audioCtx) return;
+                    if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.type = type;
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(vol, this.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(this.audioCtx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playCorrect() {
+                this.playTone(523.25, 'sine', 0.1, 0.12);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.12, 0.12), 90);
+                setTimeout(() => this.playTone(783.99, 'sine', 0.25, 0.15), 180);
+            }
+
+            playWrong() {
+                this.playTone(200, 'sawtooth', 0.25, 0.15);
+                setTimeout(() => this.playTone(160, 'sawtooth', 0.35, 0.15), 150);
+            }
+        }
+
+        const audio = new AudioSystem();
+
+        /* ==========================================================================
+           3. GAME STATE & TURN ENGINE (15 WORDS / TEAM)
+           ========================================================================== */
+        const WORDS_PER_TURN = 15;
+
+        let activeCategory = "ACADEMIC";
+        let masterCategoryDeck = [];
+        let currentWordObj = null;
+
+        let currentRound = 1;
+        let activeTeam = "TEAM A";
+        let wordsPlayedInCurrentTurn = 0;
+
+        let turnScores = { "TEAM A": 0, "TEAM B": 0 };
+        let totalScores = { "TEAM A": 0, "TEAM B": 0 };
+
+        const screens = {
+            setup: document.getElementById('setupScreen'),
+            game: document.getElementById('gameScreen')
+        };
+
+        function setScreen(screenName) {
+            Object.keys(screens).forEach(k => screens[k].classList.add('hidden'));
+            screens[screenName].classList.remove('hidden');
+            if (screenName === 'game') screens[screenName].classList.add('flex');
+        }
+
+        function initMasterDeck() {
+            if (activeCategory === "ALL") {
+                masterCategoryDeck = [
+                    ...WORD_BANKS.ACADEMIC,
+                    ...WORD_BANKS.MISSPELLED,
+                    ...WORD_BANKS.BUSINESS
+                ];
+            } else {
+                masterCategoryDeck = [...(WORD_BANKS[activeCategory] || WORD_BANKS.ACADEMIC)];
+            }
+
+            // Shuffle master deck thoroughly
+            for (let i = masterCategoryDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [masterCategoryDeck[i], masterCategoryDeck[j]] = [masterCategoryDeck[j], masterCategoryDeck[i]];
+            }
+        }
+
+        function loadWord() {
+            if (masterCategoryDeck.length === 0) {
+                initMasterDeck(); // Refresh deck if exhausted
+            }
+
+            // Pop next unique word from master deck (guarantees Team B won't get Team A's words)
+            currentWordObj = masterCategoryDeck.pop();
+
+            // Update UI Counters
+            document.getElementById('badgeWordCounter').textContent = `WORD ${wordsPlayedInCurrentTurn + 1} / ${WORDS_PER_TURN}`;
+            document.getElementById('hudRoundNumber').textContent = `ROUND ${currentRound}`;
+            document.getElementById('studentSpellingInput').value = '';
+            document.getElementById('hintBox').classList.add('hidden');
+
+            // Populate Hint details
+            document.getElementById('hintPartOfSpeech').textContent = `PART OF SPEECH: ${currentWordObj.pos.toUpperCase()}`;
+            document.getElementById('hintLength').textContent = `${currentWordObj.word.length} LETTERS`;
+            document.getElementById('hintDefinition').innerHTML = `<span class="text-amber-400 font-bold">Definition:</span> ${currentWordObj.def}`;
+            
+            const maskedSentence = currentWordObj.sentence.replace(
+                new RegExp(currentWordObj.word, 'gi'), 
+                '_____'
+            );
+            document.getElementById('hintSentence').innerHTML = `<span class="text-amber-400 font-bold not-italic">Example:</span> "${maskedSentence}"`;
+
+            // Auto-focus input
+            setTimeout(() => {
+                document.getElementById('studentSpellingInput').focus();
+            }, 100);
+
+            // Auto play speech sound
+            setTimeout(() => {
+                playAudioNormal();
+            }, 300);
+        }
+
+        function playAudioNormal() {
+            if (currentWordObj) {
+                audio.speakWord(currentWordObj.word, 0.9);
+            }
+        }
+
+        function playAudioSlow() {
+            if (currentWordObj) {
+                audio.speakWord(currentWordObj.word, 0.55);
+            }
+        }
+
+        function updateScoreUI() {
+            document.getElementById('scoreA').textContent = `${totalScores["TEAM A"]} PTS`;
+            document.getElementById('scoreB').textContent = `${totalScores["TEAM B"]} PTS`;
+
+            const hudA = document.getElementById('hudTeamA');
+            const hudB = document.getElementById('hudTeamB');
+            const turnBadge = document.getElementById('activeSpeakerBadge');
+
+            if (activeTeam === "TEAM A") {
+                hudA.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card border-2 border-amber-400 bg-amber-400/10 cursor-pointer";
+                hudB.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card opacity-60 cursor-pointer";
+                turnBadge.textContent = "TEAM A";
+            } else {
+                hudB.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card border-2 border-amber-400 bg-amber-400/10 cursor-pointer";
+                hudA.className = "flex items-center gap-2 px-3 py-1 rounded-xl glass-card opacity-60 cursor-pointer";
+                turnBadge.textContent = "TEAM B";
+            }
+        }
+
+        function checkSpelling() {
+            const rawInput = document.getElementById('studentSpellingInput').value;
+            const cleanedInput = rawInput.replace(/[^a-zA-Z]/g, '').toUpperCase();
+            const targetWord = currentWordObj.word.toUpperCase();
+
+            const isCorrect = (cleanedInput === targetWord);
+
+            const modal = document.getElementById('resultModal');
+            const iconBg = document.getElementById('resIconBg');
+            const icon = document.getElementById('resIcon');
+            const title = document.getElementById('resTitle');
+            const subtitle = document.getElementById('resSubtitle');
+
+            document.getElementById('resTrueWord').textContent = targetWord;
+            document.getElementById('resPhonetic').textContent = currentWordObj.phonetic || '';
+            document.getElementById('resStudentSpelling').textContent = rawInput.trim().toUpperCase() || '(EMPTY)';
+            document.getElementById('resFullDefinition').textContent = currentWordObj.def;
+
+            if (isCorrect) {
+                audio.playCorrect();
+                turnScores[activeTeam]++;
+                totalScores[activeTeam]++;
+                updateScoreUI();
+
+                iconBg.className = "w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 border border-emerald-500/30";
+                icon.className = "fa-solid fa-circle-check";
+                title.className = "text-2xl font-black text-emerald-400";
+                title.textContent = "EXCELLENT! CORRECT SPELLING!";
+                subtitle.textContent = `+1 Point added to ${activeTeam}`;
+
+                confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+            } else {
+                audio.playWrong();
+                iconBg.className = "w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-3xl mx-auto mb-3 border border-rose-500/30";
+                icon.className = "fa-solid fa-triangle-exclamation";
+                title.className = "text-2xl font-black text-rose-400";
+                title.textContent = "INCORRECT SPELLING!";
+                subtitle.textContent = `Target word was misspelled.`;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function advanceWordOrTurn() {
+            document.getElementById('resultModal').classList.add('hidden');
+            document.getElementById('resultModal').classList.remove('flex');
+
+            wordsPlayedInCurrentTurn++;
+
+            if (wordsPlayedInCurrentTurn >= WORDS_PER_TURN) {
+                // Turn Finished
+                if (activeTeam === "TEAM A") {
+                    showTeamATurnRecap();
+                } else {
+                    showRoundSummaryRecap();
+                }
+            } else {
+                loadWord();
+            }
+        }
+
+        function showTeamATurnRecap() {
+            document.getElementById('recapScoreTeamA').textContent = `${turnScores["TEAM A"]} / ${WORDS_PER_TURN}`;
+            const turnModal = document.getElementById('turnRecapModal');
+            turnModal.classList.remove('hidden');
+            turnModal.classList.add('flex');
+        }
+
+        function startTeamBTurn() {
+            document.getElementById('turnRecapModal').classList.add('hidden');
+            document.getElementById('turnRecapModal').classList.remove('flex');
+
+            activeTeam = "TEAM B";
+            wordsPlayedInCurrentTurn = 0;
+            updateScoreUI();
+            loadWord();
+        }
+
+        function showRoundSummaryRecap() {
+            document.getElementById('roundRecapBadge').textContent = `ROUND ${currentRound} COMPLETE`;
+            document.getElementById('roundScoreA').textContent = totalScores["TEAM A"];
+            document.getElementById('roundScoreB').textContent = totalScores["TEAM B"];
+
+            const title = document.getElementById('roundWinnerTitle');
+            if (totalScores["TEAM A"] > totalScores["TEAM B"]) {
+                title.textContent = "TEAM A LEADS THE MATCH! 🏆";
+            } else if (totalScores["TEAM B"] > totalScores["TEAM A"]) {
+                title.textContent = "TEAM B LEADS THE MATCH! 🏆";
+            } else {
+                title.textContent = "IT'S A TIE ROUND! 🤝";
+            }
+
+            const roundModal = document.getElementById('roundRoundModal') || document.getElementById('roundRecapModal');
+            roundModal.classList.remove('hidden');
+            roundModal.classList.add('flex');
+        }
+
+        function startNextRound() {
+            document.getElementById('roundRecapModal').classList.add('hidden');
+            document.getElementById('roundRecapModal').classList.remove('flex');
+
+            currentRound++;
+            activeTeam = "TEAM A";
+            wordsPlayedInCurrentTurn = 0;
+            turnScores = { "TEAM A": 0, "TEAM B": 0 };
+
+            updateScoreUI();
+            loadWord();
+        }
+
+        /* ==========================================================================
+           4. EVENT BINDINGS
+           ========================================================================== */
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-btn').forEach(b => {
+                    b.classList.remove('border-amber-400', 'active-cat');
+                    b.classList.add('border-slate-700', 'opacity-70');
+                    b.querySelector('p').className = "text-xs font-black text-white";
+                });
+                btn.classList.add('border-amber-400', 'active-cat');
+                btn.classList.remove('border-slate-700', 'opacity-70');
+                btn.querySelector('p').className = "text-xs font-black text-amber-400";
+                
+                activeCategory = btn.getAttribute('data-cat');
+            });
+        });
+
+        document.getElementById('btnStartGame').addEventListener('click', () => {
+            currentRound = 1;
+            activeTeam = "TEAM A";
+            wordsPlayedInCurrentTurn = 0;
+            turnScores = { "TEAM A": 0, "TEAM B": 0 };
+            totalScores = { "TEAM A": 0, "TEAM B": 0 };
+
+            document.getElementById('topStatsBar').classList.remove('hidden');
+            document.getElementById('badgeCategory').textContent = activeCategory;
+            
+            updateScoreUI();
+            initMasterDeck();
+            setScreen('game');
+            loadWord();
+        });
+
+        document.getElementById('btnPlayAudio').addEventListener('click', playAudioNormal);
+        document.getElementById('btnPlaySlow').addEventListener('click', playAudioSlow);
+
+        document.getElementById('btnRevealHint').addEventListener('click', () => {
+            document.getElementById('hintBox').classList.toggle('hidden');
+        });
+
+        document.getElementById('btnClearInput').addEventListener('click', () => {
+            document.getElementById('studentSpellingInput').value = '';
+            document.getElementById('studentSpellingInput').focus();
+        });
+
+        document.getElementById('btnCheckSpelling').addEventListener('click', checkSpelling);
+        document.getElementById('btnSkipWord').addEventListener('click', advanceWordOrTurn);
+        document.getElementById('btnNextWord').addEventListener('click', advanceWordOrTurn);
+
+        document.getElementById('btnStartTeamB').addEventListener('click', startTeamBTurn);
+        document.getElementById('btnNextRound').addEventListener('click', startNextRound);
+        document.getElementById('btnEndSession').addEventListener('click', () => {
+            document.getElementById('roundRecapModal').classList.add('hidden');
+            setScreen('setup');
+        });
+
+        document.getElementById('hudTeamA').addEventListener('click', () => {
+            activeTeam = "TEAM A";
+            updateScoreUI();
+        });
+        document.getElementById('hudTeamB').addEventListener('click', () => {
+            activeTeam = "TEAM B";
+            updateScoreUI();
+        });
+
+        document.getElementById('soundToggleBtn').addEventListener('click', () => {
+            audio.enabled = !audio.enabled;
+            const icon = document.getElementById('soundIcon');
+            icon.className = audio.enabled ? "fa-solid fa-volume-high text-xs text-amber-400" : "fa-solid fa-volume-xmark text-xs text-rose-400";
+        });
+
+        // Custom Words Modal
+        const customModal = document.getElementById('customModal');
+        document.getElementById('btnCustomWords').addEventListener('click', () => {
+            customModal.classList.remove('hidden');
+            customModal.classList.add('flex');
+        });
+        document.getElementById('btnCloseCustom').addEventListener('click', () => {
+            customModal.classList.add('hidden');
+            customModal.classList.remove('flex');
+        });
+        document.getElementById('btnSaveCustom').addEventListener('click', () => {
+            const text = document.getElementById('customWordsInput').value;
+            const parsed = text.split(/[\n,]+/).map(w => w.trim()).filter(w => w.length > 0);
+            
+            if (parsed.length > 0) {
+                WORD_BANKS["CUSTOM"] = parsed.map(w => ({
+                    word: w.toUpperCase(),
+                    pos: "word",
+                    def: "Custom classroom vocabulary item.",
+                    sentence: `The current vocabulary item is "${w.toUpperCase()}".`,
+                    phonetic: ""
+                }));
+                activeCategory = "CUSTOM";
+                document.getElementById('badgeCategory').textContent = "CUSTOM";
+                customModal.classList.add('hidden');
+                customModal.classList.remove('flex');
+                
+                if (!screens.game.classList.contains('hidden')) {
+                    initMasterDeck();
+                    loadWord();
+                }
+            }
+        });
+
+        // Keyboard Hotkeys
+        window.addEventListener('keydown', (e) => {
+            if (screens.game.classList.contains('hidden')) return;
+            const isResultOpen = !document.getElementById('resultModal').classList.contains('hidden');
+
+            if (isResultOpen) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    advanceWordOrTurn();
+                }
+                return;
+            }
+
+            if (e.key === 'Enter' && e.shiftKey) {
+                e.preventDefault();
+                advanceWordOrTurn();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                checkSpelling();
+            } else if (e.key === ' ' && e.shiftKey) {
+                e.preventDefault();
+                playAudioSlow();
+            } else if (e.key === ' ' && !e.shiftKey) {
+                if (document.activeElement !== document.getElementById('studentSpellingInput')) {
+                    e.preventDefault();
+                    playAudioNormal();
+                }
+            } else if (e.key === 'h' || e.key === 'H') {
+                if (document.activeElement !== document.getElementById('studentSpellingInput')) {
+                    e.preventDefault();
+                    document.getElementById('hintBox').classList.toggle('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
