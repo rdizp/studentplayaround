@@ -1095,29 +1095,36 @@
         // Initialize topic deck on page load
         resetTopicDeck();
 
-        function startTimer() {
-            if (isRunning) return;
-            isRunning = true;
-            isPaused = false;
-            document.getElementById('speechStatus').textContent = "SPEAKING...";
-            document.getElementById('speechStatus').className = "text-xs font-black text-[#F4B400] uppercase animate-pulse";
+       function startTimer() {
+    if (isRunning) return;
 
-            timerInterval = setInterval(() => {
-                if (isPaused) return;
+    // Unlock Web Audio langsung dari user interaction
+    sound.init();
+    if (sound.ctx && sound.ctx.state === 'suspended') {
+        sound.ctx.resume();
+    }
 
-                timerSeconds--;
-                updateTimerGraphic();
-                sound.playTick();
+    isRunning = true;
+    isPaused = false;
+    document.getElementById('speechStatus').textContent = "SPEAKING...";
+    document.getElementById('speechStatus').className = "text-xs font-black text-[#F4B400] uppercase animate-pulse";
 
-                if (timerSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    isRunning = false;
-                    sound.playBuzzer();
-                    document.getElementById('speechStatus').textContent = "TIME UP!";
-                    document.getElementById('speechStatus').className = "text-xs font-black text-rose-400 uppercase";
-                }
-            }, 1000);
+    timerInterval = setInterval(() => {
+        if (isPaused) return;
+
+        timerSeconds--;
+        updateTimerGraphic();
+        sound.playTick();
+
+        if (timerSeconds <= 0) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            sound.playBuzzer();
+            document.getElementById('speechStatus').textContent = "TIME UP!";
+            document.getElementById('speechStatus').className = "text-xs font-black text-rose-400 uppercase";
         }
+    }, 1000);
+}
 
         function updateTimerGraphic() {
             document.getElementById('timerText').textContent = timerSeconds;
