@@ -453,7 +453,7 @@
             <div class="grid grid-cols-2 gap-3 w-full mb-5">
                 <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
                     <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-1">TEAM A FINAL SCORE</p>
-                    <p id="summaryScoreA" class="text-3xl font-black text-[#F4B400]">0 PTS</p>
+                    <p id="summaryScoreA" class="text-3xl font-black text-[#F8F9FA]">0 PTS</p>
                 </div>
                 <div class="p-3 rounded-2xl glass-card border border-[#D9D9D9]/20">
                     <p class="text-[9px] uppercase font-extrabold text-[#D9D9D9] mb-1">TEAM B FINAL SCORE</p>
@@ -835,6 +835,22 @@
             document.getElementById('pauseText').textContent = isPaused ? "Resume" : "Pause";
         }
 
+        function updateFinalScoreUI() {
+          const scoreA = document.getElementById('summaryScoreA');
+          const scoreB = document.getElementById('summaryScoreB');
+
+          scoreA.className = "text-3xl font-black text-[#F8F9FA]";
+          scoreB.className = "text-3xl font-black text-[#F8F9FA]";
+
+        if (teamScores["TEAM A"] > teamScores["TEAM B"]) {
+           scoreA.className = "text-3xl font-black text-[#F4B400]";
+          } else if (teamScores["TEAM B"] > teamScores["TEAM A"]) {
+          scoreB.className = "text-3xl font-black text-[#F4B400]";
+          }
+       }
+
+function endSession() {
+
         function endSession() {
             clearInterval(timerInterval);
             let winnerText = "🏆 MATCH TIE!";
@@ -849,6 +865,8 @@
             document.getElementById('summaryWinner').textContent = winnerText;
             document.getElementById('summaryScoreA').textContent = `${teamScores["TEAM A"]} PTS`;
             document.getElementById('summaryScoreB').textContent = `${teamScores["TEAM B"]} PTS`;
+
+            updateFinalScroreUI();
 
             setScreen('summary');
         }
