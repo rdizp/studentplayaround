@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Synonym/Antonym Sprint</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome 6 Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../Favicon.png">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        amber: {
+                            400: '#FBBF24',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Glassmorphism & Depth Tokens */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-glow-amber {
+            box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.15);
+        }
+
+        /* 3D Tactile Buttons */
+        .btn-3d {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
+        }
+        .btn-3d:active {
+            transform: translateY(2px);
+        }
+
+        /* Circular SVG Timer Animation */
+        .timer-ring-circle {
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.3);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.6);
+        }
+
+        /* Shake animation on time expire */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen max-h-screen font-sans flex flex-col justify-between p-2 select-none overflow-hidden">
+
+    <!-- ========================================================================== -->
+    <!-- 1. SETUP PAGE SCREEN (screenSetup) -->
+    <!-- ========================================================================== -->
+    <div id="screenSetup" class="w-full h-full max-h-screen max-w-5xl mx-auto flex flex-col justify-between items-center relative z-20 p-1 md:p-2 overflow-hidden">
+        
+        <!-- TOP HEADER HUD -->
+        <header class="w-full glass-panel rounded-xl px-3 py-1.5 flex justify-between items-center shrink-0 mb-1">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                    <i class="fa-solid fa-spell-check text-xs"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-display font-black text-xs text-white tracking-wider uppercase">SYNONYM / ANTONYM SPRINT</span>
+                    <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[8px] font-black uppercase tracking-widest">
+                        SETUP HUD
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 text-slate-300 text-xs font-bold">
+                <div class="w-6 h-6 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-user-gear text-[10px]"></i>
+                </div>
+                <span class="text-[10px] font-extrabold tracking-wide text-slate-300 hidden sm:inline">Facilitator Control Mode</span>
+            </div>
+        </header>
+
+        <!-- SETUP MAIN CARD CONTAINER -->
+        <div class="w-full flex-1 min-h-0 glass-panel card-glow-amber rounded-2xl p-3 md:p-4 flex flex-col justify-between shadow-2xl relative overflow-hidden mb-1">
+            <!-- Setup Header Title -->
+            <div class="text-center shrink-0 mb-2">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[9px] font-black uppercase tracking-widest mb-0.5">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> Vocabulary Speed Challenge
+                </div>
+                <h1 class="font-display font-black text-xl md:text-2xl text-white tracking-tight leading-none mb-0.5">
+                    SYNONYM / ANTONYM <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">SPRINT</span>
+                </h1>
+                <p class="text-[11px] text-slate-300 font-medium max-w-lg mx-auto">
+                    Configure classroom game mode, timer durations, deck topics, and student roster before launching.
+                </p>
+            </div>
+
+            <!-- Configurations Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-1 flex-1 min-h-0">
+                <!-- Left Config: Game Settings -->
+                <div class="bg-slate-900/80 rounded-xl p-3 border border-slate-800 flex flex-col justify-between">
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-amber-400 mb-1 flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-sliders"></i> Game Session Settings
+                    </h3>
+
+                    <!-- Sprint Mode Choice -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-300 mb-1">Sprint Mode:</label>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <button type="button" onclick="setSetupMode('MIXED')" id="btnModeMIXED" class="py-1.5 rounded-lg bg-amber-500 border border-amber-400 text-[11px] font-black text-slate-950 shadow-md transition-all">Mixed</button>
+                            <button type="button" onclick="setSetupMode('SYNONYM')" id="btnModeSYNONYM" class="py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-black text-slate-300 hover:border-amber-400 transition-all">Synonyms</button>
+                            <button type="button" onclick="setSetupMode('ANTONYM')" id="btnModeANTONYM" class="py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-black text-slate-300 hover:border-amber-400 transition-all">Antonyms</button>
+                        </div>
+                    </div>
+
+                    <!-- Target Words Choice -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-300 mb-1">Words Target per Turn:</label>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <button type="button" onclick="setTargetWords(2)" id="btnTarget2" class="py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-black text-slate-300 hover:border-amber-400 transition-all">2 Words</button>
+                            <button type="button" onclick="setTargetWords(3)" id="btnTarget3" class="py-1 rounded-lg bg-amber-500 border border-amber-400 text-[11px] font-black text-slate-950 shadow-md">3 Words</button>
+                            <button type="button" onclick="setTargetWords(4)" id="btnTarget4" class="py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-black text-slate-300 hover:border-amber-400 transition-all">4 Words</button>
+                        </div>
+                    </div>
+
+                    <!-- Timer Duration Choice -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-300 mb-1">Timer Duration:</label>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <button type="button" onclick="setSetupTimer(10)" id="btnTimer10" class="py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-black text-slate-300 hover:border-amber-400 transition-all">10 Sec</button>
+                            <button type="button" onclick="setSetupTimer(15)" id="btnTimer15" class="py-1 rounded-lg bg-amber-500 border border-amber-400 text-[11px] font-black text-slate-950 shadow-md">15 Sec</button>
+                            <button type="button" onclick="setSetupTimer(20)" id="btnTimer20" class="py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-black text-slate-300 hover:border-amber-400 transition-all">20 Sec</button>
+                        </div>
+                    </div>
+
+                    <!-- Category Deck Selection -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-300 mb-0.5">Vocabulary Deck Category:</label>
+                        <select id="setupCategory" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-white focus:outline-none focus:border-amber-400 cursor-pointer">
+                            <option value="ALL">All Decks (60+ Relatable Everyday Words)</option>
+                            <option value="Everyday">Everyday Life & Social</option>
+                            <option value="Personality">Personality & Emotions</option>
+                            <option value="SchoolWork">School, Study & Work</option>
+                            <option value="Academic">Advanced Vocab</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Right Config: Student Roster Setup -->
+                <div class="bg-slate-900/80 rounded-xl p-3 border border-slate-800 flex flex-col justify-between">
+                    <div class="flex-1 flex flex-col min-h-0">
+                        <div class="flex items-center justify-between mb-1.5 shrink-0">
+                            <h3 class="text-[11px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-users"></i> Student Roster Builder
+                            </h3>
+                            <span id="setupRosterCount" class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-slate-800 text-amber-400 border border-slate-700">0</span>
+                        </div>
+
+                        <!-- Add Student Form in Setup -->
+                        <form id="setupAddStudentForm" class="flex items-center gap-1.5 mb-1.5 shrink-0">
+                            <input 
+                                type="text" 
+                                id="setupStudentInput" 
+                                placeholder="Enter student name..." 
+                                autocomplete="off"
+                                class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-white focus:outline-none focus:border-amber-400 placeholder:text-slate-500"
+                            >
+                            <button 
+                                type="submit" 
+                                class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-md"
+                            >
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>Add</span>
+                            </button>
+                        </form>
+
+                        <!-- Student List Chips -->
+                        <div id="setupRosterList" class="max-h-24 overflow-y-auto min-h-0 flex flex-wrap gap-1 pr-1 content-start mt-1">
+                            <!-- Dynamic roster items -->
+                        </div>
+                    </div>
+
+                    <div class="pt-1.5 border-t border-slate-800/80 text-[9px] text-slate-400 italic shrink-0 mt-2">
+                        <i class="fa-solid fa-circle-info text-amber-400 mr-1"></i> Roster can also be edited live during the game session.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Launch Button -->
+            <div class="shrink-0 flex justify-center mt-2">
+                <button id="btnStartGame" class="w-full max-w-sm py-2.5 px-5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-display font-black text-xs md:text-sm rounded-xl shadow-lg shadow-amber-500/20 btn-3d flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider">
+                    <span>START SPRINT ARENA</span>
+                    <i class="fa-solid fa-bolt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- BOTTOM HUD FOOTER -->
+        <footer class="w-full glass-panel rounded-xl py-1 px-3 text-center text-[9px] text-slate-400 font-medium shrink-0 flex items-center justify-center gap-1.5 border border-slate-800">
+            <i class="fa-solid fa-display text-amber-400 text-[10px]"></i>
+            <span>Zero-Scroll Optimized for 13" Laptop & Projection Displays</span>
+        </footer>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- 2. GAME ARENA PLAY SCREEN (screenGame - hidden by default) -->
+    <!-- ========================================================================== -->
+    <div id="screenGame" class="hidden w-full h-full max-w-7xl mx-auto flex-col justify-between gap-3 relative z-10 my-auto">
+        
+        <!-- TOP NAVIGATION & CONTROLS HEADER -->
+        <header class="w-full py-2.5 px-5 flex justify-between items-center glass-panel rounded-2xl shrink-0">
+            <div class="flex items-center gap-3">
+                <button id="btnBackToSetup" title="Return to Setup Screen [Esc]" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-extrabold transition-all flex items-center gap-1.5 border border-slate-700 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-amber-400 text-xs"></i>
+                    <span>Setup</span>
+                    <kbd class="text-[9px] bg-slate-900 text-amber-400 px-1 py-0.5 rounded font-mono">Esc</kbd>
+                </button>
+                <div class="h-5 w-px bg-slate-700"></div>
+                <div>
+                    <h1 class="font-display font-black text-base text-white leading-tight flex items-center gap-2">
+                        SYNONYM / ANTONYM <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-extrabold uppercase tracking-widest">SPRINT ARENA</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Mode Badge Indicator -->
+                <span id="badgeModeIndicator" class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] font-black uppercase tracking-widest">
+                    MIXED SPRINT MODE
+                </span>
+
+                <!-- Sound Mute Button -->
+                <button id="btnToggleMute" title="Toggle Sound FX" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition-all cursor-pointer border border-slate-700">
+                    <i class="fa-solid fa-volume-high text-xs text-amber-400" id="soundIcon"></i>
+                </button>
+
+                <!-- Reset Deck Button -->
+                <button id="btnResetDeck" title="Reset Deck" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer border border-slate-700">
+                    <i class="fa-solid fa-rotate-right text-xs"></i>
+                    <span class="hidden sm:inline">Reset Deck</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN GAME ARENA GRID -->
+        <main class="w-full flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch overflow-hidden">
+            
+            <!-- LEFT PANEL: CENTRAL PROMPT ARENA (8 COLUMNS) -->
+            <section id="gameStage" class="md:col-span-8 glass-panel card-glow-amber rounded-3xl p-4 md:p-5 flex flex-col justify-between items-center text-center relative overflow-hidden gap-2">
+                
+                <!-- Category & Requirement Header Badges -->
+                <div class="w-full flex justify-between items-center shrink-0">
+                    <span id="badgeCategory" class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black text-[10px] uppercase tracking-widest">
+                        ACADEMIC & ADVANCED
+                    </span>
+                    <span id="badgeDeckCounter" class="px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700 font-extrabold text-[10px] uppercase tracking-wider">
+                        WORD: 1 / 50
+                    </span>
+                </div>
+
+                <!-- WORD DISPLAY CARD -->
+                <div class="w-full flex-1 min-h-0 my-1 px-4 py-3 flex flex-col items-center justify-center bg-slate-900/90 border border-slate-800/80 rounded-2xl shadow-inner relative overflow-hidden">
+                    
+                    <!-- Requirement Tag -->
+                    <div id="requirementBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[11px] font-black uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-bolt text-cyan-400 animate-pulse text-xs"></i>
+                        <span id="requirementText">NAME 3 SYNONYMS</span>
+                    </div>
+
+                    <!-- Target Word -->
+                    <h2 id="wordText" class="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white tracking-wide uppercase my-1">
+                        METICULOUS
+                    </h2>
+
+                    <!-- Hint / Definition Box (Toggleable - ONLY SHOWS DEFINITION) -->
+                    <div id="hintContainer" class="hidden mt-2 p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl text-left max-w-lg w-full transition-all">
+                        <div class="text-[11px] text-slate-300">
+                            <span class="font-extrabold text-amber-400 uppercase">Definition:</span> <span id="hintDefinition" class="font-medium text-slate-200">Showing great attention to detail; careful and precise.</span>
+                        </div>
+                    </div>
+
+                    <!-- Toggle Hint Button -->
+                    <button id="btnToggleHint" class="mt-2 text-[10px] font-bold text-slate-400 hover:text-amber-400 flex items-center gap-1 transition-all cursor-pointer">
+                        <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                        <span id="hintBtnText">Show Definition</span>
+                        <kbd class="text-[8px] bg-slate-800 text-amber-400 px-1 py-0.5 rounded font-mono">H</kbd>
+                    </button>
+                </div>
+
+                <!-- CIRCULAR SVG TIMER DISPLAY -->
+                <div class="relative w-28 h-28 md:w-32 md:h-32 flex items-center justify-center shrink-0 my-0.5">
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <!-- Background Circle Ring -->
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="#1E293B" stroke-width="10" />
+                        <!-- Animated Circular Countdown Ring -->
+                        <circle 
+                            id="timerRing" 
+                            class="timer-ring-circle" 
+                            cx="50" cy="50" r="42" 
+                            fill="none" 
+                            stroke="#F59E0B" 
+                            stroke-width="10" 
+                            stroke-dasharray="263.89" 
+                            stroke-dashoffset="0" 
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                    <!-- Timer Text Center -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="timerText" class="text-3xl md:text-4xl font-black text-white font-mono-num tracking-tighter drop-shadow-md">15.0</span>
+                        <span id="timerStatusLabel" class="text-[9px] font-black uppercase tracking-widest text-slate-400">READY</span>
+                    </div>
+                </div>
+
+                <!-- ACTION CONTROLS WITH INTEGRATED HOTKEYS -->
+                <div class="w-full max-w-2xl grid grid-cols-6 gap-2 shrink-0">
+                    <!-- Start / Pause Timer Button -->
+                    <button id="btnStart" class="col-span-2 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-display font-black text-xs flex items-center justify-center gap-1.5 btn-3d cursor-pointer">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>START TIMER</span>
+                        <kbd class="text-[9px] bg-amber-950/20 text-slate-900 border border-amber-900/30 px-1 py-0.5 rounded font-mono font-bold">Space</kbd>
+                    </button>
+
+                    <!-- Score 1 Word -->
+                    <button id="btnScore1" class="py-2 px-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-display font-black text-xs flex items-center justify-center gap-1 border border-emerald-500/40 btn-3d cursor-pointer">
+                        <span>+1 Wd</span>
+                        <kbd class="text-[8px] bg-slate-900 text-emerald-300 px-1 py-0.5 rounded font-mono">1</kbd>
+                    </button>
+
+                    <!-- Score 2 Words -->
+                    <button id="btnScore2" class="py-2 px-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-display font-black text-xs flex items-center justify-center gap-1 border border-emerald-500/40 btn-3d cursor-pointer">
+                        <span>+2 Wds</span>
+                        <kbd class="text-[8px] bg-slate-900 text-emerald-300 px-1 py-0.5 rounded font-mono">2</kbd>
+                    </button>
+
+                    <!-- Perfect / Full Words -->
+                    <button id="btnScore3" class="py-2 px-1 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-display font-black text-xs flex items-center justify-center gap-1 btn-3d cursor-pointer">
+                        <span>FULL (+3)</span>
+                        <kbd class="text-[8px] bg-emerald-950/40 text-emerald-100 px-1 py-0.5 rounded font-mono">3 / C</kbd>
+                    </button>
+
+                    <!-- Fail Button -->
+                    <button id="btnFail" class="py-2 px-1 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-display font-black text-xs flex items-center justify-center gap-1 btn-3d cursor-pointer">
+                        <span>FAIL (0)</span>
+                        <kbd class="text-[8px] bg-rose-950/40 text-rose-100 px-1 py-0.5 rounded font-mono">F</kbd>
+                    </button>
+                </div>
+
+                <!-- Next Prompt Navigation Button Bar -->
+                <div class="w-full max-w-2xl shrink-0">
+                    <button id="btnNextPrompt" class="w-full py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-slate-700">
+                        <span>NEXT WORD / STUDENT TURN</span>
+                        <kbd class="text-[8px] bg-slate-900 text-amber-400 px-1 py-0.5 rounded font-mono font-bold">N / →</kbd>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: INDIVIDUAL STUDENT LEADERBOARD (4 COLUMNS) -->
+            <section class="md:col-span-4 glass-panel rounded-3xl p-4 flex flex-col justify-between card-glow-amber overflow-hidden h-full">
+                
+                <!-- Leaderboard Header -->
+                <div class="flex items-center justify-between border-b border-slate-700/80 pb-2 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-400 text-sm"></i>
+                        <h3 class="font-display font-black text-xs text-white uppercase tracking-wider">Sprint Leaderboard</h3>
+                    </div>
+                    <span id="playerCountBadge" class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-slate-800 text-amber-400 border border-slate-700">0 Students</span>
+                </div>
+
+                <!-- Add Student Form in Game -->
+                <form id="addStudentForm" class="flex items-center gap-1.5 my-2 shrink-0">
+                    <input 
+                        type="text" 
+                        id="studentNameInput" 
+                        placeholder="Add student name..." 
+                        autocomplete="off"
+                        class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-amber-400 transition-all placeholder:text-slate-500"
+                    >
+                    <button 
+                        type="submit" 
+                        class="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-md"
+                    >
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Add</span>
+                    </button>
+                </form>
+
+                <!-- Scrollable Student Roster & Live Scores List -->
+                <div id="leaderboardList" class="flex-1 overflow-y-auto min-h-0 pr-1 space-y-1.5 my-1">
+                    <!-- Dynamic Roster Generated via JavaScript -->
+                </div>
+
+                <!-- Active Student Indicator Bar -->
+                <div class="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 shrink-0 flex items-center justify-between mt-1">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <i class="fa-solid fa-user-check text-amber-400 text-xs shrink-0"></i>
+                        <div class="truncate">
+                            <p class="text-[8px] uppercase font-bold text-slate-400 leading-none">Active Sprinter:</p>
+                            <p id="activeStudentNameDisplay" class="text-xs font-black text-amber-400 truncate leading-tight mt-0.5">None Selected</p>
+                        </div>
+                    </div>
+                    <span class="text-[9px] font-bold text-slate-400 italic shrink-0">Click to swap</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. RICH COMPREHENSIVE & RELATABLE VOCABULARY DATABASE (60+ WORDS)
+           ========================================================================== */
+        const WORD_DATABASE = [
+            // --- EVERYDAY LIFE & SOCIAL ---
+            { word: "HAPPY", category: "Everyday", definition: "Feeling or showing pleasure or contentment.", synonyms: ["Joyful", "Cheerful", "Delighted", "Glad"], antonyms: ["Sad", "Unhappy", "Miserable", "Gloomy"] },
+            { word: "SAD", category: "Everyday", definition: "Feeling or showing sorrow; unhappy.", synonyms: ["Unhappy", "Sorrowful", "Gloomy", "Depressed"], antonyms: ["Happy", "Joyful", "Cheerful", "Delighted"] },
+            { word: "ANGRY", category: "Everyday", definition: "Having strong feelings of annoyance or hostility.", synonyms: ["Furious", "Mad", "Irritated", "Enraged"], antonyms: ["Calm", "Peaceful", "Pleasant", "Happy"] },
+            { word: "BIG", category: "Everyday", definition: "Of considerable size, extent, or intensity.", synonyms: ["Huge", "Large", "Giant", "Enormous"], antonyms: ["Small", "Tiny", "Little", "Miniature"] },
+            { word: "SMALL", category: "Everyday", definition: "Of a size that is less than normal or average.", synonyms: ["Tiny", "Little", "Miniature", "Compact"], antonyms: ["Big", "Huge", "Large", "Giant"] },
+            { word: "FAST", category: "Everyday", definition: "Moving or capable of moving at high speed.", synonyms: ["Quick", "Rapid", "Swift", "Speedy"], antonyms: ["Slow", "Sluggish", "Gradual", "Delayed"] },
+            { word: "SLOW", category: "Everyday", definition: "Moving or operating at a low speed.", synonyms: ["Sluggish", "Gradual", "Leisurely", "Delayed"], antonyms: ["Fast", "Quick", "Rapid", "Swift"] },
+            { word: "EXPENSIVE", category: "Everyday", definition: "Costing a lot of money.", synonyms: ["Costly", "Pricely", "High-priced", "Lavish"], antonyms: ["Cheap", "Inexpensive", "Affordable", "Low-cost"] },
+            { word: "CHEAP", category: "Everyday", definition: "Low in price or worth little money.", synonyms: ["Inexpensive", "Affordable", "Low-cost", "Budget"], antonyms: ["Expensive", "Costly", "Pricely", "Lavish"] },
+            { word: "BEAUTIFUL", category: "Everyday", definition: "Pleasing the senses or mind aesthetically.", synonyms: ["Pretty", "Attractive", "Gorgeous", "Stunning"], antonyms: ["Ugly", "Hideous", "Unattractive", "Plain"] },
+            { word: "BORING", category: "Everyday", definition: "Not interesting; tedious.", synonyms: ["Dull", "Uninteresting", "Tedious", "Tiresome"], antonyms: ["Exciting", "Interesting", "Fascinating", "Engaging"] },
+            { word: "EXCITING", category: "Everyday", definition: "Causing great enthusiasm and eagerness.", synonyms: ["Thrilling", "Stimulating", "Exhilarating", "Awesome"], antonyms: ["Boring", "Dull", "Tedious", "Monotonous"] },
+            { word: "CLEAN", category: "Everyday", definition: "Free from dirt, marks, or stains.", synonyms: ["Spotless", "Tidy", "Neat", "Pure"], antonyms: ["Dirty", "Messy", "Filthy", "Stained"] },
+            { word: "DIRTY", category: "Everyday", definition: "Covered or marked with an unclean substance.", synonyms: ["Messy", "Filthy", "Grimy", "Stained"], antonyms: ["Clean", "Spotless", "Tidy", "Neat"] },
+            { word: "DELICIOUS", category: "Everyday", definition: "Highly pleasant to the taste or smell.", synonyms: ["Tasty", "Yummy", "Flavorful", "Appetizing"], antonyms: ["Disgusting", "Tasteless", "Awful", "Unpalatable"] },
+            { word: "TIRED", category: "Everyday", definition: "In need of sleep or rest; weary.", synonyms: ["Exhausted", "Weary", "Sleepy", "Drained"], antonyms: ["Energetic", "Fresh", "Alert", "Awake"] },
+            { word: "LOUD", category: "Everyday", definition: "Producing or capable of producing much noise.", synonyms: ["Noisy", "Boisterous", "Deafening", "Shouting"], antonyms: ["Quiet", "Silent", "Soft", "Peaceful"] },
+            { word: "QUIET", category: "Everyday", definition: "Making little or no noise.", synonyms: ["Silent", "Peaceful", "Calm", "Hushed"], antonyms: ["Loud", "Noisy", "Boisterous", "Rowdy"] },
+
+            // --- PERSONALITY & EMOTIONS ---
+            { word: "LAZY", category: "Personality", definition: "Unwilling to work or use energy.", synonyms: ["Slothful", "Idle", "Inactive", "Passive"], antonyms: ["Hardworking", "Diligent", "Active", "Energetic"] },
+            { word: "SMART", category: "Personality", definition: "Having or showing a quick-witted intelligence.", synonyms: ["Intelligent", "Clever", "Bright", "Sharp"], antonyms: ["Stupid", "Dumb", "Foolish", "Ignorant"] },
+            { word: "BRAVE", category: "Personality", definition: "Ready to face and endure danger or pain; showing courage.", synonyms: ["Courageous", "Fearless", "Bold", "Heroic"], antonyms: ["Cowardly", "Fearful", "Scared", "Timid"] },
+            { word: "FRIENDLY", category: "Personality", definition: "Kind and pleasant towards someone.", synonyms: ["Kind", "Warm", "Amiable", "Welcoming"], antonyms: ["Rude", "Unfriendly", "Hostile", "Cold"] },
+            { word: "RUDE", category: "Personality", definition: "Mannerless, impolite, or offensive.", synonyms: ["Impolite", "Disrespectful", "Insolent", "Harsh"], antonyms: ["Polite", "Courteous", "Friendly", "Respectful"] },
+            { word: "HONEST", category: "Personality", definition: "Free of deceit and untruthfulness; sincere.", synonyms: ["Truthful", "Sincere", "Frank", "Genuine"], antonyms: ["Dishonest", "Fake", "Deceitful", "Lying"] },
+            { word: "SHY", category: "Personality", definition: "Nervous or timid in the company of other people.", synonyms: ["Timid", "Reserved", "Bashful", "Introverted"], antonyms: ["Confident", "Outgoing", "Bold", "Extroverted"] },
+            { word: "CONFIDENT", category: "Personality", definition: "Feeling or showing certainty about oneself.", synonyms: ["Self-assured", "Bold", "Certain", "Secure"], antonyms: ["Shy", "Timid", "Insecure", "Uncertain"] },
+            { word: "GENEROUS", category: "Personality", definition: "Showing a readiness to give more of something than is strictly necessary.", synonyms: ["Kind", "Charitable", "Giving", "Unselfish"], antonyms: ["Stingy", "Selfish", "Greedy", "Mean"] },
+            { word: "STINGY", category: "Personality", definition: "Unwilling to give or spend; ungenerous.", synonyms: ["Mean", "Greedy", "Cheap", "Miserly"], antonyms: ["Generous", "Charitable", "Kind", "Giving"] },
+            { word: "CALM", category: "Personality", definition: "Not showing or feeling nervousness, anger, or other strong emotions.", synonyms: ["Peaceful", "Tranquil", "Relaxed", "Serene"], antonyms: ["Anxious", "Nervous", "Wild", "Agitated"] },
+            { word: "WEIRD", category: "Personality", definition: "Strikingly odd or unusual.", synonyms: ["Strange", "Odd", "Bizarre", "Peculiar"], antonyms: ["Normal", "Ordinary", "Typical", "Standard"] },
+            { word: "LUCKY", category: "Personality", definition: "Having, bringing, or resulting from good luck.", synonyms: ["Fortunate", "Blessed", "Favored", "Charmed"], antonyms: ["Unlucky", "Unfortunate", "Cursed", "Doomed"] },
+            { word: "PATIENT", category: "Personality", definition: "Able to accept or tolerate delays, problems, or suffering without becoming annoyed.", synonyms: ["Tolerant", "Calm", "Understanding", "Forbearing"], antonyms: ["Impatient", "Restless", "Agitated", "Eager"] },
+
+            // --- SCHOOL, STUDY & WORK ---
+            { word: "EASY", category: "SchoolWork", definition: "Achieved without great effort; presenting few difficulties.", synonyms: ["Simple", "Effortless", "Uncomplicated", "Straightforward"], antonyms: ["Hard", "Difficult", "Challenging", "Complex"] },
+            { word: "DIFFICULT", category: "SchoolWork", definition: "Needing much effort or skill to accomplish, deal with, or understand.", synonyms: ["Hard", "Challenging", "Complex", "Tough"], antonyms: ["Easy", "Simple", "Effortless", "Straightforward"] },
+            { word: "CORRECT", category: "SchoolWork", definition: "Free from error; in accordance with fact or truth.", synonyms: ["Right", "Accurate", "Exact", "True"], antonyms: ["Wrong", "Incorrect", "False", "Mistaken"] },
+            { word: "WRONG", category: "SchoolWork", definition: "Not correct or true; incorrect.", synonyms: ["Incorrect", "False", "Mistaken", "Erroneous"], antonyms: ["Correct", "Right", "Accurate", "True"] },
+            { word: "IMPORTANT", category: "SchoolWork", definition: "Of great significance or value.", synonyms: ["Crucial", "Vital", "Essential", "Significant"], antonyms: ["Unimportant", "Trivial", "Useless", "Minor"] },
+            { word: "BUSY", category: "SchoolWork", definition: "Having a great deal to do.", synonyms: ["Occupied", "Hectic", "Engaged", "Active"], antonyms: ["Free", "Idle", "Unoccupied", "Relaxed"] },
+            { word: "RICH", category: "SchoolWork", definition: "Having a great deal of money or assets.", synonyms: ["Wealthy", "Affluent", "Prosperous", "Loaded"], antonyms: ["Poor", "Broke", "Impoverished", "Needy"] },
+            { word: "POOR", category: "SchoolWork", definition: "Lacking sufficient money to live comfortably.", synonyms: ["Broke", "Impoverished", "Needy", "Destitute"], antonyms: ["Rich", "Wealthy", "Affluent", "Prosperous"] },
+            { word: "CREATIVE", category: "SchoolWork", definition: "Relating to or involving the use of the imagination or original ideas.", synonyms: ["Inventive", "Original", "Imaginative", "Innovative"], antonyms: ["Unoriginal", "Boring", "Conventional", "Standard"] },
+            { word: "SUCCESSFUL", category: "SchoolWork", definition: "Accomplishing an aim or purpose.", synonyms: ["Prosperous", "Victorious", "Thriving", "Triumphant"], antonyms: ["Unsuccessful", "Failed", "Defeated", "Poor"] },
+            { word: "MODERN", category: "SchoolWork", definition: "Relating to the present or recent times.", synonyms: ["Contemporary", "Current", "State-of-the-art", "New"], antonyms: ["Old-fashioned", "Ancient", "Obsolete", "Outdated"] },
+
+            // --- ADVANCED & ACADEMIC ---
+            { word: "METICULOUS", category: "Academic", definition: "Showing great attention to detail; extremely careful and precise.", synonyms: ["Precise", "Thorough", "Diligent", "Scrupulous"], antonyms: ["Careless", "Sloppy", "Negligent", "Hasty"] },
+            { word: "CANDID", category: "Academic", definition: "Truthful and straightforward; frank and honest.", synonyms: ["Honest", "Frank", "Direct", "Outspoken"], antonyms: ["Deceitful", "Evasive", "Secretive", "Insincere"] },
+            { word: "PRAGMATIC", category: "Academic", definition: "Dealing with things sensibly and realistically based on practical considerations.", synonyms: ["Practical", "Realistic", "Sensible", "Rational"], antonyms: ["Impractical", "Idealistic", "Unrealistic", "Speculative"] },
+            { word: "LUCID", category: "Academic", definition: "Expressed clearly; easy to understand.", synonyms: ["Clear", "Coherent", "Intelligible", "Transparent"], antonyms: ["Confusing", "Vague", "Obscure", "Unclear"] },
+            { word: "RESILIENT", category: "Academic", definition: "Able to withstand or recover quickly from difficult conditions.", synonyms: ["Tough", "Strong", "Adaptable", "Hardy"], antonyms: ["Fragile", "Vulnerable", "Weak", "Delicate"] },
+            { word: "BENEVOLENT", category: "Academic", definition: "Well meaning and kindly.", synonyms: ["Kind", "Generous", "Compassionate", "Charitable"], antonyms: ["Malevolent", "Cruel", "Unkind", "Mean"] },
+            { word: "ZEALOUS", category: "Academic", definition: "Having or showing great energy or enthusiasm in pursuit of a cause or objective.", synonyms: ["Enthusiastic", "Passionate", "Eager", "Fervent"], antonyms: ["Apathetic", "Indifferent", "Unenthusiastic", "Cold"] },
+            { word: "OBSOLETE", category: "Academic", definition: "No longer produced or used; out of date.", synonyms: ["Outdated", "Antiquated", "Defunct", "Old-fashioned"], antonyms: ["Modern", "Current", "Up-to-date", "State-of-the-art"] }
+        ];
+
+        /* ==========================================================================
+           2. WEB AUDIO SYNTHESIZER ENGINE
+           ========================================================================== */
+        class WebAudioSoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTick(pitchMult = 1.0) {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(750 * pitchMult, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(350 * pitchMult, this.ctx.currentTime + 0.04);
+
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            playBuzzer() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+
+                osc1.frequency.setValueAtTime(140, this.ctx.currentTime);
+                osc2.frequency.setValueAtTime(146, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.35);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc1.start();
+                osc2.start();
+                osc1.stop(this.ctx.currentTime + 0.5);
+                osc2.stop(this.ctx.currentTime + 0.5);
+            }
+
+            playSuccess() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.06);
+
+                    gain.gain.setValueAtTime(0.18, this.ctx.currentTime + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.06 + 0.22);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(this.ctx.currentTime + idx * 0.06);
+                    osc.stop(this.ctx.currentTime + idx * 0.06 + 0.22);
+                });
+            }
+        }
+
+        const soundEngine = new WebAudioSoundEngine();
+
+        /* ==========================================================================
+           3. GLOBAL STATE MANAGEMENT
+           ========================================================================== */
+        let sprintMode = "MIXED";
+        let maxTimerDuration = 15.0;
+        let targetWordsCount = 3;
+        const RING_CIRCUMFERENCE = 263.89;
+
+        let activeCategory = "ALL";
+        let wordDeck = [];
+        let currentWordIndex = 0;
+        let currentTurnType = "SYNONYM";
+
+        let timerInterval = null;
+        let timeRemaining = maxTimerDuration;
+        let isTimerRunning = false;
+        let lastTickSecond = 15;
+
+        let students = [
+            { id: 1, name: "Alexander", score: 0 },
+            { id: 2, name: "Jessica M.", score: 0 },
+            { id: 3, name: "David K.", score: 0 }
+        ];
+        let activeStudentId = 1;
+
+        /* DOM Elements */
+        const screenSetup = document.getElementById('screenSetup');
+        const screenGame = document.getElementById('screenGame');
+
+        const timerRing = document.getElementById('timerRing');
+        const timerText = document.getElementById('timerText');
+        const timerStatusLabel = document.getElementById('timerStatusLabel');
+        const wordText = document.getElementById('wordText');
+        const requirementBadge = document.getElementById('requirementBadge');
+        const requirementText = document.getElementById('requirementText');
+        const badgeCategory = document.getElementById('badgeCategory');
+        const badgeDeckCounter = document.getElementById('badgeDeckCounter');
+        const badgeModeIndicator = document.getElementById('badgeModeIndicator');
+
+        const hintContainer = document.getElementById('hintContainer');
+        const hintDefinition = document.getElementById('hintDefinition');
+        const hintAnswers = document.getElementById('hintAnswers');
+        const hintBtnText = document.getElementById('hintBtnText');
+        const btnToggleHint = document.getElementById('btnToggleHint');
+
+        const setupCategory = document.getElementById('setupCategory');
+        const btnStartGame = document.getElementById('btnStartGame');
+        const btnBackToSetup = document.getElementById('btnBackToSetup');
+
+        const btnStart = document.getElementById('btnStart');
+        const btnScore1 = document.getElementById('btnScore1');
+        const btnScore2 = document.getElementById('btnScore2');
+        const btnScore3 = document.getElementById('btnScore3');
+        const btnFail = document.getElementById('btnFail');
+        const btnNextPrompt = document.getElementById('btnNextPrompt');
+        const btnResetDeck = document.getElementById('btnResetDeck');
+        const btnToggleMute = document.getElementById('btnToggleMute');
+
+        const setupAddStudentForm = document.getElementById('setupAddStudentForm');
+        const setupStudentInput = document.getElementById('setupStudentInput');
+        const setupRosterList = document.getElementById('setupRosterList');
+        const setupRosterCount = document.getElementById('setupRosterCount');
+
+        const addStudentForm = document.getElementById('addStudentForm');
+        const studentNameInput = document.getElementById('studentNameInput');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const playerCountBadge = document.getElementById('playerCountBadge');
+        const activeStudentNameDisplay = document.getElementById('activeStudentNameDisplay');
+
+        /* ==========================================================================
+           4. SETUP SCREEN FUNCTIONS
+           ========================================================================== */
+        function renderSetupRoster() {
+            if (!setupRosterList) return;
+            setupRosterList.innerHTML = '';
+            if (setupRosterCount) setupRosterCount.textContent = students.length;
+
+            if (students.length === 0) {
+                setupRosterList.innerHTML = `<span class="text-xs text-slate-500 italic p-1">No students added yet.</span>`;
+                return;
+            }
+
+            students.forEach((student) => {
+                const tag = document.createElement('div');
+                tag.className = 'px-2.5 py-1 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 text-xs font-bold flex items-center gap-1.5';
+                tag.innerHTML = `
+                    <span>${escapeHtml(student.name)}</span>
+                    <button type="button" onclick="removeStudent(${student.id})" class="text-slate-400 hover:text-rose-400 font-black cursor-pointer">×</button>
+                `;
+                setupRosterList.appendChild(tag);
+            });
+        }
+
+        function setSetupMode(mode) {
+            sprintMode = mode;
+            const bMix = document.getElementById('btnModeMIXED');
+            const bSyn = document.getElementById('btnModeSYNONYM');
+            const bAnt = document.getElementById('btnModeANTONYM');
+
+            if (bMix) bMix.className = (mode === 'MIXED') ? 'py-2 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md transition-all' : 'py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (bSyn) bSyn.className = (mode === 'SYNONYM') ? 'py-2 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md transition-all' : 'py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (bAnt) bAnt.className = (mode === 'ANTONYM') ? 'py-2 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md transition-all' : 'py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+        }
+
+        function setTargetWords(count) {
+            targetWordsCount = count;
+            const b2 = document.getElementById('btnTarget2');
+            const b3 = document.getElementById('btnTarget3');
+            const b4 = document.getElementById('btnTarget4');
+
+            if (b2) b2.className = (count === 2) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (b3) b3.className = (count === 3) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (b4) b4.className = (count === 4) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+        }
+
+        function setSetupTimer(seconds) {
+            maxTimerDuration = seconds;
+            timeRemaining = seconds;
+
+            const b10 = document.getElementById('btnTimer10');
+            const b15 = document.getElementById('btnTimer15');
+            const b20 = document.getElementById('btnTimer20');
+
+            if (b10) b10.className = (seconds === 10) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (b15) b15.className = (seconds === 15) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (b20) b20.className = (seconds === 20) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+        }
+
+        function switchScreenToGame() {
+            screenSetup.classList.add('hidden');
+            screenGame.classList.remove('hidden');
+            screenGame.classList.add('flex');
+
+            if (setupCategory) {
+                activeCategory = setupCategory.value;
+            }
+
+            if (badgeModeIndicator) {
+                badgeModeIndicator.textContent = `${sprintMode} SPRINT MODE`;
+            }
+
+            initializeDeck();
+            renderLeaderboard();
+        }
+
+        function switchScreenToSetup() {
+            pauseTimer();
+            screenGame.classList.remove('flex');
+            screenGame.classList.add('hidden');
+            screenSetup.classList.remove('hidden');
+            renderSetupRoster();
+        }
+
+        /* ==========================================================================
+           5. DECK DRAW & RANDOMIZATION LOGIC (NON-REPEATING)
+           ========================================================================== */
+        function initializeDeck() {
+            let filteredWords = WORD_DATABASE;
+            if (activeCategory !== "ALL") {
+                filteredWords = WORD_DATABASE.filter(w => w.category === activeCategory);
+            }
+
+            wordDeck = [...filteredWords];
+            for (let i = wordDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [wordDeck[i], wordDeck[j]] = [wordDeck[j], wordDeck[i]];
+            }
+
+            currentWordIndex = 0;
+            displayCurrentWord();
+        }
+
+        function displayCurrentWord() {
+            if (wordDeck.length === 0) return;
+
+            const wordObj = wordDeck[currentWordIndex];
+            if (wordText) wordText.textContent = wordObj.word;
+            if (badgeCategory) badgeCategory.textContent = wordObj.category.toUpperCase();
+            if (badgeDeckCounter) badgeDeckCounter.textContent = `WORD: ${currentWordIndex + 1} / ${wordDeck.length}`;
+
+            if (sprintMode === 'SYNONYM') {
+                currentTurnType = 'SYNONYM';
+            } else if (sprintMode === 'ANTONYM') {
+                currentTurnType = 'ANTONYM';
+            } else {
+                currentTurnType = (Math.random() > 0.5) ? 'SYNONYM' : 'ANTONYM';
+            }
+
+            if (requirementText) {
+                requirementText.textContent = `NAME ${targetWordsCount} ${currentTurnType}S`;
+            }
+
+            if (requirementBadge) {
+                if (currentTurnType === 'SYNONYM') {
+                    requirementBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[11px] font-black uppercase tracking-wider mb-2";
+                } else {
+                    requirementBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[11px] font-black uppercase tracking-wider mb-2";
+                }
+            }
+
+            if (hintDefinition) hintDefinition.textContent = wordObj.definition;
+
+            if (hintContainer) hintContainer.classList.add('hidden');
+            if (hintBtnText) hintBtnText.textContent = "Show Definition";
+
+            resetTimer();
+        }
+
+        function toggleHint() {
+            if (!hintContainer) return;
+            const isHidden = hintContainer.classList.contains('hidden');
+            if (isHidden) {
+                hintContainer.classList.remove('hidden');
+                if (hintBtnText) hintBtnText.textContent = "Hide Definition";
+            } else {
+                hintContainer.classList.add('hidden');
+                if (hintBtnText) hintBtnText.textContent = "Show Definition";
+            }
+        }
+
+        function nextWord() {
+            if (wordDeck.length === 0) return;
+            currentWordIndex = (currentWordIndex + 1) % wordDeck.length;
+            displayCurrentWord();
+        }
+
+        /* ==========================================================================
+           6. CIRCULAR TIMER ENGINE
+           ========================================================================== */
+        function updateTimerUI() {
+            if (timerText) timerText.textContent = timeRemaining.toFixed(1);
+
+            const fraction = timeRemaining / maxTimerDuration;
+            const strokeOffset = RING_CIRCUMFERENCE - (fraction * RING_CIRCUMFERENCE);
+            if (timerRing) timerRing.style.strokeDashoffset = strokeOffset;
+
+            if (timeRemaining > (maxTimerDuration / 2)) {
+                if (timerRing) timerRing.style.stroke = "#F59E0B";
+                if (timerText) timerText.className = "text-3xl md:text-4xl font-black text-white font-mono-num tracking-tighter";
+            } else if (timeRemaining > 3.0) {
+                if (timerRing) timerRing.style.stroke = "#F97316";
+                if (timerText) timerText.className = "text-3xl md:text-4xl font-black text-amber-400 font-mono-num tracking-tighter";
+            } else {
+                if (timerRing) timerRing.style.stroke = "#E11D48";
+                if (timerText) timerText.className = "text-3xl md:text-4xl font-black text-rose-500 font-mono-num tracking-tighter";
+            }
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            soundEngine.init();
+
+            if (timeRemaining <= 0) {
+                resetTimer();
+            }
+
+            isTimerRunning = true;
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "RUNNING!";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-amber-400 animate-pulse";
+            }
+
+            const startTime = performance.now();
+            const initialTime = timeRemaining;
+            lastTickSecond = Math.ceil(initialTime);
+
+            timerInterval = setInterval(() => {
+                const elapsed = (performance.now() - startTime) / 1000;
+                timeRemaining = Math.max(0, initialTime - elapsed);
+
+                const currentSecondCeil = Math.ceil(timeRemaining);
+                if (currentSecondCeil < lastTickSecond && currentSecondCeil >= 0) {
+                    lastTickSecond = currentSecondCeil;
+                    const pitch = 1.0 + (maxTimerDuration - currentSecondCeil) * 0.05;
+                    soundEngine.playTick(pitch);
+                }
+
+                updateTimerUI();
+
+                if (timeRemaining <= 0) {
+                    handleTimeExpired();
+                }
+            }, 30);
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            isTimerRunning = false;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeRemaining = maxTimerDuration;
+            lastTickSecond = Math.ceil(maxTimerDuration);
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "READY";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-slate-400";
+            }
+            updateTimerUI();
+        }
+
+        function handleTimeExpired() {
+            pauseTimer();
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "TIME'S UP!";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-rose-500";
+            }
+            soundEngine.playBuzzer();
+
+            const stage = document.getElementById('gameStage');
+            if (stage) {
+                stage.classList.add('animate-shake');
+                setTimeout(() => stage.classList.remove('animate-shake'), 400);
+            }
+        }
+
+        /* ==========================================================================
+           7. STUDENT LEADERBOARD & ROSTER MANAGEMENT
+           ========================================================================== */
+        function renderLeaderboard() {
+            if (!leaderboardList) return;
+            leaderboardList.innerHTML = '';
+            if (playerCountBadge) playerCountBadge.textContent = `${students.length} Students`;
+
+            const sorted = [...students].sort((a, b) => b.score - a.score);
+
+            if (sorted.length === 0) {
+                leaderboardList.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-500 text-center p-3">
+                        <i class="fa-solid fa-users text-xl mb-1 opacity-40"></i>
+                        <p class="text-xs font-bold">No students added yet.</p>
+                    </div>
+                `;
+                if (activeStudentNameDisplay) activeStudentNameDisplay.textContent = "None Selected";
+                return;
+            }
+
+            sorted.forEach((student, index) => {
+                const isSelected = (student.id === activeStudentId);
+
+                let rankBadge = `<span class="w-4 h-4 rounded-md bg-slate-800 text-slate-400 text-[9px] font-black flex items-center justify-center shrink-0 border border-slate-700">${index + 1}</span>`;
+                if (index === 0) rankBadge = `<span class="w-4 h-4 rounded-md bg-amber-500 text-slate-950 text-[9px] font-black flex items-center justify-center shrink-0">1</span>`;
+                else if (index === 1) rankBadge = `<span class="w-4 h-4 rounded-md bg-slate-300 text-slate-950 text-[9px] font-black flex items-center justify-center shrink-0">2</span>`;
+                else if (index === 2) rankBadge = `<span class="w-4 h-4 rounded-md bg-amber-700 text-white text-[9px] font-black flex items-center justify-center shrink-0">3</span>`;
+
+                const card = document.createElement('div');
+                card.className = `p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                    isSelected 
+                        ? 'bg-gradient-to-r from-amber-500/20 to-slate-800 text-amber-400 border-amber-500/60 shadow-sm' 
+                        : 'bg-slate-900/60 hover:bg-slate-800/80 text-white border-slate-800'
+                }`;
+
+                card.onclick = () => selectStudent(student.id);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        ${rankBadge}
+                        <div class="truncate">
+                            <p class="text-xs font-black truncate leading-none">${escapeHtml(student.name)}</p>
+                            <p class="text-[9px] ${isSelected ? 'text-amber-300' : 'text-slate-400'} font-extrabold leading-none mt-1">
+                                ${student.score} PTS
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="event.stopPropagation(); adjustScore(${student.id}, 1)" title="+1 Pt" class="w-5 h-5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-white text-emerald-400 font-bold text-xs flex items-center justify-center transition-all border border-emerald-500/30">
+                            +
+                        </button>
+                        <button onclick="event.stopPropagation(); adjustScore(${student.id}, -1)" title="-1 Pt" class="w-5 h-5 rounded-lg bg-rose-500/20 hover:bg-rose-500 hover:text-white text-rose-400 font-bold text-xs flex items-center justify-center transition-all border border-rose-500/30">
+                            -
+                        </button>
+                        <button onclick="event.stopPropagation(); removeStudent(${student.id})" title="Remove Student" class="w-5 h-5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-rose-400 text-xs flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-xmark text-[9px]"></i>
+                        </button>
+                    </div>
+                `;
+
+                leaderboardList.appendChild(card);
+            });
+
+            const activeObj = students.find(s => s.id === activeStudentId);
+            if (activeStudentNameDisplay) {
+                if (activeObj) {
+                    activeStudentNameDisplay.textContent = `${activeObj.name} (${activeObj.score} pts)`;
+                } else {
+                    activeStudentNameDisplay.textContent = "None Selected";
+                }
+            }
+        }
+
+        function selectStudent(id) {
+            activeStudentId = id;
+            renderLeaderboard();
+        }
+
+        function addStudent(name) {
+            if (!name.trim()) return;
+            const newStudent = {
+                id: Date.now(),
+                name: name.trim(),
+                score: 0
+            };
+            students.push(newStudent);
+            activeStudentId = newStudent.id;
+            renderLeaderboard();
+            renderSetupRoster();
+            if (setupStudentInput) setupStudentInput.value = '';
+            if (studentNameInput) studentNameInput.value = '';
+        }
+
+        function adjustScore(id, amount) {
+            const student = students.find(s => s.id === id);
+            if (student) {
+                student.score = Math.max(0, student.score + amount);
+                renderLeaderboard();
+            }
+        }
+
+        function removeStudent(id) {
+            students = students.filter(s => s.id !== id);
+            if (activeStudentId === id) {
+                activeStudentId = students.length > 0 ? students[0].id : null;
+            }
+            renderLeaderboard();
+            renderSetupRoster();
+        }
+
+        function markScore(points) {
+            pauseTimer();
+            if (points > 0) {
+                soundEngine.playSuccess();
+                if (activeStudentId) {
+                    adjustScore(activeStudentId, points);
+                }
+                if (timerStatusLabel) {
+                    timerStatusLabel.textContent = `SUCCESS! (+${points})`;
+                    timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-emerald-400";
+                }
+            } else {
+                soundEngine.playBuzzer();
+                if (timerStatusLabel) {
+                    timerStatusLabel.textContent = "FAILED (0)";
+                    timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-rose-500";
+                }
+            }
+        }
+
+        function toggleSoundMute() {
+            soundEngine.muted = !soundEngine.muted;
+            const isMuted = soundEngine.muted;
+            const iconClass = isMuted ? 'fa-solid fa-volume-xmark text-slate-500' : 'fa-solid fa-volume-high text-amber-400';
+            
+            const soundIcon = document.getElementById('soundIcon');
+            if (soundIcon) soundIcon.className = iconClass;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        /* ==========================================================================
+           8. EVENT BINDINGS & HOTKEYS
+           ========================================================================== */
+        if (btnStartGame) btnStartGame.addEventListener('click', switchScreenToGame);
+        if (btnBackToSetup) btnBackToSetup.addEventListener('click', switchScreenToSetup);
+
+        if (btnStart) {
+            btnStart.addEventListener('click', () => {
+                if (isTimerRunning) pauseTimer(); else startTimer();
+            });
+        }
+
+        if (btnScore1) btnScore1.addEventListener('click', () => markScore(1));
+        if (btnScore2) btnScore2.addEventListener('click', () => markScore(2));
+        if (btnScore3) btnScore3.addEventListener('click', () => markScore(3));
+        if (btnFail) btnFail.addEventListener('click', () => markScore(0));
+        if (btnNextPrompt) btnNextPrompt.addEventListener('click', nextWord);
+        if (btnToggleHint) btnToggleHint.addEventListener('click', toggleHint);
+
+        if (btnResetDeck) {
+            btnResetDeck.addEventListener('click', () => {
+                initializeDeck();
+            });
+        }
+
+        if (btnToggleMute) btnToggleMute.addEventListener('click', toggleSoundMute);
+
+        if (setupAddStudentForm) {
+            setupAddStudentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = setupStudentInput.value.trim();
+                if (name) {
+                    addStudent(name);
+                    setupStudentInput.value = '';
+                }
+            });
+        }
+
+        if (addStudentForm) {
+            addStudentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = studentNameInput.value.trim();
+                if (name) {
+                    addStudent(name);
+                    studentNameInput.value = '';
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !screenGame.classList.contains('hidden')) {
+                switchScreenToSetup();
+                return;
+            }
+
+            if (screenGame.classList.contains('hidden')) return;
+
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            if (key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                if (isTimerRunning) pauseTimer(); else startTimer();
+            } else if (key === '1') {
+                e.preventDefault();
+                markScore(1);
+            } else if (key === '2') {
+                e.preventDefault();
+                markScore(2);
+            } else if (key === '3' || key === 'c' || (key === 'enter' && !e.shiftKey)) {
+                e.preventDefault();
+                markScore(3);
+            } else if (key === 'f') {
+                e.preventDefault();
+                markScore(0);
+            } else if (key === 'h') {
+                e.preventDefault();
+                toggleHint();
+            } else if (key === 'n' || key === 'arrowright') {
+                e.preventDefault();
+                nextWord();
+            }
+        });
+
+        /* ==========================================================================
+           9. INITIALIZATION
+           ========================================================================== */
+        window.onload = function() {
+            renderSetupRoster();
+            setSetupMode('MIXED');
+            setTargetWords(3);
+            setSetupTimer(15);
+        };
+    </script>
+</body>
+</html>
