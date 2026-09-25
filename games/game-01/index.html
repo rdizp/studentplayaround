@@ -196,6 +196,32 @@
                 </div>
             </div>
 
+            <!-- Audio Check -->
+            <div class="glass-card rounded-2xl p-4 border border-amber-400/20 text-left mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p class="font-extrabold text-amber-400 uppercase tracking-wider text-xs flex items-center gap-1.5">
+                 <i class="fa-solid fa-volume-high"></i> Audio Check
+               </p>
+             <p class="text-[11px] text-slate-400 mt-1">
+                Test your device audio before starting the session.
+             </p>
+           </div>
+
+        <button id="btnTestAudio"
+                class="shrink-0 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/30 text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+            <i class="fa-solid fa-play" id="testAudioIcon"></i>
+            <span id="testAudioText">TEST AUDIO</span>
+        </button>
+    </div>
+
+    <p id="audioTestStatus"
+       class="hidden text-[10px] text-emerald-400 font-bold mt-2 flex items-center gap-1.5">
+        <i class="fa-solid fa-circle-check"></i>
+        Audio test completed
+    </p>
+</div>
+
             <!-- Facilitator Hotkeys Guide -->
             <div class="bg-slate-950/80 rounded-2xl p-4 border border-slate-800 text-left mb-6 text-xs text-slate-300">
                 <p class="font-extrabold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -743,6 +769,66 @@
             }
         }
 
+        function testAudio() {
+    const btn = document.getElementById('btnTestAudio');
+    const icon = document.getElementById('testAudioIcon');
+    const text = document.getElementById('testAudioText');
+    const status = document.getElementById('audioTestStatus');
+
+    // Cancel any previous speech
+    if (audio.synth) {
+        audio.synth.cancel();
+    }
+
+    // Visual feedback
+    btn.disabled = true;
+    btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+    icon.className = 'fa-solid fa-volume-high animate-pulse';
+    text.textContent = 'PLAYING...';
+
+    status.classList.add('hidden');
+
+    const testMessage = 'Hello! If you can hear me, your audio is working correctly.';
+
+    if (audio.enabled && audio.synth) {
+        const utterance = new SpeechSynthesisUtterance(testMessage);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+
+        const voices = audio.synth.getVoices();
+        const englishVoice = voices.find(v => v.lang.startsWith('en'));
+        if (englishVoice) utterance.voice = englishVoice;
+
+        utterance.onend = () => {
+            btn.disabled = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+
+            icon.className = 'fa-solid fa-rotate-right';
+            text.textContent = 'TEST AGAIN';
+
+            status.classList.remove('hidden');
+        };
+
+        utterance.onerror = () => {
+            btn.disabled = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+
+            icon.className = 'fa-solid fa-triangle-exclamation';
+            text.textContent = 'TRY AGAIN';
+        };
+
+        audio.synth.speak(utterance);
+    } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+
+        icon.className = 'fa-solid fa-volume-xmark';
+        text.textContent = 'AUDIO OFF';
+    }
+}
+
         function playAudioSlow() {
             if (currentWordObj) {
                 audio.speakWord(currentWordObj.word, 0.55);
@@ -896,6 +982,8 @@
                 activeCategory = btn.getAttribute('data-cat');
             });
         });
+
+        document.getElementById('btnTestAudio').addEventListener('click', testAudio);
 
         document.getElementById('btnStartGame').addEventListener('click', () => {
             currentRound = 1;
