@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Second Rule: Rapid Fire (Individual Battle Royal)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=JetBrains+Mono:wght@700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../Favicon.png">
+
+  
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        navy: {
+                            DEFAULT: '#0F172A',
+                            dark: '#0B0F19',
+                            card: '#1E293B',
+                            light: '#334155'
+                        },
+                        amberGold: '#F59E0B',
+                        cyanNeon: '#06B6D4',
+                        emeraldNeon: '#10B981',
+                        roseNeon: '#F43F5E'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        html, body {
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 20%, #1E293B 0%, #0F172A 60%, #080D1A 100%);
+            color: #F8FAFC;
+        }
+
+        /* Circular Timer SVG Stroke Animation (Clean, No Glow) */
+        .timer-ring-circle {
+            transition: stroke-dashoffset 0.05s linear, stroke 0.3s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Custom Scrollbar for Leaderboard */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.6);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .animate-timer-active {
+            animation: pulseGlow 1s infinite ease-in-out;
+        }
+
+        @keyframes shakeFail {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .animate-shake {
+            animation: shakeFail 0.35s ease-in-out;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-glow-amber {
+            box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
+        .btn-3d {
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen p-3 md:p-4 flex flex-col justify-between bg-slate-950 text-slate-100 relative overflow-hidden">
+
+    <!-- Ambient Background Lighting -->
+    <div class="absolute -top-32 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- ========================================================================== -->
+    <!-- 1. SETUP PAGE SCREEN (screenSetup) -->
+    <!-- ========================================================================== -->
+    <div id="screenSetup" class="w-full h-full max-w-7xl mx-auto flex flex-col justify-between gap-3 relative z-20 overflow-hidden">
+        
+        <!-- SETUP TOP HUD HEADER -->
+        <header class="w-full py-2.5 px-5 flex justify-between items-center glass-panel rounded-2xl shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-stopwatch-20 text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="font-display font-black text-base text-white leading-tight flex items-center gap-2">
+                        5-SECOND RULE <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-extrabold uppercase tracking-widest">SETUP HUD</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="btnSetupToggleMute" title="Toggle Sound FX" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition-all cursor-pointer border border-slate-700">
+                    <i class="fa-solid fa-volume-high text-xs text-amber-400" id="setupSoundIcon"></i>
+                </button>
+                <span class="text-xs font-bold text-slate-400 hidden sm:inline"><i class="fa-solid fa-chalkboard-user text-amber-400 mr-1"></i> Facilitator Control Mode</span>
+            </div>
+        </header>
+
+        <!-- SETUP MAIN CARD CONTAINER -->
+        <div class="w-full max-w-5xl mx-auto flex-1 min-h-0 glass-panel card-glow-amber rounded-3xl p-5 md:p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+            <!-- Setup Header -->
+            <div class="text-center shrink-0">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-black uppercase tracking-widest mb-1.5">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> Individual Battle Royal Mode
+                </div>
+                <h1 class="font-display font-black text-2xl md:text-3xl text-white tracking-tight leading-none mb-1">
+                    5-SECOND RULE <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">RAPID FIRE</span>
+                </h1>
+                <p class="text-xs text-slate-400 font-semibold max-w-lg mx-auto">
+                    Configure session settings, set student roster, and select prompt deck before launching.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0 my-3">
+                <!-- Left Config: Category & Rules -->
+                <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 flex flex-col justify-between overflow-hidden">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-amber-400 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Session Settings
+                    </h3>
+
+                    <!-- Category Deck Selection -->
+                    <div class="mb-3">
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Select Deck Category:</label>
+                        <select id="setupCategory" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-amber-400 cursor-pointer">
+                            <option value="ALL">All Categories (100+ Prompts)</option>
+                            <option value="Campus Life">Campus Life (20 Prompts)</option>
+                            <option value="Dating & Social">Dating & Social (20 Prompts)</option>
+                            <option value="Food & Lifestyle">Food & Lifestyle (20 Prompts)</option>
+                            <option value="Tech & Media">Tech & Media (20 Prompts)</option>
+                            <option value="Pop Culture & Trends">Pop Culture & Trends (20 Prompts)</option>
+                        </select>
+                    </div>
+
+                    <!-- Timer Duration Choice -->
+                    <div class="mb-3">
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Timer Duration:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" onclick="setSetupTimer(3)" id="btnTimer3" class="py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all">3 Sec</button>
+                            <button type="button" onclick="setSetupTimer(5)" id="btnTimer5" class="py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md">5 Sec</button>
+                            <button type="button" onclick="setSetupTimer(7)" id="btnTimer7" class="py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all">7 Sec</button>
+                        </div>
+                    </div>
+
+                    <!-- Game Rules Briefing -->
+                    <div class="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/20 text-[11px] text-amber-300/90 font-medium leading-relaxed">
+                        <i class="fa-solid fa-circle-info text-amber-400 mr-1"></i>
+                        Fastest hand raised gets picked. Press <kbd class="px-1 bg-slate-800 rounded text-amber-400 font-mono">Space</kbd> to launch 5s timer!
+                    </div>
+                </div>
+
+                <!-- Right Config: Student Roster Setup -->
+                <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 flex flex-col justify-between overflow-hidden">
+                    <div class="flex-1 flex flex-col min-h-0">
+                        <div class="flex items-center justify-between mb-2 shrink-0">
+                            <h3 class="text-xs font-black uppercase tracking-widest text-amber-400 flex items-center gap-2">
+                                <i class="fa-solid fa-users"></i> Classroom Roster
+                            </h3>
+                            <span id="setupRosterCount" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-800 text-amber-400 border border-slate-700">0</span>
+                        </div>
+
+                        <!-- Add Student Form in Setup -->
+                        <form id="setupAddStudentForm" class="flex items-center gap-2 mb-2 shrink-0">
+                            <input 
+                                type="text" 
+                                id="setupStudentInput" 
+                                placeholder="Enter student name..." 
+                                autocomplete="off"
+                                class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-amber-400 placeholder:text-slate-500"
+                            >
+                            <button 
+                                type="submit" 
+                                class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                            >
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add</span>
+                            </button>
+                        </form>
+
+                        <!-- Student List Chips -->
+                        <div id="setupRosterList" class="flex-1 overflow-y-auto min-h-0 flex flex-wrap gap-1.5 pr-1 content-start">
+                            <!-- Dynamic roster items -->
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 italic shrink-0 mt-2">
+                        * Roster can also be edited live during the game.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Game Arena Button -->
+            <div class="shrink-0 flex justify-center">
+                <button id="btnStartGame" class="w-full max-w-md py-3 px-6 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-display font-black text-sm rounded-2xl shadow-lg shadow-amber-500/20 btn-3d flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider">
+                    <span>START ARENA SESSION</span>
+                    <i class="fa-solid fa-bolt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SETUP FOOTER HUD -->
+        <footer class="w-full h-8 glass-panel rounded-xl px-4 flex items-center justify-center gap-x-6 text-[10px] text-slate-300 font-bold shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-display text-amber-400"></i>
+                <span class="text-slate-400">Zero-Scroll Optimized for 13" Laptop & Projection Displays</span>
+            </div>
+        </footer>
+    </div>
+
+
+    <!-- ========================================================================== -->
+    <!-- 2. GAME ARENA PLAY SCREEN (screenGame - hidden by default) -->
+    <!-- ========================================================================== -->
+    <div id="screenGame" class="hidden w-full h-full max-w-7xl mx-auto flex-col justify-between gap-3 relative z-10 overflow-hidden">
+        
+        <!-- TOP NAVIGATION & CONTROLS HEADER -->
+        <header class="w-full py-2.5 px-5 flex justify-between items-center glass-panel rounded-2xl shrink-0">
+            <div class="flex items-center gap-3">
+                <button id="btnBackToSetup" title="Return to Setup Screen" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-extrabold transition-all flex items-center gap-1.5 border border-slate-700 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-amber-400 text-xs"></i>
+                    <span>Setup</span>
+                </button>
+                <div class="h-5 w-px bg-slate-700"></div>
+                <div>
+                    <h1 class="font-display font-black text-base text-white leading-tight flex items-center gap-2">
+                        5-SECOND RULE <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-extrabold uppercase tracking-widest">RAPID FIRE</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <!-- Category Filter Dropdown in Game -->
+                <div class="flex items-center gap-2 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <i class="fa-solid fa-filter text-amber-400 text-xs"></i>
+                    <select id="categoryFilter" class="bg-transparent text-xs font-extrabold text-slate-200 focus:outline-none cursor-pointer">
+                        <option value="ALL">All Decks (100+)</option>
+                        <option value="Campus Life">Campus Life (20)</option>
+                        <option value="Dating & Social">Dating & Social (20)</option>
+                        <option value="Food & Lifestyle">Food & Lifestyle (20)</option>
+                        <option value="Tech & Media">Tech & Media (20)</option>
+                        <option value="Pop Culture & Trends">Pop Culture & Trends (20)</option>
+                    </select>
+                </div>
+
+                <!-- Sound Mute Button -->
+                <button id="btnToggleMute" title="Toggle Sound FX" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition-all cursor-pointer border border-slate-700">
+                    <i class="fa-solid fa-volume-high text-xs text-amber-400" id="soundIcon"></i>
+                </button>
+
+                <!-- Reset Decks Button -->
+                <button id="btnResetDeck" title="Reset Prompt Deck" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer border border-slate-700">
+                    <i class="fa-solid fa-rotate-right text-xs"></i>
+                    <span class="hidden sm:inline">Reset Deck</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN GAME ARENA GRID -->
+        <main class="w-full flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch overflow-hidden">
+            
+            <!-- LEFT PANEL: PROMPT CARD & CIRCULAR SVG TIMER (8 COLUMNS) -->
+            <section id="gameStage" class="md:col-span-8 glass-panel card-glow-amber rounded-3xl p-4 md:p-5 flex flex-col justify-between items-center text-center relative overflow-hidden gap-2">
+                
+                <!-- Category & Deck Counter Badges -->
+                <div class="w-full flex justify-between items-center shrink-0">
+                    <span id="badgeCategory" class="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-[10px] uppercase tracking-widest shadow-md shadow-amber-500/20">
+                        CAMPUS LIFE
+                    </span>
+                    <span id="badgeDeckCounter" class="px-3 py-1 rounded-full bg-slate-800/80 text-amber-400 border border-slate-700 font-extrabold text-[10px] uppercase tracking-wider">
+                        PROMPT: 1 / 100
+                    </span>
+                </div>
+
+                <!-- PROMPT TEXT AREA -->
+                <div class="w-full flex-1 min-h-0 my-1 px-4 py-3 flex flex-col items-center justify-center bg-slate-900/90 border border-slate-800/80 rounded-2xl shadow-inner overflow-hidden">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1 flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 shrink-0">
+                        <i class="fa-solid fa-bolt text-amber-400 animate-pulse text-xs"></i> Name 3 things in 5 seconds:
+                    </p>
+                    <h2 id="promptText" class="text-base sm:text-lg md:text-xl lg:text-2xl font-display font-semibold text-white leading-tight flex items-center justify-center text-center max-h-full overflow-y-auto">
+                        Name 3 excuses for missing an 8:00 AM class!
+                    </h2>
+                </div>
+
+                <!-- 5-SECOND CIRCULAR TIMER SVG DISPLAY -->
+                <div class="relative w-28 h-28 md:w-32 md:h-32 flex items-center justify-center shrink-0 my-0.5">
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <!-- Background Circle Ring -->
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="#1E293B" stroke-width="10" />
+                        <!-- Animated Circular Countdown Ring -->
+                        <circle 
+                            id="timerRing" 
+                            class="timer-ring-circle" 
+                            cx="50" cy="50" r="42" 
+                            fill="none" 
+                            stroke="#F59E0B" 
+                            stroke-width="10" 
+                            stroke-dasharray="263.89" 
+                            stroke-dashoffset="0" 
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                    <!-- Timer Text Center -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="timerText" class="text-3xl md:text-4xl font-black text-white font-mono-num tracking-tighter drop-shadow-md">5.0</span>
+                        <span id="timerStatusLabel" class="text-[9px] font-black uppercase tracking-widest text-slate-400">READY</span>
+                    </div>
+                </div>
+
+                <!-- FACILITATOR ACTION BUTTONS WITH INTEGRATED HOTKEYS -->
+                <div class="w-full max-w-xl grid grid-cols-5 gap-2 shrink-0">
+                    <!-- Start Timer Button -->
+                    <button id="btnStart" class="col-span-2 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-display font-black text-xs flex items-center justify-center gap-1.5 btn-3d cursor-pointer">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>START TIMER</span>
+                        <kbd class="text-[9px] bg-amber-950/20 text-slate-900 border border-amber-900/30 px-1 py-0.5 rounded font-mono font-bold">Space</kbd>
+                    </button>
+
+                    <!-- Correct (+1) Button -->
+                    <button id="btnCorrect" class="py-2 px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-display font-black text-xs flex items-center justify-center gap-1 btn-3d cursor-pointer">
+                        <i class="fa-solid fa-circle-check text-[10px]"></i>
+                        <span>+1 PT</span>
+                        <kbd class="text-[8px] bg-emerald-950/40 text-emerald-100 px-1 py-0.5 rounded font-mono font-bold">C / ↵</kbd>
+                    </button>
+
+                    <!-- Fail Button -->
+                    <button id="btnFail" class="py-2 px-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-display font-black text-xs flex items-center justify-center gap-1 btn-3d cursor-pointer">
+                        <i class="fa-solid fa-circle-xmark text-[10px]"></i>
+                        <span>FAIL</span>
+                        <kbd class="text-[8px] bg-rose-950/40 text-rose-100 px-1 py-0.5 rounded font-mono font-bold">F / Esc</kbd>
+                    </button>
+
+                    <!-- Re-steal / Retry Button -->
+                    <button id="btnResteal" title="Instant Retry / Re-steal for next student" class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-display font-black text-xs flex items-center justify-center gap-1 border border-amber-500/40 btn-3d cursor-pointer">
+                        <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                        <span>RE-STEAL</span>
+                        <kbd class="text-[8px] bg-slate-900 text-amber-400 px-1 py-0.5 rounded font-mono font-bold">R</kbd>
+                    </button>
+                </div>
+
+                <!-- Next Prompt Button Bar -->
+                <div class="w-full max-w-xl shrink-0">
+                    <button id="btnNextPrompt" class="w-full py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-slate-700">
+                        <span>NEXT PROMPT DECK</span>
+                        <kbd class="text-[8px] bg-slate-900 text-amber-400 px-1 py-0.5 rounded font-mono font-bold">N / →</kbd>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: INDIVIDUAL STUDENT LEADERBOARD (4 COLUMNS) -->
+            <section class="md:col-span-4 glass-panel rounded-3xl p-4 flex flex-col justify-between card-glow-amber overflow-hidden h-full">
+                
+                <!-- Leaderboard Header -->
+                <div class="flex items-center justify-between border-b border-slate-700/80 pb-2 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-400 text-sm"></i>
+                        <h3 class="font-display font-black text-xs text-white uppercase tracking-wider">Class Leaderboard</h3>
+                    </div>
+                    <span id="playerCountBadge" class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-slate-800 text-amber-400 border border-slate-700">0 Students</span>
+                </div>
+
+                <!-- Add Student Form in Game -->
+                <form id="addStudentForm" class="flex items-center gap-1.5 my-2 shrink-0">
+                    <input 
+                        type="text" 
+                        id="studentNameInput" 
+                        placeholder="Add student..." 
+                        autocomplete="off"
+                        class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-amber-400 transition-all placeholder:text-slate-500"
+                    >
+                    <button 
+                        type="submit" 
+                        class="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-md shadow-amber-500/20"
+                    >
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Add</span>
+                    </button>
+                </form>
+
+                <!-- Scrollable Student Roster & Live Scores List -->
+                <div id="leaderboardList" class="flex-1 overflow-y-auto min-h-0 pr-1 space-y-1.5 my-1">
+                    <!-- Dynamic Roster Generated via JavaScript -->
+                </div>
+
+                <!-- Active Student Indicator -->
+                <div class="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 shrink-0 flex items-center justify-between mt-1">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <i class="fa-solid fa-user-check text-amber-400 text-xs shrink-0"></i>
+                        <div class="truncate">
+                            <p class="text-[8px] uppercase font-bold text-slate-400 leading-none">Active Claimer:</p>
+                            <p id="activeStudentNameDisplay" class="text-xs font-black text-amber-400 truncate leading-tight mt-0.5">None Selected</p>
+                        </div>
+                    </div>
+                    <span class="text-[9px] font-bold text-slate-400 italic shrink-0">Click to score</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. COMPREHENSIVE PROMPT DATABASE (100+ STUDENT-RELATED PROMPTS)
+           ========================================================================== */
+        const PROMPT_DATABASE = [
+            // --- CAMPUS LIFE (20) ---
+            { category: "Campus Life", text: "Name 3 excuses for missing an 8:00 AM lecture!" },
+            { category: "Campus Life", text: "Name 3 things you always find inside a college student's backpack!" },
+            { category: "Campus Life", text: "Name 3 places students go on campus when skipping class!" },
+            { category: "Campus Life", text: "Name 3 types of professors every university has!" },
+            { category: "Campus Life", text: "Name 3 things students do during a boring lecture!" },
+            { category: "Campus Life", text: "Name 3 reasons for failing a group assignment!" },
+            { category: "Campus Life", text: "Name 3 places to sleep on campus other than your dorm room!" },
+            { category: "Campus Life", text: "Name 3 things students buy right after getting their monthly allowance!" },
+            { category: "Campus Life", text: "Name 3 items in the campus cafeteria that everyone avoids!" },
+            { category: "Campus Life", text: "Name 3 lies students tell their parents about college life!" },
+            { category: "Campus Life", text: "Name 3 things you do the night before a final exam!" },
+            { category: "Campus Life", text: "Name 3 clubs or student organizations you can join!" },
+            { category: "Campus Life", text: "Name 3 things that ruin a presentation in front of class!" },
+            { category: "Campus Life", text: "Name 3 complaints students make about campus Wi-Fi!" },
+            { category: "Campus Life", text: "Name 3 things you need to survive a 24-hour study marathon!" },
+            { category: "Campus Life", text: "Name 3 reasons students visit the professor's office hours!" },
+            { category: "Campus Life", text: "Name 3 things you do when your laptop battery dies in class!" },
+            { category: "Campus Life", text: "Name 3 subjects that make students question their major!" },
+            { category: "Campus Life", text: "Name 3 things found in a university library during finals week!" },
+            { category: "Campus Life", text: "Name 3 student slang words for getting an 'A' grade!" },
+
+            // --- DATING & SOCIAL (20) ---
+            { category: "Dating & Social", text: "Name 3 worst places to take someone on a first date!" },
+            { category: "Dating & Social", text: "Name 3 instant red flags in a dating app profile!" },
+            { category: "Dating & Social", text: "Name 3 reasons someone might ghost you after a date!" },
+            { category: "Dating & Social", text: "Name 3 cheesy pickup lines that never work!" },
+            { category: "Dating & Social", text: "Name 3 things you notice about someone in the first 5 seconds!" },
+            { category: "Dating & Social", text: "Name 3 topics you should NEVER discuss on a first date!" },
+            { category: "Dating & Social", text: "Name 3 excuses to leave a bad date early!" },
+            { category: "Dating & Social", text: "Name 3 green flags in a potential partner!" },
+            { category: "Dating & Social", text: "Name 3 things people lie about on dating apps!" },
+            { category: "Dating & Social", text: "Name 3 places to meet new people in college!" },
+            { category: "Dating & Social", text: "Name 3 things that instantly ruin a romantic moment!" },
+            { category: "Dating & Social", text: "Name 3 traits of a terrible roommate!" },
+            { category: "Dating & Social", text: "Name 3 gifts you should never give your partner!" },
+            { category: "Dating & Social", text: "Name 3 reasons people get into arguments with friends!" },
+            { category: "Dating & Social", text: "Name 3 social media habits that turn people off!" },
+            { category: "Dating & Social", text: "Name 3 things you do when you run into your ex on campus!" },
+            { category: "Dating & Social", text: "Name 3 classic birthday party disasters!" },
+            { category: "Dating & Social", text: "Name 3 pet names couples call each other!" },
+            { category: "Dating & Social", text: "Name 3 things people do to look cooler in public!" },
+            { category: "Dating & Social", text: "Name 3 awkward social situations on campus!" },
+
+            // --- FOOD & LIFESTYLE (20) ---
+            { category: "Food & Lifestyle", text: "Name 3 instant meals students survive on!" },
+            { category: "Food & Lifestyle", text: "Name 3 caffeine drinks that keep you awake all night!" },
+            { category: "Food & Lifestyle", text: "Name 3 foods you should never eat in a quiet lecture hall!" },
+            { category: "Food & Lifestyle", text: "Name 3 street foods sold outside the campus gates!" },
+            { category: "Food & Lifestyle", text: "Name 3 pizza toppings that cause fierce arguments!" },
+            { category: "Food & Lifestyle", text: "Name 3 things in a fridge that have definitely expired!" },
+            { category: "Food & Lifestyle", text: "Name 3 snacks you eat while watching movies or studying!" },
+            { category: "Food & Lifestyle", text: "Name 3 fast food chains students visit at midnight!" },
+            { category: "Food & Lifestyle", text: "Name 3 healthy habits students promise to start next week!" },
+            { category: "Food & Lifestyle", text: "Name 3 things you need to cook a decent meal!" },
+            { category: "Food & Lifestyle", text: "Name 3 breakfast items when you only have 2 minutes!" },
+            { category: "Food & Lifestyle", text: "Name 3 ice cream flavors everyone loves!" },
+            { category: "Food & Lifestyle", text: "Name 3 hot drinks people order at coffee shops!" },
+            { category: "Food & Lifestyle", text: "Name 3 spicy foods that make you sweat instantly!" },
+            { category: "Food & Lifestyle", text: "Name 3 things you eat when you are stressed!" },
+            { category: "Food & Lifestyle", text: "Name 3 excuses for not going to the gym today!" },
+            { category: "Food & Lifestyle", text: "Name 3 items in a convenience store under $2!" },
+            { category: "Food & Lifestyle", text: "Name 3 comfort foods after a long exhausting day!" },
+            { category: "Food & Lifestyle", text: "Name 3 fruits that are annoying to peel!" },
+            { category: "Food & Lifestyle", text: "Name 3 things people order when trying to look healthy!" },
+
+            // --- TECH & MEDIA (20) ---
+            { category: "Tech & Media", text: "Name 3 apps you open immediately after waking up!" },
+            { category: "Tech & Media", text: "Name 3 excuses for not answering a text message!" },
+            { category: "Tech & Media", text: "Name 3 streaming platforms students subscribe to!" },
+            { category: "Tech & Media", text: "Name 3 reasons your phone battery drains so fast!" },
+            { category: "Tech & Media", text: "Name 3 social media platforms that waste the most time!" },
+            { category: "Tech & Media", text: "Name 3 search queries in a student's private browsing history!" },
+            { category: "Tech & Media", text: "Name 3 tech gadgets every student wishes they owned!" },
+            { category: "Tech & Media", text: "Name 3 video games people play instead of studying!" },
+            { category: "Tech & Media", text: "Name 3 reasons for leaving a WhatsApp group chat!" },
+            { category: "Tech & Media", text: "Name 3 things that happen when your laptop crashes!" },
+            { category: "Tech & Media", text: "Name 3 popular emojis used in text conversations!" },
+            { category: "Tech & Media", text: "Name 3 AI tools students use for homework support!" },
+            { category: "Tech & Media", text: "Name 3 annoying notifications you get on your phone!" },
+            { category: "Tech & Media", text: "Name 3 things you do when Wi-Fi completely stops working!" },
+            { category: "Tech & Media", text: "Name 3 mobile games with addictive gameplay!" },
+            { category: "Tech & Media", text: "Name 3 YouTube channels students watch while relaxing!" },
+            { category: "Tech & Media", text: "Name 3 bad cyber habits like using '123456' as a password!" },
+            { category: "Tech & Media", text: "Name 3 reasons to post an Instagram story!" },
+            { category: "Tech & Media", text: "Name 3 audio accessories students wear on campus!" },
+            { category: "Tech & Media", text: "Name 3 tech shortcuts like Ctrl+C or Ctrl+V!" },
+
+            // --- POP CULTURE & TRENDS (20) ---
+            { category: "Pop Culture & Trends", text: "Name 3 viral TikTok dance trends or challenges!" },
+            { category: "Pop Culture & Trends", text: "Name 3 famous superhero movies everyone knows!" },
+            { category: "Pop Culture & Trends", text: "Name 3 international pop stars touring right now!" },
+            { category: "Pop Culture & Trends", text: "Name 3 famous K-pop groups with huge fanbases!" },
+            { category: "Pop Culture & Trends", text: "Name 3 slang words Gen Z uses every day!" },
+            { category: "Pop Culture & Trends", text: "Name 3 movie franchises with more than 5 sequels!" },
+            { category: "Pop Culture & Trends", text: "Name 3 reality TV shows people secretly binge-watch!" },
+            { category: "Pop Culture & Trends", text: "Name 3 famous animated movies from Pixar or Disney!" },
+            { category: "Pop Culture & Trends", text: "Name 3 celebrity scandals that broke the internet!" },
+            { category: "Pop Culture & Trends", text: "Name 3 popular fashion trends among university students!" },
+            { category: "Pop Culture & Trends", text: "Name 3 famous anime series watched worldwide!" },
+            { category: "Pop Culture & Trends", text: "Name 3 music genres you listen to while studying!" },
+            { category: "Pop Culture & Trends", text: "Name 3 Hollywood actors who always play the same role!" },
+            { category: "Pop Culture & Trends", text: "Name 3 viral meme templates used online!" },
+            { category: "Pop Culture & Trends", text: "Name 3 movie genres perfect for a weekend watch!" },
+            { category: "Pop Culture & Trends", text: "Name 3 famous music awards or film festivals!" },
+            { category: "Pop Culture & Trends", text: "Name 3 fashion brands students love to wear!" },
+            { category: "Pop Culture & Trends", text: "Name 3 viral trends that died out very quickly!" },
+            { category: "Pop Culture & Trends", text: "Name 3 famous sports athletes active today!" },
+            { category: "Pop Culture & Trends", text: "Name 3 binge-worthy TV series with many seasons!" }
+        ];
+
+        /* ==========================================================================
+           2. WEB AUDIO SYNTHESIZER ENGINE
+           ========================================================================== */
+        class WebAudioSoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTick(pitchMult = 1.0) {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800 * pitchMult, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400 * pitchMult, this.ctx.currentTime + 0.04);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            playBuzzer() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+
+                osc1.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc2.frequency.setValueAtTime(156, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.25, this.ctx.currentTime + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc1.start();
+                osc2.start();
+                osc1.stop(this.ctx.currentTime + 0.6);
+                osc2.stop(this.ctx.currentTime + 0.6);
+            }
+
+            playSuccess() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.07);
+
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.07 + 0.25);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(this.ctx.currentTime + idx * 0.07);
+                    osc.stop(this.ctx.currentTime + idx * 0.07 + 0.25);
+                });
+            }
+
+            playReset() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.15);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+        }
+
+        const soundEngine = new WebAudioSoundEngine();
+
+        /* ==========================================================================
+           3. GLOBAL STATE MANAGEMENT
+           ========================================================================== */
+        let maxTimerDuration = 5.0; // Seconds
+        const RING_CIRCUMFERENCE = 263.89; // 2 * PI * 42
+
+        let activeFilter = "ALL";
+        let promptDeck = [];
+        let currentPromptIndex = 0;
+
+        let timerInterval = null;
+        let timeRemaining = maxTimerDuration;
+        let isTimerRunning = false;
+        let lastTickSecond = 5;
+
+        // Roster Array [{ id, name, score }]
+        let students = [
+            { id: 1, name: "Alexander", score: 0 },
+            { id: 2, name: "Jessica M.", score: 0 },
+            { id: 3, name: "David K.", score: 0 }
+        ];
+        let activeStudentId = 1;
+
+        /* DOM Elements */
+        const screenSetup = document.getElementById('screenSetup');
+        const screenGame = document.getElementById('screenGame');
+
+        const timerRing = document.getElementById('timerRing');
+        const timerText = document.getElementById('timerText');
+        const timerStatusLabel = document.getElementById('timerStatusLabel');
+        const promptText = document.getElementById('promptText');
+        const badgeCategory = document.getElementById('badgeCategory');
+        const badgeDeckCounter = document.getElementById('badgeDeckCounter');
+
+        const setupCategory = document.getElementById('setupCategory');
+        const categoryFilter = document.getElementById('categoryFilter');
+
+        const btnStartGame = document.getElementById('btnStartGame');
+        const btnBackToSetup = document.getElementById('btnBackToSetup');
+
+        const btnStart = document.getElementById('btnStart');
+        const btnCorrect = document.getElementById('btnCorrect');
+        const btnFail = document.getElementById('btnFail');
+        const btnResteal = document.getElementById('btnResteal');
+        const btnNextPrompt = document.getElementById('btnNextPrompt');
+        const btnResetDeck = document.getElementById('btnResetDeck');
+        const btnToggleMute = document.getElementById('btnToggleMute');
+
+        const setupAddStudentForm = document.getElementById('setupAddStudentForm');
+        const setupStudentInput = document.getElementById('setupStudentInput');
+        const setupRosterList = document.getElementById('setupRosterList');
+        const setupRosterCount = document.getElementById('setupRosterCount');
+
+        const addStudentForm = document.getElementById('addStudentForm');
+        const studentNameInput = document.getElementById('studentNameInput');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const playerCountBadge = document.getElementById('playerCountBadge');
+        const activeStudentNameDisplay = document.getElementById('activeStudentNameDisplay');
+
+        /* ==========================================================================
+           4. SETUP SCREEN FUNCTIONS
+           ========================================================================== */
+        function renderSetupRoster() {
+            if (!setupRosterList) return;
+            setupRosterList.innerHTML = '';
+            if (setupRosterCount) setupRosterCount.textContent = students.length;
+
+            if (students.length === 0) {
+                setupRosterList.innerHTML = `<span class="text-xs text-slate-500 italic p-1">No students added yet.</span>`;
+                return;
+            }
+
+            students.forEach((student) => {
+                const tag = document.createElement('div');
+                tag.className = 'px-2 py-1 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 text-xs font-bold flex items-center gap-1.5';
+                tag.innerHTML = `
+                    <span>${escapeHtml(student.name)}</span>
+                    <button type="button" onclick="removeStudent(${student.id})" class="text-slate-400 hover:text-rose-400 font-black cursor-pointer">×</button>
+                `;
+                setupRosterList.appendChild(tag);
+            });
+        }
+
+        function setSetupTimer(seconds) {
+            maxTimerDuration = seconds;
+            timeRemaining = seconds;
+
+            const b3 = document.getElementById('btnTimer3');
+            const b5 = document.getElementById('btnTimer5');
+            const b7 = document.getElementById('btnTimer7');
+
+            if (b3) b3.className = (seconds === 3) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (b5) b5.className = (seconds === 5) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+            if (b7) b7.className = (seconds === 7) ? 'py-1.5 rounded-xl bg-amber-500 border border-amber-400 text-xs font-black text-slate-950 shadow-md' : 'py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-black text-slate-300 hover:border-amber-400 transition-all';
+        }
+
+        function switchScreenToGame() {
+            screenSetup.classList.add('hidden');
+            screenGame.classList.remove('hidden');
+            screenGame.classList.add('flex');
+
+            if (setupCategory && categoryFilter) {
+                activeFilter = setupCategory.value;
+                categoryFilter.value = activeFilter;
+            }
+
+            initializeDeck();
+            renderLeaderboard();
+        }
+
+        function switchScreenToSetup() {
+            pauseTimer();
+            screenGame.classList.remove('flex');
+            screenGame.classList.add('hidden');
+            screenSetup.classList.remove('hidden');
+            renderSetupRoster();
+        }
+
+        /* ==========================================================================
+           5. DECK DRAW & RANDOMIZATION LOGIC (NON-REPEATING)
+           ========================================================================== */
+        function initializeDeck() {
+            let filteredPrompts = PROMPT_DATABASE;
+            if (activeFilter !== "ALL") {
+                filteredPrompts = PROMPT_DATABASE.filter(p => p.category === activeFilter);
+            }
+
+            promptDeck = [...filteredPrompts];
+            for (let i = promptDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [promptDeck[i], promptDeck[j]] = [promptDeck[j], promptDeck[i]];
+            }
+
+            currentPromptIndex = 0;
+            displayCurrentPrompt();
+        }
+
+        function displayCurrentPrompt() {
+            if (promptDeck.length === 0) return;
+
+            const prompt = promptDeck[currentPromptIndex];
+            if (promptText) promptText.textContent = prompt.text;
+            if (badgeCategory) badgeCategory.textContent = prompt.category.toUpperCase();
+            if (badgeDeckCounter) badgeDeckCounter.textContent = `PROMPT: ${currentPromptIndex + 1} / ${promptDeck.length}`;
+
+            resetTimer();
+        }
+
+        function nextPrompt() {
+            if (promptDeck.length === 0) return;
+            currentPromptIndex = (currentPromptIndex + 1) % promptDeck.length;
+            displayCurrentPrompt();
+        }
+
+        /* ==========================================================================
+           6. CIRCULAR TIMER ENGINE
+           ========================================================================== */
+        function updateTimerUI() {
+            if (timerText) timerText.textContent = timeRemaining.toFixed(1);
+
+            const fraction = timeRemaining / maxTimerDuration;
+            const strokeOffset = RING_CIRCUMFERENCE - (fraction * RING_CIRCUMFERENCE);
+            if (timerRing) timerRing.style.strokeDashoffset = strokeOffset;
+
+            if (timeRemaining > (maxTimerDuration / 2)) {
+                if (timerRing) timerRing.style.stroke = "#F59E0B";
+                if (timerText) timerText.className = "text-3xl md:text-4xl font-black text-white font-mono-num tracking-tighter";
+            } else if (timeRemaining > 1.0) {
+                if (timerRing) timerRing.style.stroke = "#F97316";
+                if (timerText) timerText.className = "text-3xl md:text-4xl font-black text-amber-400 font-mono-num tracking-tighter";
+            } else {
+                if (timerRing) timerRing.style.stroke = "#E11D48";
+                if (timerText) timerText.className = "text-3xl md:text-4xl font-black text-rose-500 font-mono-num tracking-tighter";
+            }
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            soundEngine.init();
+
+            if (timeRemaining <= 0) {
+                resetTimer();
+            }
+
+            isTimerRunning = true;
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "RUNNING!";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-amber-400 animate-pulse";
+            }
+            if (btnStart) btnStart.classList.add('animate-timer-active');
+
+            const startTime = performance.now();
+            const initialTime = timeRemaining;
+            lastTickSecond = Math.ceil(initialTime);
+
+            timerInterval = setInterval(() => {
+                const elapsed = (performance.now() - startTime) / 1000;
+                timeRemaining = Math.max(0, initialTime - elapsed);
+
+                const currentSecondCeil = Math.ceil(timeRemaining);
+                if (currentSecondCeil < lastTickSecond && currentSecondCeil >= 0) {
+                    lastTickSecond = currentSecondCeil;
+                    const pitch = 1.0 + (maxTimerDuration - currentSecondCeil) * 0.12;
+                    soundEngine.playTick(pitch);
+                }
+
+                updateTimerUI();
+
+                if (timeRemaining <= 0) {
+                    handleTimeExpired();
+                }
+            }, 30);
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            isTimerRunning = false;
+            if (btnStart) btnStart.classList.remove('animate-timer-active');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeRemaining = maxTimerDuration;
+            lastTickSecond = Math.ceil(maxTimerDuration);
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "READY";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-slate-400";
+            }
+            updateTimerUI();
+        }
+
+        function handleTimeExpired() {
+            pauseTimer();
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "TIME'S UP!";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-rose-500";
+            }
+            soundEngine.playBuzzer();
+
+            const stage = document.getElementById('gameStage');
+            if (stage) {
+                stage.classList.add('animate-shake');
+                setTimeout(() => stage.classList.remove('animate-shake'), 400);
+            }
+        }
+
+        function restealRetry() {
+            soundEngine.playReset();
+            resetTimer();
+            startTimer();
+        }
+
+        /* ==========================================================================
+           7. STUDENT LEADERBOARD & ROSTER MANAGEMENT
+           ========================================================================== */
+        function renderLeaderboard() {
+            if (!leaderboardList) return;
+            leaderboardList.innerHTML = '';
+            if (playerCountBadge) playerCountBadge.textContent = `${students.length} Students`;
+
+            const sorted = [...students].sort((a, b) => b.score - a.score);
+
+            if (sorted.length === 0) {
+                leaderboardList.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-500 text-center p-3">
+                        <i class="fa-solid fa-users text-xl mb-1 opacity-40"></i>
+                        <p class="text-xs font-bold">No students added yet.</p>
+                    </div>
+                `;
+                if (activeStudentNameDisplay) activeStudentNameDisplay.textContent = "None Selected";
+                return;
+            }
+
+            sorted.forEach((student, index) => {
+                const isSelected = (student.id === activeStudentId);
+
+                let rankBadge = `<span class="w-4 h-4 rounded-md bg-slate-800 text-slate-400 text-[9px] font-black flex items-center justify-center shrink-0 border border-slate-700">${index + 1}</span>`;
+                if (index === 0) rankBadge = `<span class="w-4 h-4 rounded-md bg-amber-500 text-slate-950 text-[9px] font-black flex items-center justify-center shrink-0">🥇</span>`;
+                else if (index === 1) rankBadge = `<span class="w-4 h-4 rounded-md bg-slate-300 text-slate-950 text-[9px] font-black flex items-center justify-center shrink-0">🥈</span>`;
+                else if (index === 2) rankBadge = `<span class="w-4 h-4 rounded-md bg-amber-700 text-white text-[9px] font-black flex items-center justify-center shrink-0">🥉</span>`;
+
+                const card = document.createElement('div');
+                card.className = `p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                    isSelected 
+                        ? 'bg-gradient-to-r from-amber-500/20 to-slate-800 text-amber-400 border-amber-500/60 shadow-sm' 
+                        : 'bg-slate-900/60 hover:bg-slate-800/80 text-white border-slate-800'
+                }`;
+
+                card.onclick = () => selectStudent(student.id);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        ${rankBadge}
+                        <div class="truncate">
+                            <p class="text-xs font-black truncate leading-none">${escapeHtml(student.name)}</p>
+                            <p class="text-[9px] ${isSelected ? 'text-amber-300' : 'text-slate-400'} font-extrabold leading-none mt-1">
+                                ${student.score} PTS
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="event.stopPropagation(); adjustScore(${student.id}, 1)" title="+1 Pt" class="w-5 h-5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-white text-emerald-400 font-bold text-xs flex items-center justify-center transition-all border border-emerald-500/30">
+                            +
+                        </button>
+                        <button onclick="event.stopPropagation(); adjustScore(${student.id}, -1)" title="-1 Pt" class="w-5 h-5 rounded-lg bg-rose-500/20 hover:bg-rose-500 hover:text-white text-rose-400 font-bold text-xs flex items-center justify-center transition-all border border-rose-500/30">
+                            -
+                        </button>
+                        <button onclick="event.stopPropagation(); removeStudent(${student.id})" title="Remove Student" class="w-5 h-5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-rose-400 text-xs flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-xmark text-[9px]"></i>
+                        </button>
+                    </div>
+                `;
+
+                leaderboardList.appendChild(card);
+            });
+
+            const activeObj = students.find(s => s.id === activeStudentId);
+            if (activeStudentNameDisplay) {
+                if (activeObj) {
+                    activeStudentNameDisplay.textContent = `${activeObj.name} (${activeObj.score} pts)`;
+                } else {
+                    activeStudentNameDisplay.textContent = "None Selected";
+                }
+            }
+        }
+
+        function selectStudent(id) {
+            activeStudentId = id;
+            renderLeaderboard();
+        }
+
+        function addStudent(name) {
+            if (!name.trim()) return;
+            const newStudent = {
+                id: Date.now(),
+                name: name.trim(),
+                score: 0
+            };
+            students.push(newStudent);
+            activeStudentId = newStudent.id;
+            renderLeaderboard();
+            renderSetupRoster();
+            if (setupStudentInput) setupStudentInput.value = '';
+            if (studentNameInput) studentNameInput.value = '';
+        }
+
+        function adjustScore(id, amount) {
+            const student = students.find(s => s.id === id);
+            if (student) {
+                student.score = Math.max(0, student.score + amount);
+                renderLeaderboard();
+            }
+        }
+
+        function removeStudent(id) {
+            students = students.filter(s => s.id !== id);
+            if (activeStudentId === id) {
+                activeStudentId = students.length > 0 ? students[0].id : null;
+            }
+            renderLeaderboard();
+            renderSetupRoster();
+        }
+
+        function markCorrectAnswer() {
+            pauseTimer();
+            soundEngine.playSuccess();
+            if (activeStudentId) {
+                adjustScore(activeStudentId, 1);
+            }
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "SUCCESS! (+1)";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-emerald-400";
+            }
+        }
+
+        function markFailAnswer() {
+            pauseTimer();
+            soundEngine.playBuzzer();
+            if (timerStatusLabel) {
+                timerStatusLabel.textContent = "FAILED (0)";
+                timerStatusLabel.className = "text-[9px] font-black uppercase tracking-widest text-rose-500";
+            }
+        }
+
+        function toggleSoundMute() {
+            soundEngine.muted = !soundEngine.muted;
+            const isMuted = soundEngine.muted;
+            const iconClass = isMuted ? 'fa-solid fa-volume-xmark text-slate-500' : 'fa-solid fa-volume-high text-amber-400';
+            
+            const soundIcon = document.getElementById('soundIcon');
+            const setupSoundIcon = document.getElementById('setupSoundIcon');
+            
+            if (soundIcon) soundIcon.className = iconClass;
+            if (setupSoundIcon) setupSoundIcon.className = iconClass;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        /* ==========================================================================
+           8. EVENT BINDINGS & HOTKEYS
+           ========================================================================== */
+        if (btnStartGame) btnStartGame.addEventListener('click', switchScreenToGame);
+        if (btnBackToSetup) btnBackToSetup.addEventListener('click', switchScreenToSetup);
+
+        if (btnStart) {
+            btnStart.addEventListener('click', () => {
+                if (isTimerRunning) pauseTimer(); else startTimer();
+            });
+        }
+
+        if (btnCorrect) btnCorrect.addEventListener('click', markCorrectAnswer);
+        if (btnFail) btnFail.addEventListener('click', markFailAnswer);
+        if (btnResteal) btnResteal.addEventListener('click', restealRetry);
+        if (btnNextPrompt) btnNextPrompt.addEventListener('click', nextPrompt);
+
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', (e) => {
+                activeFilter = e.target.value;
+                initializeDeck();
+            });
+        }
+
+        if (btnResetDeck) {
+            btnResetDeck.addEventListener('click', () => {
+                initializeDeck();
+            });
+        }
+
+        if (btnToggleMute) btnToggleMute.addEventListener('click', toggleSoundMute);
+        const btnSetupToggleMute = document.getElementById('btnSetupToggleMute');
+        if (btnSetupToggleMute) btnSetupToggleMute.addEventListener('click', toggleSoundMute);
+
+        if (setupAddStudentForm) {
+            setupAddStudentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = setupStudentInput.value.trim();
+                if (name) {
+                    addStudent(name);
+                    setupStudentInput.value = '';
+                }
+            });
+        }
+
+        if (addStudentForm) {
+            addStudentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = studentNameInput.value.trim();
+                if (name) {
+                    addStudent(name);
+                    studentNameInput.value = '';
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (screenGame.classList.contains('hidden')) return;
+
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            if (key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                if (isTimerRunning) pauseTimer(); else startTimer();
+            } else if (key === 'c' || (key === 'enter' && !e.shiftKey)) {
+                e.preventDefault();
+                markCorrectAnswer();
+            } else if (key === 'f' || key === 'escape' || key === 'arrowdown') {
+                e.preventDefault();
+                markFailAnswer();
+            } else if (key === 'r' || (e.shiftKey && key === 'enter')) {
+                e.preventDefault();
+                restealRetry();
+            } else if (key === 'n' || key === 'arrowright') {
+                e.preventDefault();
+                nextPrompt();
+            }
+        });
+
+        /* ==========================================================================
+           9. INITIALIZATION
+           ========================================================================== */
+        window.onload = function() {
+            renderSetupRoster();
+            setSetupTimer(5);
+        };
+    </script>
+</body>
+</html>
