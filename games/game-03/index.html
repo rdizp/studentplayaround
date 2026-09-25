@@ -849,8 +849,6 @@
           }
        }
 
-function endSession() {
-
         function endSession() {
             clearInterval(timerInterval);
             let winnerText = "🏆 MATCH TIE!";
@@ -866,7 +864,7 @@ function endSession() {
             document.getElementById('summaryScoreA').textContent = `${teamScores["TEAM A"]} PTS`;
             document.getElementById('summaryScoreB').textContent = `${teamScores["TEAM B"]} PTS`;
 
-            updateFinalScroreUI();
+            updateFinalScoreUI();
 
             setScreen('summary');
         }
