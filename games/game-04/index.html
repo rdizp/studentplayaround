@@ -594,6 +594,8 @@
         let timerSeconds = 7;
         let timerInterval = null;
         let isPaused = false;
+        let isRoundTransitioning = false;
+        let roundToastTimeout = null;
 
         let activeTeam = "TEAM A";
         let teamScores = { "TEAM A": 0, "TEAM B": 0 };
@@ -630,13 +632,17 @@
             toastEl.classList.remove('hidden');
             sound.playChime();
 
-            setTimeout(() => {
+            roundToastTimeout = setTimeout(() => {
                 toastEl.classList.add('hidden');
+                isRoundTransitioning = false;
+                roundToastTimeout = null;
+                
                 if (callback) callback();
             }, 1800);
         }
 
         function startRound(roundNum) {
+            isRoundTransitioning = true;
             currentRound = roundNum;
             wordsPlayedInRound = 1;
 
@@ -777,6 +783,8 @@
         }
 
         function submitWord(newWord) {
+            if (isRoundTransitioning) return;
+            
             newWord = newWord.trim().toUpperCase();
             if (!newWord) {
                 newWord = document.getElementById('suggestedWord').textContent;
@@ -804,6 +812,8 @@
         }
 
         function handleTimeOut() {
+            if (isRoundTransitioning) return;
+            
             sound.playBuzzer();
             teamScores[activeTeam] = Math.max(0, teamScores[activeTeam] - 1);
             
@@ -818,6 +828,8 @@
         }
 
         function generateNewStartWord() {
+            if (isRoundTransitioning) return;
+            
             const bank = VOCAB_BANKS[currentRound] || VOCAB_BANKS[1];
             previousWord = "NEW START";
             currentWord = bank[Math.floor(Math.random() * bank.length)];
@@ -830,6 +842,8 @@
         }
 
         function togglePause() {
+            if (isRoundTransitioning) return;
+            
             isPaused = !isPaused;
             document.getElementById('pauseIcon').className = isPaused ? "fa-solid fa-play text-[#F4B400]" : "fa-solid fa-pause text-[#F4B400]";
             document.getElementById('pauseText').textContent = isPaused ? "Resume" : "Pause";
@@ -897,7 +911,21 @@
         document.getElementById('btnStrike').addEventListener('click', handleTimeOut);
         document.getElementById('btnSkip').addEventListener('click', generateNewStartWord);
         document.getElementById('pauseTimerBtn').addEventListener('click', togglePause);
-        document.getElementById('btnBackToSetup').addEventListener('click', () => setScreen('setup'));
+        document.getElementById('btnBackToSetup').addEventListener('click', () => {
+    clearInterval(timerInterval);
+
+    if (roundToastTimeout) {
+        clearTimeout(roundToastTimeout);
+        roundToastTimeout = null;
+    }
+
+    document.getElementById('roundToast').classList.add('hidden');
+
+    isRoundTransitioning = false;
+    isPaused = false;
+
+    setScreen('setup');
+});
 
         // Sound Toggle
         document.getElementById('soundToggleBtn').addEventListener('click', () => {
@@ -946,6 +974,8 @@
             } else if (e.key === 'p' || e.key === 'P') {
                 togglePause();
             } else if (e.key === 'N' || e.key === 'n') {
+                if (isRoundTransitioning) return;
+                
                 if (currentRound < maxRounds) {
                     startRound(currentRound + 1);
                 } else {
