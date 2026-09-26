@@ -524,6 +524,8 @@
         let timerSeconds = 60;
         let timerInterval = null;
         let isPaused = false;
+        let isRoundTransitioning = false;
+        let roundToastTimeout = null;
 
         const screens = {
             setup: document.getElementById('setupScreen'),
@@ -552,13 +554,16 @@
             toastEl.classList.remove('hidden');
             sound.playChime();
 
-            setTimeout(() => {
-                toastEl.classList.add('hidden');
-                if (callback) callback();
-            }, 1800);
+          roundToastTimeout = setTimeout(() => {
+    toastEl.classList.add('hidden');
+    isRoundTransitioning = false;
+    roundToastTimeout = null;
+    if (callback) callback();
+}, 1800);
         }
 
         function startRound(roundNum) {
+            isRoundTransitioning = true;
             currentRound = roundNum;
             const roundWords = TABOO_ROUNDS[currentRound] || TABOO_ROUNDS[1];
             // Take 20 cards max for the round
@@ -616,6 +621,8 @@
         }
 
         function handleCorrect() {
+            if (isRoundTransitioning) return;
+            
             sound.playCorrect();
             teamScores[selectedTeam]++;
             totalPassed++;
@@ -624,6 +631,8 @@
         }
 
         function handleStrike() {
+            if (isRoundTransitioning) return;
+            
             sound.playBuzzer();
             teamScores[selectedTeam] = Math.max(0, teamScores[selectedTeam] - 1);
             totalStrikes++;
@@ -635,6 +644,8 @@
         }
 
         function handleSkip() {
+            if (isRoundTransitioning) return;
+            
             nextCard();
         }
 
@@ -659,6 +670,8 @@
         }
 
         function togglePause() {
+            if (isRoundTransitioning) return;
+            
             isPaused = !isPaused;
             document.getElementById('pauseText').textContent = isPaused ? "Resume" : "Pause";
         }
@@ -696,8 +709,21 @@
         document.getElementById('btnStrike').addEventListener('click', handleStrike);
         document.getElementById('btnSkip').addEventListener('click', handleSkip);
         document.getElementById('pauseTimerBtn').addEventListener('click', togglePause);
-        document.getElementById('btnBackToSetup').addEventListener('click', () => setScreen('setup'));
+        document.getElementById('btnBackToSetup').addEventListener('click', () => {
+    clearInterval(timerInterval);
 
+    if (roundToastTimeout) {
+        clearTimeout(roundToastTimeout);
+        roundToastTimeout = null;
+    }
+
+    document.getElementById('roundToast').classList.add('hidden');
+
+    isRoundTransitioning = false;
+    isPaused = false;
+
+    setScreen('setup');
+});
         // Team Option Selector
         document.querySelectorAll('.team-opt').forEach(btn => {
             btn.addEventListener('click', () => {
