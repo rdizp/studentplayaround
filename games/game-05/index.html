@@ -1170,6 +1170,8 @@
         }
 
         function markCompleted() {
+            if (isRunning || timerSeconds > 0) return;
+            
             sound.playApplause();
             teamScores[activeTeam]++;
             switchTurn();
@@ -1235,8 +1237,15 @@
         document.getElementById('btnComplete').addEventListener('click', markCompleted);
         document.getElementById('pauseTimerBtn').addEventListener('click', togglePause);
         document.getElementById('btnEndSession').addEventListener('click', endSession);
-        document.getElementById('btnBackToSetup').addEventListener('click', () => setScreen('setup'));
+       document.getElementById('btnBackToSetup').addEventListener('click', () => {
+    clearInterval(timerInterval);
 
+    isRunning = false;
+    isPaused = false;
+    timerSeconds = 60;
+
+    setScreen('setup');
+});
         // Allow clicking HUD to manually switch teams
         document.getElementById('hudTeamA').addEventListener('click', () => {
             activeTeam = "TEAM A";
