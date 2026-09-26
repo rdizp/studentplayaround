@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rebus Puzzle: Word Decoder</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../Favicon.png">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        amber: {
+                            300: '#FCDC65',
+                            400: '#F5C22B',
+                            500: '#F4B400',
+                            600: '#D49B00',
+                        },
+                        slate: {
+                            950: '#0C1827',
+                            900: '#132640',
+                            800: '#1E3A5F',
+                            700: '#2F527E',
+                            600: '#52729D',
+                            500: '#94A3B8',
+                            400: '#D9D9D9',
+                            300: '#E8EBEF',
+                            200: '#F8F9FA',
+                            100: '#FFFFFF',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1E3A5F;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(244, 180, 0, 0.18) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(19, 38, 64, 0.8) 0px, transparent 50%);
+            color: #F8F9FA;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(19, 38, 64, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(217, 217, 217, 0.22);
+        }
+
+        .glass-card {
+            background: rgba(30, 58, 95, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(217, 217, 217, 0.18);
+        }
+
+        .glow-amber {
+            box-shadow: 0 0 25px -5px rgba(244, 180, 0, 0.5);
+        }
+
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .glow-rose {
+            box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.4);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(19, 38, 64, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(217, 217, 217, 0.3);
+            border-radius: 3px;
+        }
+
+        .strike-through {
+            position: relative;
+        }
+        .strike-through::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -10%;
+            width: 120%;
+            height: 4px;
+            background-color: #F43F5E;
+            transform: rotate(-15deg);
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
+        }
+
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.98); }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 3s infinite ease-in-out;
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in {
+            animation: pop-in 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between p-4 select-none">
+
+    <script>
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTick() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+
+            playCorrect() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                osc.frequency.setValueAtTime(1046.50, now + 0.3);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            }
+
+            playWrong() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(164.81, now + 0.15);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+
+            playLevelUp() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [440, 554.37, 659.25, 880];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.12, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.3);
+                });
+            }
+        }
+
+        const audio = new SoundFX();
+    </script>
+
+    <script>
+        const REBUS_DATABASE = {
+            1: [ // EASY (Level 1)
+                { id: 'e1', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🔊'}], answer: 'CLOUD', hint: 'A white or gray vapor mass floating in the sky.' },
+                { id: 'e2', formula: [{t:'emoji',v:'🌱'}, {t:'op',v:'-'}, {t:'text',v:'T'}], answer: 'PLAN', hint: 'A detailed proposal for doing or achieving something.' },
+                { id: 'e3', formula: [{t:'emoji',v:'🐝'}, {t:'op',v:'+'}, {t:'emoji',v:'🍃'}], answer: 'BELIEVE', hint: 'To accept something as true or real.' },
+                { id: 'e4', formula: [{t:'emoji',v:'🌧️'}, {t:'op',v:'+'}, {t:'emoji',v:'🏹'}], answer: 'RAINBOW', hint: 'A colorful arch in the sky after rain.' },
+                { id: 'e5', formula: [{t:'emoji',v:'👑'}, {t:'op',v:'+'}, {t:'text',v:'DOM'}], answer: 'KINGDOM', hint: 'A country or territory ruled by a monarch.' },
+                { id: 'e6', formula: [{t:'emoji',v:'🚗'}, {t:'op',v:'+'}, {t:'text',v:'PET'}], answer: 'CARPET', hint: 'A thick woven fabric floor covering.' },
+                { id: 'e7', formula: [{t:'emoji',v:'🌞'}, {t:'op',v:'+'}, {t:'text',v:'SHADE'}], answer: 'SUNSHADE', hint: 'An umbrella or canopy used to block sunlight.' },
+                { id: 'e8', formula: [{t:'emoji',v:'🔑'}, {t:'op',v:'+'}, {t:'emoji',v:'📦'}], answer: 'KEYBOARD', hint: 'An input device used for typing on computers.' },
+                { id: 'e9', formula: [{t:'text',v:'S'}, {t:'op',v:'+'}, {t:'emoji',v:'⭐'}], answer: 'STAR', hint: 'A luminous point in the night sky.' },
+                { id: 'e10', formula: [{t:'emoji',v:'🐕'}, {t:'op',v:'+'}, {t:'text',v:'WOOD'}], answer: 'DOGWOOD', hint: 'A type of flowering tree.' },
+                { id: 'e11', formula: [{t:'emoji',v:'🍿'}, {t:'op',v:'+'}, {t:'emoji',v:'🌽'}], answer: 'POPCORN', hint: 'A popular cinema snack made from heated kernels.' },
+                { id: 'e12', formula: [{t:'text',v:'P'}, {t:'op',v:'+'}, {t:'emoji',v:'🎨'}], answer: 'PART', hint: 'A piece or segment of a whole.' },
+                { id: 'e13', formula: [{t:'text',v:'B'}, {t:'op',v:'+'}, {t:'emoji',v:'🦉'}], answer: 'BOWL', hint: 'A round deep dish used for soup or cereal.' },
+                { id: 'e14', formula: [{t:'emoji',v:'🦶'}, {t:'op',v:'+'}, {t:'emoji',v:'⚽'}], answer: 'FOOTBALL', hint: 'A major international team sport played with a spherical ball.' },
+                { id: 'e15', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'emoji',v:'🐴'}], answer: 'SEAHORSE', hint: 'A small marine fish with a horse-like head.' },
+                { id: 'e16', formula: [{t:'emoji',v:'🚪'}, {t:'op',v:'+'}, {t:'emoji',v:'🔔'}], answer: 'DOORBELL', hint: 'A signaling device placed near a house entry.' },
+                { id: 'e17', formula: [{t:'text',v:'F'}, {t:'op',v:'+'}, {t:'emoji',v:'👑'}], answer: 'FLING', hint: 'To throw or hurl forcefully.' },
+                { id: 'e18', formula: [{t:'emoji',v:'🔥'}, {t:'op',v:'+'}, {t:'emoji',v:'🪰'}], answer: 'FIREFLY', hint: 'A nocturnal beetle that produces soft glowing light.' },
+                { id: 'e19', formula: [{t:'text',v:'T'}, {t:'op',v:'+'}, {t:'emoji',v:'🌧️'}], answer: 'TRAIN', hint: 'A series of connected railway cars.' },
+                { id: 'e20', formula: [{t:'emoji',v:'🌙'}, {t:'op',v:'+'}, {t:'emoji',v:'🐴'}], answer: 'NIGHTMARE', hint: 'A frightening or unpleasant dream.' },
+                { id: 'e21', formula: [{t:'emoji',v:'🍯'}, {t:'op',v:'+'}, {t:'emoji',v:'🌙'}], answer: 'HONEYMOON', hint: 'A holiday taken by a newly married couple.' }
+            ],
+            2: [ // MEDIUM (Level 2)
+                { id: 'm1', formula: [{t:'emoji',v:'🧠'}, {t:'op',v:'+'}, {t:'emoji',v:'🌩️'}], answer: 'BRAINSTORM', hint: 'A group problem-solving technique for generating ideas.' },
+                { id: 'm2', formula: [{t:'text',v:'GR'}, {t:'op',v:'+'}, {t:'emoji',v:'🍇', sub:'G = P'}], answer: 'GRAPE', hint: 'A small green or purple fruit growing in clusters.' },
+                { id: 'm3', formula: [{t:'emoji',v:'🐱'}, {t:'op',v:'+'}, {t:'text',v:'FISH'}], answer: 'CATFISH', hint: 'A freshwater fish with whisker-like barbels.' },
+                { id: 'm4', formula: [{t:'emoji',v:'🍞'}, {t:'op',v:'-'}, {t:'text',v:'AD'}], answer: 'BREA', hint: 'Phonetic root or shortened word segment.' },
+                { id: 'm5', formula: [{t:'emoji',v:'📜'}, {t:'op',v:'+'}, {t:'text',v:'BACK'}], answer: 'PAPERBACK', hint: 'A book with a flexible, thin cover.' },
+                { id: 'm6', formula: [{t:'emoji',v:'🍉'}, {t:'op',v:'+'}, {t:'emoji',v:'🌊'}], answer: 'WATERMELON', hint: 'A large juicy fruit with dark red sweet flesh.' },
+                { id: 'm7', formula: [{t:'emoji',v:'☀️'}, {t:'op',v:'+'}, {t:'emoji',v:'🌻'}], answer: 'SUNFLOWER', hint: 'A tall plant with a large yellow flower head.' },
+                { id: 'm8', formula: [{t:'text',v:'S'}, {t:'op',v:'+'}, {t:'emoji',v:'🦅'}], answer: 'SHOCK', hint: 'A sudden discharge of electricity or surprise.' },
+                { id: 'm9', formula: [{t:'emoji',v:'🍦'}, {t:'op',v:'+'}, {t:'text',v:'CREAM'}], answer: 'ICE CREAM', hint: 'A frozen sweet dessert made from dairy.' },
+                { id: 'm10', formula: [{t:'text',v:'B'}, {t:'op',v:'+'}, {t:'emoji',v:'🐂'}], answer: 'BOX', hint: 'A square or rectangular container.' },
+                { id: 'm11', formula: [{t:'emoji',v:'🖊️'}, {t:'op',v:'+'}, {t:'emoji',v:'🗡️'}], answer: 'PENGUIN', hint: 'A flightless aquatic bird living in polar regions.' },
+                { id: 'm12', formula: [{t:'text',v:'SP'}, {t:'op',v:'+'}, {t:'emoji',v:'👁️'}], answer: 'SPY', hint: 'A person who secretly collects intelligence.' },
+                { id: 'm13', formula: [{t:'emoji',v:'👂'}, {t:'op',v:'+'}, {t:'emoji',v:'💍'}], answer: 'EARRING', hint: 'A piece of jewelry worn on the earlobe.' },
+                { id: 'm14', formula: [{t:'emoji',v:'🐉'}, {t:'op',v:'+'}, {t:'emoji',v:'🪰'}], answer: 'DRAGONFLY', hint: 'An insect with long body and transparent wings.' },
+                { id: 'm15', formula: [{t:'text',v:'F'}, {t:'op',v:'+'}, {t:'emoji',v:'🥖'}], answer: 'THREAD', hint: 'A long thin strand used in sewing.' },
+                { id: 'm16', formula: [{t:'text',v:'ST'}, {t:'op',v:'+'}, {t:'emoji',v:'💍'}], answer: 'STRING', hint: 'Thin cord or twine used for tying.' },
+                { id: 'm17', formula: [{t:'emoji',v:'🥛'}, {t:'op',v:'+'}, {t:'emoji',v:'🐮'}], answer: 'MILKSHAKE', hint: 'A sweet beverage made by blending milk and ice cream.' },
+                { id: 'm18', formula: [{t:'text',v:'J'}, {t:'op',v:'+'}, {t:'emoji',v:'🎒'}], answer: 'JACK', hint: 'A playing card or mechanical lifting tool.' },
+                { id: 'm19', formula: [{t:'emoji',v:'🪥'}, {t:'op',v:'+'}, {t:'emoji',v:'🪥'}], answer: 'TOOTHBRUSH', hint: 'A brush used for cleaning teeth.' },
+                { id: 'm20', formula: [{t:'emoji',v:'💡'}, {t:'op',v:'+'}, {t:'text',v:'HOUSE'}], answer: 'LIGHTHOUSE', hint: 'A tower with a bright light to guide ships at sea.' },
+                { id: 'm21', formula: [{t:'text',v:'D'}, {t:'op',v:'+'}, {t:'emoji',v:'🛋️'}], answer: 'DRESS', hint: 'A one-piece garment for women or girls.' }
+            ],
+            3: [ // HARD (Level 3)
+                { id: 'h1', formula: [{t:'emoji',v:'🚗'}, {t:'op',v:'+'}, {t:'strike',v:'C'}, {t:'emoji',v:'🐱', sub:'C = T'}], answer: 'CARAT', hint: 'A unit of weight for precious stones and gold purity.' },
+                { id: 'h2', formula: [{t:'emoji',v:'🐝'}, {t:'op',v:'+'}, {t:'emoji',v:'4️⃣'}, {t:'op',v:'-'}, {t:'text',v:'R'}], answer: 'BEFORE', hint: 'During the time preceding a certain event.' },
+                { id: 'h3', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🧢'}, {t:'op',v:'+'}, {t:'text',v:'TIN'}], answer: 'CAPTAIN', hint: 'The leader or commander of a ship, aircraft, or team.' },
+                { id: 'h4', formula: [{t:'emoji',v:'👨'}, {t:'op',v:'+'}, {t:'text',v:'GO'}], answer: 'MANGO', hint: 'A sweet tropical fruit with yellow-orange flesh.' },
+                { id: 'h5', formula: [{t:'text',v:'P'}, {t:'op',v:'+'}, {t:'emoji',v:'🛏️'}, {t:'op',v:'-'}, {t:'text',v:'D'}, {t:'op',v:'+'}, {t:'text',v:'AL'}], answer: 'PEDAL', hint: 'A foot-operated lever on a bicycle or vehicle.' },
+                { id: 'h6', formula: [{t:'text',v:'TH'}, {t:'op',v:'+'}, {t:'emoji',v:'🧊'}], answer: 'THIS', hint: 'Used to identify a specific person or thing close at hand.' },
+                { id: 'h7', formula: [{t:'emoji',v:'🏆'}, {t:'op',v:'+'}, {t:'emoji',v:'🚪'}], answer: 'WINDOW', hint: 'An opening in a wall to let in light and air.' },
+                { id: 'h8', formula: [{t:'emoji',v:'🦧', sub:'APE = APR'}, {t:'op',v:'+'}, {t:'text',v:'IL'}], answer: 'APRIL', hint: 'The fourth month of the calendar year.' },
+                { id: 'h9', formula: [{t:'text',v:'HER'}, {t:'op',v:'+'}, {t:'emoji',v:'💍'}, {t:'op',v:'+'}, {t:'text',v:'ES'}], answer: 'HEROES', hint: 'People admired for courage or outstanding achievements.' },
+                { id: 'h10', formula: [{t:'emoji',v:'🐜'}, {t:'op',v:'+'}, {t:'emoji',v:'⛰️'}], answer: 'ANTHILL', hint: 'A mound formed by ants building their underground nest.' },
+                { id: 'h11', formula: [{t:'emoji',v:'🚪'}, {t:'op',v:'+'}, {t:'emoji',v:'📜'}], answer: 'OUTLAW', hint: 'A fugitive who has violated the legal code.' },
+                { id: 'h12', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🌽', sub:'RN = CO'}], answer: 'COCO', hint: 'Short form or sound unit for chocolate/coconut.' },
+                { id: 'h13', formula: [{t:'text',v:'S'}, {t:'op',v:'+'}, {t:'emoji',v:'🎯'}, {t:'op',v:'+'}, {t:'text',v:'E'}], answer: 'SAME', hint: 'Identical, not different.' },
+                { id: 'h14', formula: [{t:'emoji',v:'🌧️'}, {t:'op',v:'+'}, {t:'emoji',v:'🦌'}], answer: 'REINDEER', hint: 'A deer of tundra regions with large antlers.' },
+                { id: 'h15', formula: [{t:'text',v:'DIS'}, {t:'op',v:'+'}, {t:'emoji',v:'🎯'}], answer: 'DISCOUNT', hint: 'A deduction from the usual price of something.' },
+                { id: 'h16', formula: [{t:'emoji',v:'🌞'}, {t:'op',v:'+'}, {t:'emoji',v:'🛏️'}], answer: 'DAYDREAM', hint: 'Pleasant thoughts that make you forget current surroundings.' },
+                { id: 'h17', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'emoji',v:'🐚'}], answer: 'SEASHELL', hint: 'The hard protective outer layer of a marine animal.' },
+                { id: 'h18', formula: [{t:'emoji',v:'👑'}, {t:'op',v:'+'}, {t:'emoji',v:'🐟'}], answer: 'KINGFISH', hint: 'A large edible ocean fish.' },
+                { id: 'h19', formula: [{t:'text',v:'M'}, {t:'op',v:'+'}, {t:'emoji',v:'🪨'}], answer: 'MORE', hint: 'A greater or additional quantity.' },
+                { id: 'h20', formula: [{t:'text',v:'L'}, {t:'op',v:'+'}, {t:'emoji',v:'👂'}, {t:'op',v:'+'}, {t:'text',v:'N'}], answer: 'LEARN', hint: 'To acquire knowledge or skills through study.' }
+            ],
+            4: [ // SUPER HARD (Level 4)
+                { id: 'sh1', formula: [{t:'text',v:'M'}, {t:'op',v:'+'}, {t:'emoji',v:'🧊'}, {t:'op',v:'-'}, {t:'text',v:'CE'}, {t:'op',v:'+'}, {t:'text',v:'SS'}], answer: 'MISS', hint: 'To fail to hit, reach, or catch something.' },
+                { id: 'sh2', formula: [{t:'emoji',v:'👁️'}, {t:'op',v:'+'}, {t:'emoji',v:'🔤'}, {t:'op',v:'-'}, {t:'text',v:'TER'}], answer: 'ISLET', hint: 'A very small island.' },
+                { id: 'sh3', formula: [{t:'text',v:'B'}, {t:'op',v:'+'}, {t:'emoji',v:'🎯'}, {t:'op',v:'-'}, {t:'text',v:'LL'}, {t:'op',v:'+'}, {t:'text',v:'S'}], answer: 'BUS', hint: 'Large motor vehicle carrying passengers.' },
+                { id: 'sh4', formula: [{t:'emoji',v:'🍎'}, {t:'op',v:'-'}, {t:'text',v:'PLE'}, {t:'op',v:'+'}, {t:'emoji',v:'🚗'}], answer: 'APART', hint: 'Separated by a distance or distance in time.' },
+                { id: 'sh5', formula: [{t:'text',v:'FOR'}, {t:'op',v:'+'}, {t:'emoji',v:'🪨'}], answer: 'FORGET', hint: 'To fail to remember or recall.' },
+                { id: 'sh6', formula: [{t:'emoji',v:'🪵'}, {t:'op',v:'+'}, {t:'text',v:'I'}, {t:'op',v:'+'}, {t:'text',v:'CAL'}], answer: 'LOGICAL', hint: 'Clear, sound reasoning and sensible conclusions.' },
+                { id: 'sh7', formula: [{t:'text',v:'SUB'}, {t:'op',v:'+'}, {t:'emoji',v:'🌊'}], answer: 'SUBMARINE', hint: 'A warship designed to operate completely underwater.' },
+                { id: 'sh8', formula: [{t:'emoji',v:'🔥'}, {t:'op',v:'+'}, {t:'text',v:'MAKER'}], answer: 'MATCHMAKER', hint: 'A person who arranges marriages or relationships.' },
+                { id: 'sh9', formula: [{t:'emoji',v:'🪐'}, {t:'op',v:'+'}, {t:'emoji',v:'🚢'}], answer: 'SPACESHIP', hint: 'A vehicle designed for travel in outer space.' },
+                { id: 'sh10', formula: [{t:'text',v:'OVER'}, {t:'op',v:'+'}, {t:'emoji',v:'⏰'}], answer: 'OVERTIME', hint: 'Time worked in addition to normal working hours.' },
+                { id: 'sh11', formula: [{t:'emoji',v:'⚡'}, {t:'op',v:'+'}, {t:'emoji',v:'💡'}], answer: 'FLASHLIGHT', hint: 'A portable battery-powered electric lamp.' },
+                { id: 'sh12', formula: [{t:'text',v:'UNDER'}, {t:'op',v:'+'}, {t:'emoji',v:'🐕'}], answer: 'UNDERDOG', hint: 'A competitor thought to have little chance of winning.' },
+                { id: 'sh13', formula: [{t:'emoji',v:'🌧️'}, {t:'op',v:'+'}, {t:'emoji',v:'🧥'}], answer: 'RAINCOAT', hint: 'A waterproof coat worn to protect from rain.' },
+                { id: 'sh14', formula: [{t:'text',v:'OUT'}, {t:'op',v:'+'}, {t:'emoji',v:'🚪'}], answer: 'OUTSIDE', hint: 'The external side or outer surface.' },
+                { id: 'sh15', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'text',v:'AL'}], answer: 'TIDAL', hint: 'Relating to or affected by ocean tides.' },
+                { id: 'sh16', formula: [{t:'text',v:'UP'}, {t:'op',v:'+'}, {t:'emoji',v:'📜'}], answer: 'UPSTAIRS', hint: 'On or to a higher floor of a building.' },
+                { id: 'sh17', formula: [{t:'emoji',v:'☀️'}, {t:'op',v:'+'}, {t:'emoji',v:'💥'}], answer: 'SUNBURST', hint: 'A sudden burst of sunlight through clouds.' },
+                { id: 'sh18', formula: [{t:'text',v:'GRAND'}, {t:'op',v:'+'}, {t:'emoji',v:'🎹'}], answer: 'GRAND PIANO', hint: 'A large acoustic piano with horizontal strings.' }
+            ]
+        };
+    </script>
+
+    <script>
+        const state = {
+            view: 'setup',
+            mode: 'single_level',
+            currentLevel: 1,
+            timerSetting: 15,
+            timerRemaining: 15,
+            timerInterval: null,
+            timerRunning: false,
+            
+            playerRoster: [
+                { id: 1, name: 'Student 1', score: 0, correct: 0, passed: 0 },
+                { id: 2, name: 'Student 2', score: 0, correct: 0, passed: 0 },
+                { id: 3, name: 'Student 3', score: 0, correct: 0, passed: 0 }
+            ],
+            activePlayerIndex: 0,
+            
+            puzzlePool: [],
+            currentPuzzleIndex: 0,
+            currentPuzzle: null,
+            
+            showHint: false
+        };
+    </script>
+
+    <!-- MAIN CONTAINER WITH FIXED 100vh ZERO-SCROLL LAYOUT -->
+    <main id="app-root" class="w-full max-w-6xl mx-auto h-full flex flex-col justify-between py-1 px-3 relative">
+
+        <!-- VIEW 1: SETUP CARD -->
+        <section id="view-setup" class="flex-1 flex flex-col items-center justify-center py-0.5 overflow-hidden">
+            
+            <!-- TOP SETUP HUD HEADER -->
+            <div class="w-full max-w-3xl mb-2 flex items-center justify-between glass-panel px-4 py-2 rounded-xl border border-white/10 text-xs shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🧩</span>
+                    <div>
+                        <div class="font-extrabold text-amber-400 tracking-wider text-sm uppercase flex items-center gap-2">
+                            <span>REBUS PUZZLE</span>
+                            <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-amber-500/30">WORD DECODER</span>
+                        </div>
+                        <div class="text-xs text-slate-300 font-semibold">CLASSROOM RAPID-FIRE • SOLO SPRINT EDITION</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-slate-800/80 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> READY
+                    </span>
+                    <span class="bg-slate-800/80 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-lg text-xs font-bold">
+                        🖥️ 13" DISPLAY
+                    </span>
+                </div>
+            </div>
+
+            <div class="glass-panel w-full max-w-3xl rounded-2xl p-5 shadow-2xl relative overflow-hidden border border-white/10 flex flex-col justify-between my-auto z-20">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                    <h2 class="text-sm font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
+                        <span>🎮</span> SESSION CONFIGURATION &amp; ROSTER
+                    </h2>
+                    <span class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-lg">SETUP ARENA</span>
+                </div>
+
+                <!-- 3-COLUMN TOP CONFIGURATION ROW -->
+                <div class="grid grid-cols-3 gap-3 mb-3">
+                    <!-- Game Mode Selection -->
+                    <div class="space-y-1.5 bg-slate-900/50 p-2.5 rounded-xl border border-white/5">
+                        <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">🎯 Game Mode</label>
+                        <div class="grid grid-cols-1 gap-1.5">
+                            <button type="button" onclick="setMode('single_level')" id="btn-mode-single" class="p-2 rounded-xl border text-left transition-all text-xs font-bold border-amber-500/50 bg-amber-500/10 text-amber-300">
+                                <div class="text-xs font-extrabold">🎯 Single Level</div>
+                                <div class="text-[10px] text-slate-300 font-medium">Practice 1 Level</div>
+                            </button>
+                            <button type="button" onclick="setMode('climb')" id="btn-mode-climb" class="p-2 rounded-xl border text-left transition-all text-xs font-bold border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600">
+                                <div class="text-xs font-extrabold">🚀 Level Climb</div>
+                                <div class="text-[10px] text-slate-300 font-medium">L1 → L4 Progression</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Timer Duration Option -->
+                    <div class="space-y-1.5 bg-slate-900/50 p-2.5 rounded-xl border border-white/5 flex flex-col justify-between">
+                        <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">⏱️ Sprint Timer</label>
+                        <div class="grid grid-cols-3 gap-1.5 my-auto">
+                            <button type="button" onclick="setTimerSec(10)" id="btn-timer-10" class="py-2.5 rounded-xl border text-center font-mono font-black text-xs transition-all border-slate-700 bg-slate-800/50 text-slate-400">10s</button>
+                            <button type="button" onclick="setTimerSec(15)" id="btn-timer-15" class="py-2.5 rounded-xl border text-center font-mono font-black text-xs transition-all border-amber-500/50 bg-amber-500/10 text-amber-300">15s</button>
+                            <button type="button" onclick="setTimerSec(20)" id="btn-timer-20" class="py-2.5 rounded-xl border text-center font-mono font-black text-xs transition-all border-slate-700 bg-slate-800/50 text-slate-400">20s</button>
+                        </div>
+                    </div>
+
+                    <!-- Target Level Pool -->
+                    <div id="level-select-container" class="space-y-1.5 bg-slate-900/50 p-2.5 rounded-xl border border-white/5">
+                        <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">📊 Level Pool</label>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button type="button" onclick="setLevel(1)" id="btn-lvl-1" class="p-1.5 rounded-xl border text-center transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-black text-xs">
+                                L1: EASY
+                            </button>
+                            <button type="button" onclick="setLevel(2)" id="btn-lvl-2" class="p-1.5 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-black text-xs">
+                                L2: MEDIUM
+                            </button>
+                            <button type="button" onclick="setLevel(3)" id="btn-lvl-3" class="p-1.5 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-black text-xs">
+                                L3: HARD
+                            </button>
+                            <button type="button" onclick="setLevel(4)" id="btn-lvl-4" class="p-1.5 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-black text-xs">
+                                L4: SUPER HARD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2-COLUMN MAIN SECTION: ROSTER & HOW TO PLAY -->
+                <div class="grid grid-cols-5 gap-3 mb-3">
+                    <!-- Student Roster Builder (3 Cols) -->
+                    <div class="col-span-3 space-y-2 bg-slate-900/50 p-3 rounded-xl border border-white/5">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">👥 Student Roster</label>
+                            <div class="flex gap-1.5">
+                                <button type="button" onclick="addAutoStudents(5)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold px-2.5 py-0.5 rounded-lg border border-slate-700">+5 Students</button>
+                                <button type="button" onclick="clearRoster()" class="text-xs bg-slate-800 hover:bg-rose-900/50 text-rose-300 font-bold px-2.5 py-0.5 rounded-lg border border-slate-700">Clear All</button>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <input type="text" id="input-new-student" placeholder="Enter student name..." class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-amber-300 focus:outline-none focus:border-amber-500 transition-colors" onkeydown="if(event.key==='Enter') addStudentFromInput()">
+                            <button type="button" onclick="addStudentFromInput()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-xl text-xs transition-all">Add Student</button>
+                        </div>
+
+                        <!-- Roster Scroll List -->
+                        <div id="roster-list-container" class="max-h-20 overflow-y-auto bg-slate-900/80 border border-slate-800 rounded-xl p-1.5 flex flex-wrap gap-1.5">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- HOW TO PLAY GUIDANCE (2 Cols) -->
+                    <div class="col-span-2 bg-slate-900/70 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
+                        <div class="font-extrabold text-amber-400 flex items-center gap-1.5 text-xs uppercase tracking-wider border-b border-white/5 pb-1">
+                            <span>📖</span> Rules &amp; Shortcuts
+                        </div>
+                        <ul class="space-y-1 text-xs text-slate-200 py-1">
+                            <li class="flex items-center gap-1.5">⚡ <strong class="text-amber-300">Decode Words:</strong> Emojis &amp; letter swaps.</li>
+                            <li class="flex items-center gap-1.5">⏱️ <strong class="text-emerald-300">Continuous:</strong> Timer stays running.</li>
+                            <li class="flex items-center gap-1.5">💡 <strong class="text-cyan-300">Hint [H]:</strong> Definition context only.</li>
+                            <li class="flex items-center gap-1.5">⌨️ <strong class="text-white">Keys:</strong> [Space] Pause, [1] Pass, [F] Fail.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button type="button" onclick="startGameSprint()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-sm tracking-wider shadow-xl glow-amber transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer relative z-30">
+                    <span>🚀</span> START REBUS ARENA SESSION
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: GAMEPLAY DISPLAY -->
+        <section id="view-game" class="hidden flex-1 flex flex-col justify-between py-1 gap-2">
+            
+            <!-- TOP BAR: TIMER, ACTIVE PLAYER & PROGRESS -->
+            <div class="flex items-center justify-between bg-slate-800/40 rounded-2xl p-2.5 border border-white/5">
+                <!-- Circular Timer -->
+                <div class="flex items-center gap-3">
+                    <div class="relative w-12 h-12 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-slate-700" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="timer-circle" class="text-amber-500 transition-all duration-200" stroke-dasharray="100, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="timer-text" class="absolute font-mono font-bold text-base text-white">15</span>
+                    </div>
+                    <div>
+                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Continuous Timer</div>
+                        <div id="timer-status-tag" class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Student Banner -->
+                <div class="bg-amber-500/10 border border-amber-500/30 px-5 py-1.5 rounded-xl text-center">
+                    <div class="text-[9px] font-bold text-amber-400/80 uppercase tracking-widest">ACTIVE PLAYER</div>
+                    <div id="active-student-display" class="text-base font-black text-amber-300">Student 1</div>
+                </div>
+
+                <!-- Level & Word Pool Progress -->
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">LEVEL</div>
+                        <div id="hdr-level" class="text-xs font-bold text-emerald-400">EASY (L1)</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">WORD POOL</div>
+                        <div class="text-xs font-mono font-bold text-slate-200">
+                            <span id="word-current-idx">1</span> / <span id="word-total-pool">20</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN GRID: REBUS ARENA + LIVE LEADERBOARD -->
+            <div class="grid grid-cols-4 gap-3 flex-1 min-h-0">
+                
+                <!-- LEFT 3 COLS: REBUS FORMULA CANVAS -->
+                <div class="col-span-3 glass-panel rounded-2xl p-4 flex flex-col justify-between items-center relative overflow-hidden border border-white/10">
+                    
+                    <!-- Level Badge -->
+                    <div id="puzzle-level-tag" class="absolute top-3 left-3 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-xs px-3 py-0.5 rounded-full uppercase tracking-wider">
+                        Level 1: Easy
+                    </div>
+
+                    <!-- Hint Container -->
+                    <div id="hint-display" class="hidden animate-pop-in absolute top-3 right-3 max-w-sm bg-slate-900/95 border border-cyan-500/40 px-3 py-1.5 rounded-xl text-xs text-cyan-200 shadow-xl z-10">
+                        <span class="font-bold text-cyan-400">💡 HINT:</span> <span id="hint-text">Definition goes here...</span>
+                    </div>
+
+                    <!-- FORMULA DISPLAY CONTAINER -->
+                    <div id="rebus-formula-container" class="flex flex-wrap items-center justify-center gap-4 md:gap-6 my-auto py-4 w-full">
+                        <!-- Dynamic Rebus Tokens rendered via JS -->
+                    </div>
+
+                    <!-- ANSWER DISPLAY CARD -->
+                    <div id="answer-box" class="h-8 flex items-center justify-center">
+                        <span id="answer-text" class="hidden text-lg font-mono font-black text-emerald-400 tracking-widest bg-emerald-950/60 border border-emerald-500/40 px-5 py-1 rounded-xl shadow-lg">
+                            ANSWER
+                        </span>
+                    </div>
+                </div>
+
+                <!-- RIGHT 1 COL: LIVE STUDENT LEADERBOARD & TURN SWITCHER -->
+                <div class="col-span-1 glass-panel rounded-2xl p-3 flex flex-col justify-between border border-white/10">
+                    <div class="flex items-center justify-between pb-2 border-b border-white/10">
+                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1">🏆 Leaderboard</span>
+                        <button type="button" onclick="nextPlayerTurn()" class="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 font-bold">[R] Switch</button>
+                    </div>
+
+                    <!-- Student Score Roster -->
+                    <div id="game-roster-list" class="flex-1 overflow-y-auto space-y-1.5 my-2 pr-1">
+                        <!-- Dynamically rendered student score items -->
+                    </div>
+
+                    <div class="pt-2 border-t border-white/10 text-center">
+                        <button type="button" onclick="nextPlayerTurn()" class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1">
+                            <span>🔄</span> Next Student Turn
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTTOM CONTROLS: FACILITATOR HOTKEY ACTION BUTTONS -->
+            <div class="grid grid-cols-5 gap-2">
+                
+                <!-- [SPACE] Start / Pause -->
+                <button type="button" onclick="toggleTimer()" id="btn-toggle-timer" class="glass-card hover:bg-slate-800/80 p-2.5 rounded-xl border border-amber-500/30 text-amber-300 flex flex-col items-center justify-center gap-0.5 transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1"><span id="btn-timer-icon">⏸️</span> <span id="btn-timer-label">Pause</span></span>
+                    <span class="bg-amber-500/20 text-amber-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-amber-500/30">[Space]</span>
+                </button>
+
+                <!-- [1] / [C] Correct -->
+                <button type="button" onclick="scoreAction(true)" class="glass-card hover:bg-emerald-900/40 p-2.5 rounded-xl border border-emerald-500/40 text-emerald-300 flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 glow-emerald">
+                    <span class="text-xs font-black flex items-center gap-1">✅ Correct</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">[1] or [C]</span>
+                </button>
+
+                <!-- [F] / [Esc] Pass / Fail -->
+                <button type="button" onclick="scoreAction(false)" class="glass-card hover:bg-rose-900/40 p-2.5 rounded-xl border border-rose-500/40 text-rose-300 flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 glow-rose">
+                    <span class="text-xs font-black flex items-center gap-1">❌ Pass / Fail</span>
+                    <span class="bg-rose-500/20 text-rose-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-rose-500/30">[F] or [Esc]</span>
+                </button>
+
+                <!-- [H] Hint -->
+                <button type="button" onclick="toggleHint()" class="glass-card hover:bg-cyan-900/40 p-2.5 rounded-xl border border-cyan-500/40 text-cyan-300 flex flex-col items-center justify-center gap-0.5 transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">💡 Hint</span>
+                    <span class="bg-cyan-500/20 text-cyan-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-cyan-500/30">[H]</span>
+                </button>
+
+                <!-- [N] / [→] Next Word -->
+                <button type="button" onclick="nextPuzzle()" class="glass-card hover:bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 text-slate-200 flex flex-col items-center justify-center gap-0.5 transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">⏩ Skip Next</span>
+                    <span class="bg-slate-700 text-slate-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-slate-600">[N] or [→]</span>
+                </button>
+
+            </div>
+        </section>
+
+        <!-- VIEW 3: GAME OVER / SPRINT RESULT -->
+        <section id="view-gameover" class="hidden flex-1 flex items-center justify-center py-4">
+            <div class="glass-panel w-full max-w-xl rounded-2xl p-6 text-center shadow-2xl relative border border-white/10">
+                <div class="text-4xl mb-2">🎉</div>
+                <h2 class="text-2xl font-black text-white mb-1">Session Leaderboard!</h2>
+                <p class="text-xs text-slate-400 mb-4">Final scores for all participating students</p>
+
+                <!-- Roster Final Results -->
+                <div id="final-leaderboard-list" class="space-y-2 max-h-48 overflow-y-auto mb-6 pr-1 text-left">
+                    <!-- Dynamic rendering -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button onclick="startGameSprint()" class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg glow-emerald">
+                        🔄 Play Again
+                    </button>
+                    <button onclick="showSetupView()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm border border-slate-700 transition-all">
+                        ⚙️ Setup Screen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function setMode(m) {
+            state.mode = m;
+            const singleBtn = document.getElementById('btn-mode-single');
+            const climbBtn = document.getElementById('btn-mode-climb');
+            const lvlContainer = document.getElementById('level-select-container');
+
+            if (m === 'single_level') {
+                singleBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-amber-500/50 bg-amber-500/10 text-amber-300";
+                climbBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600";
+                lvlContainer.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                climbBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-amber-500/50 bg-amber-500/10 text-amber-300";
+                singleBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600";
+                lvlContainer.classList.add('opacity-40', 'pointer-events-none');
+            }
+        }
+
+        function setTimerSec(sec) {
+            state.timerSetting = sec;
+            [10, 15, 20].forEach(s => {
+                const btn = document.getElementById(`btn-timer-${s}`);
+                if (s === sec) {
+                    btn.className = "py-2 rounded-xl border text-center font-mono font-bold text-xs transition-all border-amber-500/50 bg-amber-500/10 text-amber-300";
+                } else {
+                    btn.className = "py-2 rounded-xl border text-center font-mono font-bold text-xs transition-all border-slate-700 bg-slate-800/50 text-slate-400";
+                }
+            });
+        }
+
+        function setLevel(lvl) {
+            state.currentLevel = lvl;
+            [1, 2, 3, 4].forEach(l => {
+                const btn = document.getElementById(`btn-lvl-${l}`);
+                if (l === lvl) {
+                    btn.className = "p-2 rounded-xl border text-center transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-bold text-xs";
+                } else {
+                    btn.className = "p-2 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-bold text-xs";
+                }
+            });
+        }
+
+        function renderSetupRoster() {
+            const container = document.getElementById('roster-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.playerRoster.forEach((player) => {
+                const tag = document.createElement('div');
+                tag.className = 'bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-200 flex items-center gap-2';
+                tag.innerHTML = `
+                    <span>${player.name}</span>
+                    <button type="button" onclick="removeStudent(${player.id})" class="text-slate-500 hover:text-rose-400 font-black">✕</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        function addStudentFromInput() {
+            const input = document.getElementById('input-new-student');
+            const name = input.value.trim();
+            if (name) {
+                state.playerRoster.push({
+                    id: Date.now() + Math.random(),
+                    name: name,
+                    score: 0,
+                    correct: 0,
+                    passed: 0
+                });
+                input.value = '';
+                renderSetupRoster();
+            }
+        }
+
+        function addAutoStudents(count) {
+            const startIdx = state.playerRoster.length + 1;
+            for (let i = 0; i < count; i++) {
+                state.playerRoster.push({
+                    id: Date.now() + i,
+                    name: `Student ${startIdx + i}`,
+                    score: 0,
+                    correct: 0,
+                    passed: 0
+                });
+            }
+            renderSetupRoster();
+        }
+
+        function clearRoster() {
+            state.playerRoster = [];
+            renderSetupRoster();
+        }
+
+        function removeStudent(id) {
+            state.playerRoster = state.playerRoster.filter(p => p.id !== id);
+            renderSetupRoster();
+        }
+
+        function renderGameRoster() {
+            const list = document.getElementById('game-roster-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            state.playerRoster.forEach((player, idx) => {
+                const isActive = idx === state.activePlayerIndex;
+                const item = document.createElement('div');
+                item.className = `p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                    isActive 
+                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold' 
+                        : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                }`;
+                item.onclick = () => selectPlayerTurn(idx);
+                item.innerHTML = `
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <span class="text-[10px] ${isActive ? 'text-amber-400' : 'text-slate-500'} font-mono">${idx + 1}.</span>
+                        <span class="text-xs truncate">${player.name}</span>
+                    </div>
+                    <span class="font-mono text-xs font-black ${isActive ? 'text-amber-400' : 'text-slate-300'}">${player.score} PT</span>
+                `;
+                list.appendChild(item);
+            });
+
+            if (state.playerRoster[state.activePlayerIndex]) {
+                document.getElementById('active-student-display').innerText = state.playerRoster[state.activePlayerIndex].name;
+            }
+        }
+
+        function selectPlayerTurn(idx) {
+            state.activePlayerIndex = idx;
+            renderGameRoster();
+        }
+
+        function nextPlayerTurn() {
+            if (state.playerRoster.length === 0) return;
+            state.activePlayerIndex = (state.activePlayerIndex + 1) % state.playerRoster.length;
+            renderGameRoster();
+        }
+
+        function loadLevelPuzzlePool(lvl) {
+            const levelData = REBUS_DATABASE[lvl] || REBUS_DATABASE[1];
+            state.puzzlePool = [...levelData].sort(() => 0.5 - Math.random());
+            state.currentPuzzleIndex = 0;
+            state.currentPuzzle = state.puzzlePool[0];
+        }
+
+        function startGameSprint() {
+            audio.init();
+            
+            if (state.playerRoster.length === 0) {
+                addAutoStudents(3);
+            }
+
+            state.playerRoster.forEach(p => {
+                p.score = 0;
+                p.correct = 0;
+                p.passed = 0;
+            });
+            state.activePlayerIndex = 0;
+            state.showHint = false;
+            
+            if (state.mode === 'climb') {
+                state.currentLevel = 1;
+            }
+
+            loadLevelPuzzlePool(state.currentLevel);
+
+            document.getElementById('view-setup').classList.add('hidden');
+            document.getElementById('view-gameover').classList.add('hidden');
+            document.getElementById('view-game').classList.remove('hidden');
+
+            updateHeaderInfo();
+            renderGameRoster();
+            renderPuzzle();
+            resetTimer();
+            startTimer();
+        }
+
+        function updateHeaderInfo() {
+            const lvlNames = { 1: 'EASY (L1)', 2: 'MEDIUM (L2)', 3: 'HARD (L3)', 4: 'SUPER HARD (L4)' };
+            document.getElementById('hdr-level').innerText = lvlNames[state.currentLevel];
+            
+            document.getElementById('word-current-idx').innerText = state.currentPuzzleIndex + 1;
+            document.getElementById('word-total-pool').innerText = state.puzzlePool.length;
+        }
+
+        function renderPuzzle() {
+            if (!state.currentPuzzle) return;
+
+            const container = document.getElementById('rebus-formula-container');
+            container.innerHTML = '';
+
+            state.currentPuzzle.formula.forEach(token => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex flex-col items-center justify-center animate-pop-in';
+
+                if (token.t === 'text') {
+                    wrapper.innerHTML = `<span class="text-4xl md:text-6xl font-mono font-black text-amber-300 drop-shadow-md px-2">${token.v}</span>`;
+                } else if (token.t === 'op') {
+                    wrapper.innerHTML = `<span class="text-3xl md:text-5xl font-mono font-bold text-slate-500 px-1">${token.v}</span>`;
+                } else if (token.t === 'emoji') {
+                    let subBadge = '';
+                    if (token.sub) {
+                        subBadge = `<span class="mt-1 text-[11px] font-mono font-bold text-amber-300 bg-amber-950/90 border border-amber-500/50 px-2 py-0.5 rounded-md shadow-md animate-pulse">(${token.sub})</span>`;
+                    }
+                    wrapper.innerHTML = `<span class="text-6xl md:text-8xl drop-shadow-lg">${token.v}</span>${subBadge}`;
+                } else if (token.t === 'strike') {
+                    wrapper.innerHTML = `<span class="strike-through text-4xl md:text-6xl font-mono font-black text-slate-400 px-2">${token.v}</span>`;
+                }
+                container.appendChild(wrapper);
+            });
+
+            document.getElementById('hint-text').innerText = state.currentPuzzle.hint;
+            document.getElementById('answer-text').innerText = state.currentPuzzle.answer;
+
+            if (state.showHint) {
+                document.getElementById('hint-display').classList.remove('hidden');
+            } else {
+                document.getElementById('hint-display').classList.add('hidden');
+            }
+
+            document.getElementById('answer-text').classList.add('hidden');
+
+            const lvlLabels = { 1: 'Level 1: Easy', 2: 'Level 2: Medium', 3: 'Level 3: Hard', 4: 'Level 4: Super Hard' };
+            document.getElementById('puzzle-level-tag').innerText = lvlLabels[state.currentLevel];
+        }
+
+        function toggleHint() {
+            state.showHint = !state.showHint;
+            const hintBox = document.getElementById('hint-display');
+            if (state.showHint) {
+                hintBox.classList.remove('hidden');
+            } else {
+                hintBox.classList.add('hidden');
+            }
+        }
+
+        function nextPuzzle() {
+            state.currentPuzzleIndex++;
+
+            if (state.currentPuzzleIndex >= state.puzzlePool.length) {
+                if (state.mode === 'climb' && state.currentLevel < 4) {
+                    state.currentLevel++;
+                    audio.playLevelUp();
+                    loadLevelPuzzlePool(state.currentLevel);
+                } else {
+                    finishGame();
+                    return;
+                }
+            } else {
+                state.currentPuzzle = state.puzzlePool[state.currentPuzzleIndex];
+            }
+
+            state.showHint = false;
+            updateHeaderInfo();
+            renderPuzzle();
+            resetTimer();
+        }
+
+        function scoreAction(isCorrect) {
+            const activePlayer = state.playerRoster[state.activePlayerIndex];
+            
+            if (isCorrect) {
+                audio.playCorrect();
+                if (activePlayer) {
+                    activePlayer.score += 1;
+                    activePlayer.correct += 1;
+                }
+            } else {
+                audio.playWrong();
+                if (activePlayer) {
+                    activePlayer.passed += 1;
+                }
+            }
+
+            renderGameRoster();
+
+            const ansBox = document.getElementById('answer-text');
+            ansBox.classList.remove('hidden');
+
+            setTimeout(() => {
+                nextPuzzle();
+            }, 300);
+        }
+
+        function resetTimer() {
+            state.timerRemaining = state.timerSetting;
+            updateTimerUI();
+        }
+
+        function startTimer() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            state.timerRunning = true;
+            updateTimerButtonUI();
+
+            state.timerInterval = setInterval(() => {
+                if (state.timerRunning) {
+                    state.timerRemaining--;
+                    audio.playTick();
+                    updateTimerUI();
+
+                    if (state.timerRemaining <= 0) {
+                        audio.playWrong();
+                        scoreAction(false);
+                    }
+                }
+            }, 1000);
+        }
+
+        function toggleTimer() {
+            state.timerRunning = !state.timerRunning;
+            updateTimerButtonUI();
+        }
+
+        function updateTimerButtonUI() {
+            const label = document.getElementById('btn-timer-label');
+            const icon = document.getElementById('btn-timer-icon');
+            const tag = document.getElementById('timer-status-tag');
+
+            if (state.timerRunning) {
+                label.innerText = 'Pause';
+                icon.innerText = '⏸️';
+                tag.className = 'text-xs font-bold text-emerald-400 flex items-center gap-1';
+                tag.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE';
+            } else {
+                label.innerText = 'Resume';
+                icon.innerText = '▶️';
+                tag.className = 'text-xs font-bold text-amber-400 flex items-center gap-1';
+                tag.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span> PAUSED';
+            }
+        }
+
+        function updateTimerUI() {
+            document.getElementById('timer-text').innerText = state.timerRemaining;
+            const pct = (state.timerRemaining / state.timerSetting) * 100;
+            document.getElementById('timer-circle').setAttribute('stroke-dasharray', `${pct}, 100`);
+        }
+
+        function finishGame() {
+            clearInterval(state.timerInterval);
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('view-gameover').classList.remove('hidden');
+
+            const listContainer = document.getElementById('final-leaderboard-list');
+            listContainer.innerHTML = '';
+
+            const sortedRoster = [...state.playerRoster].sort((a, b) => b.score - a.score);
+
+            sortedRoster.forEach((p, rank) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900/80 border border-slate-800 rounded-xl p-3 flex items-center justify-between';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="font-mono text-sm font-black text-amber-400">#${rank + 1}</span>
+                        <div>
+                            <div class="text-xs font-bold text-white">${p.name}</div>
+                            <div class="text-[10px] text-slate-400">Correct: ${p.correct} | Passed: ${p.passed}</div>
+                        </div>
+                    </div>
+                    <div class="font-mono text-lg font-black text-emerald-400">${p.score} PT</div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function showSetupView() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            document.getElementById('view-gameover').classList.add('hidden');
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('view-setup').classList.remove('hidden');
+            renderSetupRoster();
+        }
+
+        window.addEventListener('load', () => {
+            renderSetupRoster();
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (!document.getElementById('view-game').classList.contains('hidden')) {
+                const key = e.key.toLowerCase();
+
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    toggleTimer();
+                } else if (key === '1' || key === 'c') {
+                    e.preventDefault();
+                    scoreAction(true);
+                } else if (key === 'f' || e.code === 'Escape') {
+                    e.preventDefault();
+                    scoreAction(false);
+                } else if (key === 'h') {
+                    e.preventDefault();
+                    toggleHint();
+                } else if (key === 'n' || e.code === 'ArrowRight') {
+                    e.preventDefault();
+                    nextPuzzle();
+                } else if (key === 'r') {
+                    e.preventDefault();
+                    nextPlayerTurn();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
