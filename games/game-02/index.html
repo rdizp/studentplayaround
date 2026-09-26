@@ -963,8 +963,10 @@
                 updateTimerDisplay();
 
                 if (state.timerSeconds <= 5 && state.timerSeconds > 0) audio.playTick();
-                if (state.timerSeconds <= 0) stopTimer();
-            }, 1000);
+                if (state.timerSeconds <= 0) {
+                    handleTimeUp();
+            }
+           }, 1000);
         }
 
         function stopTimer() {
@@ -975,9 +977,49 @@
             state.timerRunning = false;
         }
 
+        function stopTimer() {
+    if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+    }
+    state.timerRunning = false;
+}
+
+function handleTimeUp() {
+    if (state.isResolved) return;
+
+    state.timerSeconds = 0;
+    updateTimerDisplay();
+    state.isResolved = true;
+    stopTimer();
+
+    audio.playRevealSound();
+
+    state.roundRecapHistory.push({
+        word: state.currentWordObj.word,
+        hint: state.currentWordObj.hint,
+        status: 'TIME UP'
+    });
+
+    renderTargetSlots();
+
+    ui.feedbackBanner.className =
+        "px-6 py-1.5 rounded-xl font-black text-xs md:text-sm tracking-wide text-amber-300 border border-amber-500/40 animate-pop-in";
+
+    ui.feedbackBanner.innerHTML =
+        '<i class="fa-solid fa-clock mr-2"></i> Time\'s Up! Answer: ' +
+        state.currentWordObj.word;
+
+    ui.feedbackBanner.classList.remove('hidden');
+
+    advanceNextQuestion();
+}
+
         function toggleTimer() {
-            audio.playClick();
-            state.timerRunning = !state.timerRunning;
+    if (state.isResolved || state.timerSeconds <= 0) return;
+
+    audio.playClick();
+    state.timerRunning = !state.timerRunning;
             ui.toggleTimerBtn.textContent = state.timerRunning ? 'Pause' : 'Resume';
             ui.toggleTimerBtn.className = state.timerRunning 
                 ? 'text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors'
