@@ -1106,6 +1106,8 @@
         }
 
         function markCorrectAnswer() {
+            if (!isTimerRunning) return;
+            
             pauseTimer();
             soundEngine.playSuccess();
             if (activeStudentId) {
@@ -1118,6 +1120,8 @@
         }
 
         function markFailAnswer() {
+            if (!isTimerRunning) return;
+            
             pauseTimer();
             soundEngine.playBuzzer();
             if (timerStatusLabel) {
