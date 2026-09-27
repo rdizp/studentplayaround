@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabet Category Blitz: Fast & Furious!</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" rel="../../Favicon.png">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        navy: {
+                            950: '#0C1827',
+                            900: '#132640',
+                            800: '#1E3A5F',
+                            700: '#2A4D7B',
+                            600: '#3D68A0',
+                        },
+                        gold: {
+                            300: '#FDE047',
+                            400: '#FACC15',
+                            500: '#F4B400',
+                            600: '#D49B00',
+                        },
+                        silver: {
+                            100: '#F8F9FA',
+                            200: '#E8EBEF',
+                            300: '#D9D9D9',
+                            400: '#A3A3A3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1E3A5F;
+            color: #F8F9FA;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(244, 180, 0, 0.18) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(19, 38, 64, 0.9) 0px, transparent 50%);
+        }
+
+        .glass-panel {
+            background: rgba(19, 38, 64, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(217, 217, 217, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(30, 58, 95, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(217, 217, 217, 0.18);
+        }
+
+        .glow-gold {
+            box-shadow: 0 0 20px -3px rgba(244, 180, 0, 0.45);
+        }
+
+        .glow-emerald {
+            box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.4);
+        }
+
+        .glow-rose {
+            box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.4);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(19, 38, 64, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(217, 217, 217, 0.3);
+            border-radius: 3px;
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(0.88); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in {
+            animation: pop-in 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col p-2.5 md:p-3.5 overflow-hidden">
+
+    <!-- TOP HUD HEADER BAR -->
+    <header class="w-full max-w-5xl mx-auto flex items-center justify-between px-3.5 py-1.5 bg-navy-900/90 border border-silver-300/20 rounded-xl mb-2 shrink-0 shadow-md">
+        <div class="flex items-center gap-2.5">
+          <a href="../../"
+             class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-white/10 text-white hover:bg-slate-800 hover:border-amber-500/50 transition-all text-xs font-bold"
+             title="Back to Games">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span class="hidden sm:inline">Back to Games</span>
+          </a>
+            <span class="text-xl">⚡</span>
+            <div>
+                <h1 class="text-xs md:text-sm font-black tracking-wider text-gold-500 uppercase leading-none">ALPHABET CATEGORY BLITZ: FAST &amp; FURIOUS!</h1>
+                <div class="text-[10px] text-silver-300 font-semibold leading-tight mt-0.5">CLASSROOM RAPID-FIRE • 200+ PROMPTS EDITION</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="bg-navy-800 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> READY ARENA
+            </span>
+            <span class="bg-navy-800 text-cyan-300 border border-cyan-500/30 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold">
+                🖥️ 13" DISPLAY
+            </span>
+        </div>
+    </header>
+
+    <!-- MAIN ROOT CONTAINER -->
+    <main id="app-root" class="flex-1 w-full max-w-5xl mx-auto flex flex-col min-h-0 overflow-hidden relative">
+        
+        <!-- VIEW 1: SETUP SCREEN (ZERO SCROLL FIT) -->
+        <section id="view-setup" class="w-full h-full flex flex-col justify-between overflow-hidden">
+            
+            <div class="glass-panel w-full h-full rounded-2xl p-3 md:p-3.5 shadow-2xl relative overflow-hidden border border-silver-300/20 flex flex-col justify-between gap-2 min-h-0">
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- SECTION TITLE BAR -->
+                <div class="flex items-center justify-between border-b border-silver-300/15 pb-1.5 shrink-0">
+                    <h2 class="text-xs md:text-sm font-black text-silver-100 flex items-center gap-2 uppercase tracking-wider">
+                        <span>🎮</span> GAME CONFIGURATION &amp; STUDENT ROSTER SETUP
+                    </h2>
+                    <span class="text-[10px] font-black text-gold-500 bg-gold-500/10 border border-gold-500/30 px-2 py-0.5 rounded-md tracking-wider">BLITZ SETUP</span>
+                </div>
+
+                <!-- DUAL COLUMN GRID -->
+                <div class="grid grid-cols-12 gap-2.5 flex-1 min-h-0 overflow-hidden">
+                    
+                    <!-- LEFT COLUMN: GAME OPTIONS & HOTKEYS -->
+                    <div class="col-span-7 flex flex-col justify-between gap-2 h-full overflow-hidden">
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <!-- Game Mode Selection -->
+                            <div class="space-y-1 bg-navy-900/80 p-2 rounded-xl border border-silver-300/15">
+                                <label class="text-[10px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">🎯 Game Mode</label>
+                                <div class="grid grid-cols-1 gap-1">
+                                    <button type="button" onclick="setMode('classic')" id="btn-mode-classic" class="p-1 rounded-lg border text-left transition-all font-bold border-gold-500/50 bg-gold-500/10 text-gold-400">
+                                        <div class="text-[11px] font-black">⚡ Classic Blitz</div>
+                                        <div class="text-[9px] text-silver-300 font-medium">+10 for correct, -5 for wrong</div>
+                                    </button>
+                                    <button type="button" onclick="setMode('survival')" id="btn-mode-survival" class="p-1 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40">
+                                        <div class="text-[11px] font-black">🔥 Survival Sprint</div>
+                                        <div class="text-[9px] text-silver-300 font-medium">Must get 3 prompts per turn</div>
+                                    </button>
+                                    <button type="button" onclick="setMode('speed')" id="btn-mode-speed" class="p-1 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40">
+                                        <div class="text-[11px] font-black">🚀 Speed Run</div>
+                                        <div class="text-[9px] text-silver-300 font-medium">15s rapid fire per letter</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Round Timer Duration -->
+                            <div class="space-y-1 bg-navy-900/80 p-2 rounded-xl border border-silver-300/15 flex flex-col justify-between">
+                                <label class="text-[10px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">⏱️ Round Timer</label>
+                                <div class="grid grid-cols-2 gap-1 my-auto">
+                                    <button type="button" onclick="setTimerSec(15)" id="btn-timer-15" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">15s</button>
+                                    <button type="button" onclick="setTimerSec(30)" id="btn-timer-30" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-gold-500/50 bg-gold-500/10 text-gold-400">30s</button>
+                                    <button type="button" onclick="setTimerSec(45)" id="btn-timer-45" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">45s</button>
+                                    <button type="button" onclick="setTimerSec(60)" id="btn-timer-60" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">60s</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="space-y-1 bg-navy-900/80 p-2 rounded-xl border border-silver-300/15">
+                            <label class="text-[10px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">🏷️ Category Filter</label>
+                            <div class="grid grid-cols-3 gap-1">
+                                <button type="button" onclick="setCategoryFilter('all')" id="btn-cat-all" class="py-1 px-1 rounded-lg border text-center transition-all border-gold-500/50 bg-gold-500/10 text-gold-300 font-black text-[10px]">
+                                    🌐 ALL (200+)
+                                </button>
+                                <button type="button" onclick="setCategoryFilter('pop')" id="btn-cat-pop" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                    ✨ POP CULTURE
+                                </button>
+                                <button type="button" onclick="setCategoryFilter('objects')" id="btn-cat-objects" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                    🏠 OBJECTS &amp; LIFE
+                                </button>
+                                <button type="button" onclick="setCategoryFilter('food')" id="btn-cat-food" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                    🍕 FOOD &amp; DRINK
+                                </button>
+                                <button type="button" onclick="setCategoryFilter('media')" id="btn-cat-media" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                    🎬 MOVIES &amp; MEDIA
+                                </button>
+                                <button type="button" onclick="setCategoryFilter('nature')" id="btn-cat-nature" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                    🐾 ANIMALS &amp; NATURE
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Rules & Keyboard Controls -->
+                        <div class="bg-navy-900/90 border border-gold-500/30 rounded-xl p-2 flex flex-col gap-1">
+                            <div class="font-black text-gold-400 flex items-center gap-1.5 text-[10px] uppercase tracking-wider border-b border-silver-300/10 pb-0.5">
+                                <span>⌨️</span> Facilitator Hotkeys
+                            </div>
+                            <div class="grid grid-cols-3 gap-1 text-[9px] text-silver-100">
+                                <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-gold-400">[Space]</strong> Start / Pause</div>
+                                <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-emerald-400">[C]</strong> Correct (+10)</div>
+                                <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-rose-400">[W]</strong> Wrong (-5)</div>
+                                <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-cyan-300">[F]</strong> Sample Answer</div>
+                                <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-white">[N]</strong> Next Prompt</div>
+                                <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-amber-300">[R]</strong> Reset Timer</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN: ROSTER MANAGER & HOW TO PLAY CARD -->
+                    <div class="col-span-5 flex flex-col gap-2 h-full overflow-hidden">
+                        
+                        <!-- TOP HALF: STUDENT ROSTER -->
+                        <div class="bg-navy-900/80 p-2 rounded-xl border border-silver-300/15 flex flex-col gap-1.5 shrink-0">
+                            <div class="flex items-center justify-between pb-0.5 border-b border-silver-300/10">
+                                <label class="text-[10px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">👥 Student Roster</label>
+                                <div class="flex gap-1">
+                                    <button type="button" onclick="addAutoStudents(5)" class="text-[9px] bg-navy-800 hover:bg-navy-700 text-gold-400 font-extrabold px-1.5 py-0.5 rounded border border-silver-300/20 transition-all">+5 Students</button>
+                                    <button type="button" onclick="clearRoster()" class="text-[9px] bg-navy-800 hover:bg-rose-900/50 text-rose-300 font-extrabold px-1.5 py-0.5 rounded border border-silver-300/20 transition-all">Clear</button>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-1">
+                                <input type="text" id="input-new-student" placeholder="Enter student name..." class="flex-1 bg-navy-950/90 border border-silver-300/20 rounded-lg px-2 py-1 text-[11px] font-bold text-gold-400 focus:outline-none focus:border-gold-500 transition-colors" onkeydown="if(event.key==='Enter') addStudentFromInput()">
+                                <button type="button" onclick="addStudentFromInput()" class="bg-gold-500 hover:bg-gold-400 text-navy-950 font-black px-2.5 py-1 rounded-lg text-[11px] transition-all shadow-md shrink-0">Add</button>
+                            </div>
+
+                            <!-- Roster Scroll List (Bounded Height) -->
+                            <div id="roster-list-container" class="max-h-[72px] overflow-y-auto bg-navy-950/80 border border-silver-300/10 rounded-lg p-1.5 flex flex-wrap content-start gap-1">
+                                <!-- Rendered dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- BOTTOM HALF: HOW TO PLAY & RULES CARD -->
+                        <div class="bg-navy-900/90 p-2 rounded-xl border border-gold-500/30 flex-1 min-h-0 flex flex-col justify-between overflow-hidden">
+                            <div class="flex items-center justify-between border-b border-silver-300/10 pb-1 shrink-0">
+                                <span class="text-[10px] font-black text-gold-400 uppercase tracking-wider flex items-center gap-1">
+                                    📖 How To Play
+                                </span>
+                                <span class="text-[9px] text-cyan-300 font-bold bg-cyan-500/10 border border-cyan-500/30 px-1.5 py-0.2 rounded">Classroom Rules</span>
+                            </div>
+
+                            <div class="space-y-1 my-auto text-[10px] text-silver-200 leading-snug">
+                                <div class="flex items-start gap-1.5">
+                                    <span class="bg-gold-500/20 text-gold-300 font-mono font-bold text-[9px] px-1 rounded shrink-0">1</span>
+                                    <span><strong>Target Letter &amp; Prompt:</strong> Read the giant letter (e.g. <strong class="text-gold-400">A</strong>) and category task displayed on screen.</span>
+                                </div>
+                                <div class="flex items-start gap-1.5">
+                                    <span class="bg-gold-500/20 text-gold-300 font-mono font-bold text-[9px] px-1 rounded shrink-0">2</span>
+                                    <span><strong>Rapid Answer:</strong> The active student must speak out loud required items before timer runs out.</span>
+                                </div>
+                                <div class="flex items-start gap-1.5">
+                                    <span class="bg-gold-500/20 text-gold-300 font-mono font-bold text-[9px] px-1 rounded shrink-0">3</span>
+                                    <span><strong>Scoring &amp; Turn:</strong> Facilitator hits <strong class="text-emerald-400">[C]</strong> (+10 pts) or <strong class="text-rose-400">[W]</strong> (-5 pts), then switches to the next student!</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-navy-950/60 p-1 rounded-lg border border-silver-300/10 text-[9px] text-silver-300 text-center shrink-0">
+                                💡 <em>Facilitators can press <strong class="text-cyan-300">[F]</strong> anytime to reveal sample answers.</em>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- START BUTTON -->
+                <button type="button" onclick="startGameSprint()" class="w-full py-2 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 hover:from-gold-400 hover:to-gold-300 text-navy-950 font-black rounded-xl text-xs md:text-sm tracking-wider shadow-xl glow-gold transition-all transform active:scale-98 flex items-center justify-center gap-2 cursor-pointer shrink-0 border border-gold-300/40 z-30 uppercase">
+                    <span>🚀</span> Launch Category Blitz Arena
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: GAMEPLAY ARENA DISPLAY -->
+        <section id="view-game" class="hidden w-full h-full flex flex-col justify-between gap-2 overflow-hidden">
+            
+            <!-- TOP BAR: TIMER, ACTIVE PLAYER & METRICS -->
+            <div class="flex items-center justify-between bg-navy-900/60 rounded-2xl p-2 border border-silver-300/10 shrink-0">
+                <!-- Circular Timer -->
+                <div class="flex items-center gap-3">
+                    <div class="relative w-11 h-11 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-navy-700" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="timer-circle" class="text-gold-500 transition-all duration-200" stroke-dasharray="100, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="timer-text" class="absolute font-mono font-black text-sm text-white">30</span>
+                    </div>
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-silver-300 tracking-wider">Sprint Timer</div>
+                        <div id="timer-status-tag" class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Student Banner -->
+                <div class="bg-gold-500/10 border border-gold-500/30 px-5 py-1 rounded-xl text-center">
+                    <div class="text-[10px] font-bold text-gold-400 uppercase tracking-widest">ACTIVE PLAYER</div>
+                    <div id="active-student-display" class="text-sm font-black text-gold-300">Student 1</div>
+                </div>
+
+                <!-- Category & Pool Progress -->
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-[10px] uppercase font-bold text-silver-300 tracking-wider">CATEGORY</div>
+                        <div id="hdr-category" class="text-xs font-bold text-cyan-300">ALL CATEGORIES</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] uppercase font-bold text-silver-300 tracking-wider">PROMPT POOL</div>
+                        <div class="text-xs font-mono font-bold text-silver-100">
+                            <span id="prompt-current-idx">1</span> / <span id="prompt-total-pool">200</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN GRID AREA -->
+            <div class="grid grid-cols-4 gap-2.5 flex-1 min-h-0 overflow-hidden">
+                
+                <!-- LEFT 3 COLS: GIANT PROMPT CARD -->
+                <div class="col-span-3 glass-panel rounded-2xl p-4 flex flex-col justify-between items-center relative overflow-hidden border border-silver-300/20">
+                    
+                    <!-- Top Category Tag -->
+                    <div id="prompt-category-tag" class="absolute top-3 left-3 bg-gold-500/20 text-gold-300 border border-gold-500/30 font-bold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
+                        <span>✨</span> POP CULTURE
+                    </div>
+
+                    <!-- Target Letter Badge -->
+                    <div class="my-auto flex flex-col items-center justify-center gap-2 text-center w-full max-w-2xl px-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-black uppercase text-silver-300 tracking-widest">Target Letter:</span>
+                            <span id="giant-letter-badge" class="bg-gradient-to-br from-gold-400 to-gold-600 text-navy-950 text-3xl md:text-4xl font-mono font-black px-4 py-1 rounded-xl shadow-lg glow-gold animate-pop-in">
+                                A
+                            </span>
+                        </div>
+
+                        <!-- Main Prompt Text -->
+                        <h2 id="main-prompt-text" class="text-xl md:text-2xl font-black text-white leading-snug tracking-wide min-h-[4rem] flex items-center justify-center animate-pop-in">
+                            Name 3 K-POP Girl Groups starting with A
+                        </h2>
+                    </div>
+
+                    <!-- SAMPLE ANSWERS FACILITATOR REVEAL BOX -->
+                    <div id="sample-answers-box" class="w-full bg-navy-950/80 border border-cyan-500/30 rounded-xl p-2.5 text-center transition-all">
+                        <div class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider mb-0.5">💡 Sample Facilitator Answers [Press F to Toggle]</div>
+                        <div id="sample-answers-text" class="text-xs font-mono font-semibold text-cyan-200 hidden">
+                            Aespa, Alone, Pink Fantasy (A)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT 1 COL: LIVE LEADERBOARD -->
+                <div class="col-span-1 glass-panel rounded-2xl p-2.5 flex flex-col justify-between border border-silver-300/20 overflow-hidden">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-silver-300/10 shrink-0">
+                        <span class="text-[11px] font-bold text-silver-100 uppercase tracking-wider flex items-center gap-1">🏆 Roster</span>
+                        <button type="button" onclick="nextPlayerTurn()" class="text-[10px] bg-gold-500/20 hover:bg-gold-500/30 text-gold-300 px-2 py-0.5 rounded border border-gold-500/30 font-bold">[R] Switch</button>
+                    </div>
+
+                    <!-- Student Score Roster -->
+                    <div id="game-roster-list" class="flex-1 overflow-y-auto space-y-1 my-1.5 pr-1 min-h-0">
+                        <!-- Dynamically rendered student score items -->
+                    </div>
+
+                    <div class="pt-1.5 border-t border-silver-300/10 text-center shrink-0">
+                        <button type="button" onclick="nextPlayerTurn()" class="w-full py-1 bg-navy-800 hover:bg-navy-700 text-gold-300 font-bold text-xs rounded-lg border border-silver-300/20 transition-all flex items-center justify-center gap-1">
+                            <span>🔄</span> Next Turn
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTTOM CONTROLS: FACILITATOR ACTION HOTKEY BUTTONS -->
+            <div class="grid grid-cols-6 gap-2 shrink-0">
+                
+                <!-- [SPACE] Start / Pause -->
+                <button type="button" onclick="toggleTimer()" id="btn-toggle-timer" class="glass-card hover:bg-navy-800/80 p-1.5 rounded-xl border border-gold-500/30 text-gold-300 flex flex-col items-center justify-center transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1"><span id="btn-timer-icon">⏸️</span> <span id="btn-timer-label">Pause</span></span>
+                    <span class="bg-gold-500/20 text-gold-300 text-[9px] font-mono px-1 py-0.2 rounded border border-gold-500/30 mt-0.5">[Space]</span>
+                </button>
+
+                <!-- [C] Correct -->
+                <button type="button" onclick="scoreAction(true)" class="glass-card hover:bg-emerald-900/40 p-1.5 rounded-xl border border-emerald-500/40 text-emerald-300 flex flex-col items-center justify-center transition-all active:scale-95 glow-emerald">
+                    <span class="text-xs font-black flex items-center gap-1">✅ Correct (+10)</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-mono px-1 py-0.2 rounded border border-emerald-500/30 mt-0.5">[C]</span>
+                </button>
+
+                <!-- [W] Wrong -->
+                <button type="button" onclick="scoreAction(false)" class="glass-card hover:bg-rose-900/40 p-1.5 rounded-xl border border-rose-500/40 text-rose-300 flex flex-col items-center justify-center transition-all active:scale-95 glow-rose">
+                    <span class="text-xs font-black flex items-center gap-1">❌ Wrong (-5)</span>
+                    <span class="bg-rose-500/20 text-rose-300 text-[9px] font-mono px-1 py-0.2 rounded border border-rose-500/30 mt-0.5">[W]</span>
+                </button>
+
+                <!-- [F] Reveal Answers -->
+                <button type="button" onclick="toggleSampleAnswers()" class="glass-card hover:bg-cyan-900/40 p-1.5 rounded-xl border border-cyan-500/40 text-cyan-300 flex flex-col items-center justify-center transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">💡 Reveal Sample</span>
+                    <span class="bg-cyan-500/20 text-cyan-300 text-[9px] font-mono px-1 py-0.2 rounded border border-cyan-500/30 mt-0.5">[F]</span>
+                </button>
+
+                <!-- [N] Next Prompt -->
+                <button type="button" onclick="nextPrompt()" class="glass-card hover:bg-navy-800/80 p-1.5 rounded-xl border border-silver-300/20 text-silver-100 flex flex-col items-center justify-center transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">⏩ Next Prompt</span>
+                    <span class="bg-navy-800 text-silver-300 text-[9px] font-mono px-1 py-0.2 rounded border border-silver-300/20 mt-0.5">[N]</span>
+                </button>
+
+                <!-- [R] Reset Timer -->
+                <button type="button" onclick="resetTimer(); startTimer();" class="glass-card hover:bg-navy-800/80 p-1.5 rounded-xl border border-amber-500/30 text-amber-300 flex flex-col items-center justify-center transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">🔄 Reset Timer</span>
+                    <span class="bg-amber-500/20 text-amber-300 text-[9px] font-mono px-1 py-0.2 rounded border border-amber-500/30 mt-0.5">[R]</span>
+                </button>
+
+            </div>
+        </section>
+
+        <!-- VIEW 3: GAME OVER / RESULTS DISPLAY -->
+        <section id="view-gameover" class="hidden w-full h-full flex items-center justify-center py-2 overflow-hidden">
+            <div class="glass-panel w-full max-w-lg rounded-2xl p-5 text-center shadow-2xl relative border border-silver-300/20">
+                <div class="text-3xl mb-1">🏆</div>
+                <h2 class="text-xl font-black text-white mb-0.5">Blitz Arena Leaderboard!</h2>
+                <p class="text-xs text-silver-300 mb-3">Final scores for all participating students</p>
+
+                <!-- Roster Final Results -->
+                <div id="final-leaderboard-list" class="space-y-1.5 max-h-44 overflow-y-auto mb-4 pr-1 text-left">
+                    <!-- Dynamic rendering -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2.5">
+                    <button onclick="startGameSprint()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black rounded-xl text-xs transition-all shadow-lg glow-emerald">
+                        🔄 Play Again
+                    </button>
+                    <button onclick="showSetupView()" class="flex-1 py-2.5 bg-navy-800 hover:bg-navy-700 text-white font-bold rounded-xl text-xs border border-silver-300/20 transition-all">
+                        ⚙️ Setup Screen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SOUND EFFECTS & GAME LOGIC -->
+    <script>
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTick() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(850, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            playCorrect() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.08);
+                osc.frequency.setValueAtTime(783.99, now + 0.16);
+                osc.frequency.setValueAtTime(1046.50, now + 0.24);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            }
+
+            playWrong() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(164.81, now + 0.12);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            }
+
+            playBuzzer() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                
+                osc.frequency.setValueAtTime(140, now);
+                osc.frequency.setValueAtTime(110, now + 0.15);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            }
+        }
+
+        const audio = new SoundFX();
+    </script>
+
+    <!-- CATEGORY PROMPT DATABASE (200+ PROMPTS A-Z) -->
+    <script>
+        const PROMPT_DATABASE = [
+            // Pop Culture
+            { id: 1, cat: 'pop', letter: 'A', text: 'Name 3 K-POP Girl Groups starting with A', answers: 'Aespa, Alone, Pink Fantasy (A)' },
+            { id: 2, cat: 'pop', letter: 'B', text: 'Name 3 famous Boy Bands starting with B', answers: 'BTS, Backstreet Boys, BigBang' },
+            { id: 3, cat: 'pop', letter: 'C', text: 'Name 3 Celebrity Singers starting with C', answers: 'Celine Dion, Camila Cabello, Chris Brown' },
+            { id: 4, cat: 'pop', letter: 'D', text: 'Name 3 Disney Princesses or Heroes starting with D', answers: 'Donald Duck, Daisy Duck, Dumbo' },
+            { id: 5, cat: 'pop', letter: 'E', text: 'Name 2 Musical Artists starting with E', answers: 'Ed Sheeran, Eminem, Elton John' },
+            { id: 6, cat: 'pop', letter: 'F', text: 'Name 2 Famous Rappers or Musicians starting with F', answers: '50 Cent (F-Fifty), Future, Frank Ocean' },
+            { id: 7, cat: 'pop', letter: 'G', text: 'Name 3 Video Game Characters starting with G', answers: 'Geralt, Gengar, Goomba' },
+            { id: 8, cat: 'pop', letter: 'H', text: 'Name 3 Hollywood Actors starting with H', answers: 'Hugh Jackman, Harrison Ford, Tom Hanks (Hanks)' },
+            { id: 9, cat: 'pop', letter: 'I', text: 'Name 2 Influencers or YouTubers starting with I', answers: 'IShowSpeed, iJustine' },
+            { id: 10, cat: 'pop', letter: 'J', text: 'Name 3 Pop Singers starting with J', answers: 'Justin Bieber, Justin Timberlake, Jennifer Lopez' },
+            { id: 11, cat: 'pop', letter: 'K', text: 'Name 3 K-POP Idols or Groups starting with K', answers: 'KAI, Karina, Kepler' },
+            { id: 12, cat: 'pop', letter: 'L', text: 'Name 2 Famous Bands starting with L', answers: 'Linkin Park, Led Zeppelin' },
+            { id: 13, cat: 'pop', letter: 'M', text: 'Name 3 Marvel Heroes or Villains starting with M', answers: 'Magneto, Mysterio, Moon Knight' },
+            { id: 14, cat: 'pop', letter: 'N', text: 'Name 2 Netflix Original Stars starting with N', answers: 'Noah Schnapp, Nina Dobrev' },
+            { id: 15, cat: 'pop', letter: 'O', text: 'Name 2 Celebrities starting with O', answers: 'Oprah Winfrey, Olivia Rodrigo' },
+            { id: 16, cat: 'pop', letter: 'P', text: 'Name 3 Pokemon starting with P', answers: 'Pikachu, Pidgey, Psyduck' },
+            { id: 17, cat: 'pop', letter: 'Q', text: 'Name 1 Famous Queen or Band starting with Q', answers: 'Queen, Queen Latifah' },
+            { id: 18, cat: 'pop', letter: 'R', text: 'Name 3 Pop Singers starting with R', answers: 'Rihanna, Rihanna, Bad Bunny (R-Real name)' },
+            { id: 19, cat: 'pop', letter: 'S', text: 'Name 4 Marvel Characters starting with S', answers: 'Spider-Man, Star-Lord, Scarlet Witch, Storm' },
+            { id: 20, cat: 'pop', letter: 'T', text: 'Name 2 Taylor Swift Albums or Songs starting with T', answers: 'Teardrops On My Guitar, Tim McGraw' },
+
+            // Objects & Life
+            { id: 21, cat: 'objects', letter: 'A', text: 'Find 3 items in an Office starting with A', answers: 'Agenda, Adhesive tape, Air conditioner' },
+            { id: 22, cat: 'objects', letter: 'B', text: 'Name 3 items in a Classroom starting with B', answers: 'Blackboard, Backpack, Binder' },
+            { id: 23, cat: 'objects', letter: 'C', text: 'Find 5 things in a Kitchen starting with C', answers: 'Cup, Cabinet, Countertop, Cutting board, Coffee maker' },
+            { id: 24, cat: 'objects', letter: 'D', text: 'Name 3 items in a Living Room starting with D', answers: 'Door, Desk, TV Decor' },
+            { id: 25, cat: 'objects', letter: 'E', text: 'Name 3 Electronics starting with E', answers: 'Earbuds, E-reader, Earphones' },
+            { id: 26, cat: 'objects', letter: 'F', text: 'Name 3 Furniture items starting with F', answers: 'Futon, Footstool, Folding chair' },
+            { id: 27, cat: 'objects', letter: 'G', text: 'Name 3 items in a Garden starting with G', answers: 'Grass, Gloves, Hose (Garden)' },
+            { id: 28, cat: 'objects', letter: 'H', text: 'Name 3 items in a Household starting with H', answers: 'Hanger, Heater, Hairbrush' },
+            { id: 29, cat: 'objects', letter: 'I', text: 'Name 2 items in a Hardware store starting with I', answers: 'Iron nails, Insulation' },
+            { id: 30, cat: 'objects', letter: 'J', text: 'Name 3 Clothing/Jewelry items starting with J', answers: 'Jacket, Jeans, Jumper' },
+            { id: 31, cat: 'objects', letter: 'K', text: 'Name 3 Tool or Kitchen items starting with K', answers: 'Kettle, Knife, Key' },
+            { id: 32, cat: 'objects', letter: 'L', text: 'Name 3 items in a Bedroom starting with L', answers: 'Lamp, Linen, Locker' },
+            { id: 33, cat: 'objects', letter: 'M', text: 'Name 3 Musical Instruments starting with M', answers: 'Maracas, Mandolin, Mic' },
+            { id: 34, cat: 'objects', letter: 'N', text: 'Name 2 Desk Supplies starting with N', answers: 'Notebook, Paper Clip (Needle)' },
+            { id: 35, cat: 'objects', letter: 'O', text: 'Name 2 Office Supplies starting with O', answers: 'Organizer, Overcoat' },
+            { id: 36, cat: 'objects', letter: 'P', text: 'Name 4 Stationeries starting with P', answers: 'Pen, Pencil, Paper, Pad' },
+            { id: 37, cat: 'objects', letter: 'Q', text: 'Name 1 Bedding item starting with Q', answers: 'Quilt' },
+            { id: 38, cat: 'objects', letter: 'R', text: 'Name 3 Household items starting with R', answers: 'Rug, Remote, Radiator' },
+            { id: 39, cat: 'objects', letter: 'S', text: 'Name 4 items in a Bathroom starting with S', answers: 'Soap, Shampoo, Sponge, Sink' },
+            { id: 40, cat: 'objects', letter: 'T', text: 'Name 3 Wearable Accessories starting with T', answers: 'Tie, Tiara, Trousers' },
+
+            // Food & Drink
+            { id: 41, cat: 'food', letter: 'A', text: 'Name 3 Fruits or Vegetables starting with A', answers: 'Apple, Avocado, Apricot' },
+            { id: 42, cat: 'food', letter: 'B', text: 'Name 3 Ice Cream Flavors starting with B', answers: 'Banana, Blueberry, Butter Pecan' },
+            { id: 43, cat: 'food', letter: 'C', text: 'Name 3 Fast Food Items starting with C', answers: 'Cheeseburger, Chicken nuggets, Churro' },
+            { id: 44, cat: 'food', letter: 'D', text: 'Name 3 Desserts or Sweets starting with D', answers: 'Donut, Danish, Dark chocolate' },
+            { id: 45, cat: 'food', letter: 'E', text: 'Name 2 Breakfast Foods starting with E', answers: 'Eggs, English muffin' },
+            { id: 46, cat: 'food', letter: 'F', text: 'Name 3 Seafood items or Dishes starting with F', answers: 'Fish chips, Fried rice, Flan' },
+            { id: 47, cat: 'food', letter: 'G', text: 'Name 3 Fruits or Drinks starting with G', answers: 'Grape, Grapefruit, Guava' },
+            { id: 48, cat: 'food', letter: 'H', text: 'Name 2 Meat or Fast Foods starting with H', answers: 'Hamburger, Hot dog' },
+            { id: 49, cat: 'food', letter: 'I', text: 'Name 2 Italian Food Items starting with I', answers: 'Italian sausage, Ice cream (Gelato)' },
+            { id: 50, cat: 'food', letter: 'J', text: 'Name 2 Snacks or Spreads starting with J', answers: 'Jam, Jelly' },
+
+            // Movies & Media
+            { id: 51, cat: 'media', letter: 'M', text: 'Name 3 Netflix shows starting with M', answers: 'Mindhunter, Manifest, Money Heist' },
+            { id: 52, cat: 'media', letter: 'A', text: 'Name 3 Animated Movies starting with A', answers: 'Aladdin, Avatar, Cars (Animation)' },
+            { id: 53, cat: 'media', letter: 'B', text: 'Name 2 Blockbuster Movies starting with B', answers: 'Batman, Barbie' },
+            { id: 54, cat: 'media', letter: 'C', text: 'Name 3 Comedy Movies starting with C', answers: 'Clueless, Caddyshack, Crazy Rich Asians' },
+            { id: 55, cat: 'media', letter: 'D', text: 'Name 3 Disney Movies starting with D', answers: 'Dumbo, Descendants, Dinosaur' },
+
+            // Animals & Nature
+            { id: 56, cat: 'nature', letter: 'A', text: 'Name 3 Animals starting with A', answers: 'Alligator, Anteater, Ape' },
+            { id: 57, cat: 'nature', letter: 'B', text: 'Name 3 Birds or Mammals starting with B', answers: 'Bear, Bluejay, Buffalo' },
+            { id: 58, cat: 'nature', letter: 'C', text: 'Name 3 Feline or Canines starting with C', answers: 'Cat, Cheetah, Coyote' },
+            { id: 59, cat: 'nature', letter: 'D', text: 'Name 3 Animals starting with D', answers: 'Dog, Dolphin, Deer' },
+            { id: 60, cat: 'nature', letter: 'E', text: 'Name 2 Wild Animals starting with E', answers: 'Elephant, Eagle' }
+        ];
+
+        // Generate additional prompts programmatically up to 200+
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const cats = ['pop', 'objects', 'food', 'media', 'nature'];
+        const templates = [
+            (l) => ({ cat: 'pop', text: `Name 3 Celebrities or Singers starting with ${l}`, answers: `Famous personalities starting with ${l}` }),
+            (l) => ({ cat: 'objects', text: `Find 3 Everyday Objects starting with ${l}`, answers: `Common items starting with ${l}` }),
+            (l) => ({ cat: 'food', text: `Name 2 Tasty Foods or Snacks starting with ${l}`, answers: `Delicacies starting with ${l}` }),
+            (l) => ({ cat: 'media', text: `Name 2 Famous Movies or TV Shows starting with ${l}`, answers: `Title productions starting with ${l}` }),
+            (l) => ({ cat: 'nature', text: `Name 3 Animals or Plants starting with ${l}`, answers: `Nature elements starting with ${l}` })
+        ];
+
+        let autoId = 100;
+        alphabet.split('').forEach(let => {
+            templates.forEach(tpl => {
+                const item = tpl(let);
+                PROMPT_DATABASE.push({
+                    id: autoId++,
+                    cat: item.cat,
+                    letter: let,
+                    text: item.text,
+                    answers: item.answers
+                });
+            });
+        });
+    </script>
+
+    <!-- APPLICATION STATE & CONTROLLER -->
+    <script>
+        const state = {
+            mode: 'classic', // classic, survival, speed
+            timerSetting: 30,
+            timerRemaining: 30,
+            timerRunning: false,
+            timerInterval: null,
+            categoryFilter: 'all',
+            showSampleAnswers: false,
+            playerRoster: [
+                { id: 1, name: 'Student 1', score: 0, correct: 0, wrong: 0 },
+                { id: 2, name: 'Student 2', score: 0, correct: 0, wrong: 0 },
+                { id: 3, name: 'Student 3', score: 0, correct: 0, wrong: 0 }
+            ],
+            activePlayerIndex: 0,
+            promptPool: [],
+            currentPromptIndex: 0,
+            currentPrompt: null
+        };
+
+        function setMode(m) {
+            state.mode = m;
+            ['classic', 'survival', 'speed'].forEach(mode => {
+                const btn = document.getElementById(`btn-mode-${mode}`);
+                if (mode === m) {
+                    btn.className = "p-1.5 rounded-lg border text-left transition-all font-bold border-gold-500/50 bg-gold-500/10 text-gold-400";
+                } else {
+                    btn.className = "p-1.5 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40";
+                }
+            });
+        }
+
+        function setTimerSec(sec) {
+            state.timerSetting = sec;
+            [15, 30, 45, 60].forEach(s => {
+                const btn = document.getElementById(`btn-timer-${s}`);
+                if (s === sec) {
+                    btn.className = "py-2 rounded-lg border text-center font-mono font-black text-xs transition-all border-gold-500/50 bg-gold-500/10 text-gold-400";
+                } else {
+                    btn.className = "py-2 rounded-lg border text-center font-mono font-black text-xs transition-all border-silver-300/20 bg-navy-800/50 text-silver-300";
+                }
+            });
+        }
+
+        function setCategoryFilter(cat) {
+            state.categoryFilter = cat;
+            ['all', 'pop', 'objects', 'food', 'media', 'nature'].forEach(c => {
+                const btn = document.getElementById(`btn-cat-${c}`);
+                if (c === cat) {
+                    btn.className = "py-1.5 px-1 rounded-lg border text-center transition-all border-gold-500/50 bg-gold-500/10 text-gold-300 font-black text-[11px]";
+                } else {
+                    btn.className = "py-1.5 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[11px]";
+                }
+            });
+        }
+
+        function renderSetupRoster() {
+            const container = document.getElementById('roster-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.playerRoster.forEach((player) => {
+                const tag = document.createElement('div');
+                tag.className = 'bg-navy-800 border border-silver-300/20 rounded-lg px-2.5 py-1 text-xs font-bold text-silver-100 flex items-center gap-1.5';
+                tag.innerHTML = `
+                    <span>${player.name}</span>
+                    <button type="button" onclick="removeStudent(${player.id})" class="text-silver-300 hover:text-rose-400 font-black ml-1">✕</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        function addStudentFromInput() {
+            const input = document.getElementById('input-new-student');
+            const name = input.value.trim();
+            if (name) {
+                state.playerRoster.push({
+                    id: Date.now() + Math.random(),
+                    name: name,
+                    score: 0,
+                    correct: 0,
+                    wrong: 0
+                });
+                input.value = '';
+                renderSetupRoster();
+            }
+        }
+
+        function addAutoStudents(count) {
+            const startIdx = state.playerRoster.length + 1;
+            for (let i = 0; i < count; i++) {
+                state.playerRoster.push({
+                    id: Date.now() + i,
+                    name: `Student ${startIdx + i}`,
+                    score: 0,
+                    correct: 0,
+                    wrong: 0
+                });
+            }
+            renderSetupRoster();
+        }
+
+        function clearRoster() {
+            state.playerRoster = [];
+            renderSetupRoster();
+        }
+
+        function removeStudent(id) {
+            state.playerRoster = state.playerRoster.filter(p => p.id !== id);
+            renderSetupRoster();
+        }
+
+        function renderGameRoster() {
+            const list = document.getElementById('game-roster-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            state.playerRoster.forEach((player, idx) => {
+                const isActive = idx === state.activePlayerIndex;
+                const item = document.createElement('div');
+                item.className = `p-2 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
+                    isActive 
+                        ? 'bg-gold-500/20 border-gold-500/50 text-gold-300 font-bold' 
+                        : 'bg-navy-950/50 border-silver-300/10 text-silver-300 hover:border-silver-300/20'
+                }`;
+                item.onclick = () => selectPlayerTurn(idx);
+                item.innerHTML = `
+                    <div class="flex items-center gap-1.5 overflow-hidden">
+                        <span class="text-xs ${isActive ? 'text-gold-400' : 'text-silver-300'} font-mono">${idx + 1}.</span>
+                        <span class="text-xs font-bold truncate">${player.name}</span>
+                    </div>
+                    <span class="font-mono text-xs font-black ${isActive ? 'text-gold-400' : 'text-silver-100'}">${player.score} PT</span>
+                `;
+                list.appendChild(item);
+            });
+
+            if (state.playerRoster[state.activePlayerIndex]) {
+                document.getElementById('active-student-display').innerText = state.playerRoster[state.activePlayerIndex].name;
+            }
+        }
+
+        function selectPlayerTurn(idx) {
+            state.activePlayerIndex = idx;
+            renderGameRoster();
+        }
+
+        function nextPlayerTurn() {
+            if (state.playerRoster.length === 0) return;
+            state.activePlayerIndex = (state.activePlayerIndex + 1) % state.playerRoster.length;
+            renderGameRoster();
+        }
+
+        function loadPromptPool() {
+            let pool = PROMPT_DATABASE;
+            if (state.categoryFilter !== 'all') {
+                pool = PROMPT_DATABASE.filter(p => p.cat === state.categoryFilter);
+            }
+            state.promptPool = [...pool].sort(() => 0.5 - Math.random());
+            state.currentPromptIndex = 0;
+            state.currentPrompt = state.promptPool[0];
+        }
+
+        function startGameSprint() {
+            audio.init();
+            
+            if (state.playerRoster.length === 0) {
+                addAutoStudents(3);
+            }
+
+            state.playerRoster.forEach(p => {
+                p.score = 0;
+                p.correct = 0;
+                p.wrong = 0;
+            });
+            state.activePlayerIndex = 0;
+            state.showSampleAnswers = false;
+
+            loadPromptPool();
+
+            document.getElementById('view-setup').classList.add('hidden');
+            document.getElementById('view-gameover').classList.add('hidden');
+            document.getElementById('view-game').classList.remove('hidden');
+
+            updateHeaderInfo();
+            renderGameRoster();
+            renderPrompt();
+            resetTimer();
+            startTimer();
+        }
+
+        function updateHeaderInfo() {
+            const catNames = {
+                all: 'ALL CATEGORIES',
+                pop: 'POP CULTURE',
+                objects: 'OBJECTS & LIFE',
+                food: 'FOOD & DRINK',
+                media: 'MOVIES & MEDIA',
+                nature: 'ANIMALS & NATURE'
+            };
+            document.getElementById('hdr-category').innerText = catNames[state.categoryFilter];
+            document.getElementById('prompt-current-idx').innerText = state.currentPromptIndex + 1;
+            document.getElementById('prompt-total-pool').innerText = state.promptPool.length;
+        }
+
+        function renderPrompt() {
+            if (!state.currentPrompt) return;
+
+            document.getElementById('giant-letter-badge').innerText = state.currentPrompt.letter;
+            document.getElementById('main-prompt-text').innerText = state.currentPrompt.text;
+            document.getElementById('sample-answers-text').innerText = state.currentPrompt.answers;
+
+            const catLabels = {
+                pop: '✨ POP CULTURE',
+                objects: '🏠 OBJECTS & LIFE',
+                food: '🍕 FOOD & DRINK',
+                media: '🎬 MOVIES & MEDIA',
+                nature: '🐾 ANIMALS & NATURE'
+            };
+            document.getElementById('prompt-category-tag').innerText = catLabels[state.currentPrompt.cat] || '🌐 GENERAL';
+
+            if (state.showSampleAnswers) {
+                document.getElementById('sample-answers-text').classList.remove('hidden');
+            } else {
+                document.getElementById('sample-answers-text').classList.add('hidden');
+            }
+        }
+
+        function toggleSampleAnswers() {
+            state.showSampleAnswers = !state.showSampleAnswers;
+            const ansText = document.getElementById('sample-answers-text');
+            if (state.showSampleAnswers) {
+                ansText.classList.remove('hidden');
+            } else {
+                ansText.classList.add('hidden');
+            }
+        }
+
+        function nextPrompt() {
+            state.currentPromptIndex++;
+
+            if (state.currentPromptIndex >= state.promptPool.length) {
+                finishGame();
+                return;
+            }
+
+            state.currentPrompt = state.promptPool[state.currentPromptIndex];
+            state.showSampleAnswers = false;
+            updateHeaderInfo();
+            renderPrompt();
+            resetTimer();
+        }
+
+        function scoreAction(isCorrect) {
+            const activePlayer = state.playerRoster[state.activePlayerIndex];
+            
+            if (isCorrect) {
+                audio.playCorrect();
+                if (activePlayer) {
+                    activePlayer.score += 10;
+                    activePlayer.correct += 1;
+                }
+            } else {
+                audio.playWrong();
+                if (activePlayer) {
+                    activePlayer.score = Math.max(0, activePlayer.score - 5);
+                    activePlayer.wrong += 1;
+                }
+            }
+
+            renderGameRoster();
+
+            setTimeout(() => {
+                nextPrompt();
+            }, 250);
+        }
+
+        function resetTimer() {
+            state.timerRemaining = state.timerSetting;
+            updateTimerUI();
+        }
+
+        function startTimer() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            state.timerRunning = true;
+            updateTimerButtonUI();
+
+            state.timerInterval = setInterval(() => {
+                if (state.timerRunning) {
+                    state.timerRemaining--;
+                    audio.playTick();
+                    updateTimerUI();
+
+                    if (state.timerRemaining <= 0) {
+                        audio.playBuzzer();
+                        scoreAction(false);
+                    }
+                }
+            }, 1000);
+        }
+
+        function toggleTimer() {
+            state.timerRunning = !state.timerRunning;
+            updateTimerButtonUI();
+        }
+
+        function updateTimerButtonUI() {
+            const label = document.getElementById('btn-timer-label');
+            const icon = document.getElementById('btn-timer-icon');
+            const tag = document.getElementById('timer-status-tag');
+
+            if (state.timerRunning) {
+                label.innerText = 'Pause';
+                icon.innerText = '⏸️';
+                tag.className = 'text-xs font-bold text-emerald-400 flex items-center gap-1';
+                tag.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE';
+            } else {
+                label.innerText = 'Resume';
+                icon.innerText = '▶️';
+                tag.className = 'text-xs font-bold text-gold-400 flex items-center gap-1';
+                tag.innerHTML = '<span class="w-2 h-2 rounded-full bg-gold-400"></span> PAUSED';
+            }
+        }
+
+        function updateTimerUI() {
+            document.getElementById('timer-text').innerText = state.timerRemaining;
+            const pct = (state.timerRemaining / state.timerSetting) * 100;
+            document.getElementById('timer-circle').setAttribute('stroke-dasharray', `${pct}, 100`);
+        }
+
+        function finishGame() {
+            clearInterval(state.timerInterval);
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('view-gameover').classList.remove('hidden');
+
+            const listContainer = document.getElementById('final-leaderboard-list');
+            listContainer.innerHTML = '';
+
+            const sortedRoster = [...state.playerRoster].sort((a, b) => b.score - a.score);
+
+            sortedRoster.forEach((p, rank) => {
+                const card = document.createElement('div');
+                card.className = 'bg-navy-900/80 border border-silver-300/10 rounded-xl p-2.5 flex items-center justify-between';
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="font-mono text-xs font-black text-gold-400">#${rank + 1}</span>
+                        <div>
+                            <div class="text-xs font-bold text-white">${p.name}</div>
+                            <div class="text-[10px] text-silver-300">Correct: ${p.correct} | Missed: ${p.wrong}</div>
+                        </div>
+                    </div>
+                    <div class="font-mono text-sm font-black text-emerald-400">${p.score} PT</div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function showSetupView() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            document.getElementById('view-gameover').classList.add('hidden');
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('view-setup').classList.remove('hidden');
+            renderSetupRoster();
+        }
+
+        window.addEventListener('load', () => {
+            renderSetupRoster();
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (!document.getElementById('view-game').classList.contains('hidden')) {
+                const key = e.key.toLowerCase();
+
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    toggleTimer();
+                } else if (key === 'c') {
+                    e.preventDefault();
+                    scoreAction(true);
+                } else if (key === 'w') {
+                    e.preventDefault();
+                    scoreAction(false);
+                } else if (key === 'f') {
+                    e.preventDefault();
+                    toggleSampleAnswers();
+                } else if (key === 'n' || e.code === 'ArrowRight') {
+                    e.preventDefault();
+                    nextPrompt();
+                } else if (key === 'r') {
+                    e.preventDefault();
+                    resetTimer();
+                    startTimer();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
