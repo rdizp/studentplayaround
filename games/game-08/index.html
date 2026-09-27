@@ -124,38 +124,7 @@
         }
     </style>
 </head>
-<body class="h-full flex flex-col justify-between p-2 sm:p-3 relative text-slate-100 select-none">
-
-    <!-- GLOBAL HEADER -->
-    <header class="w-full max-w-7xl mx-auto flex justify-between items-center px-4 py-2 glass-panel rounded-2xl shrink-0">
-        <div class="flex items-center gap-3">
-            <a href="../../"
-               class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-[#D9D9D9]/20 text-[#F8F9FA] hover:bg-[#1E3A5F] hover:border-[#F4B400]/50 transition-all text-xs font-bold"
-               title="Back to Games">
-                <i class="fa-solid fa-arrow-left"></i>
-                <span class="hidden sm:inline">Back to Games</span>
-            </a>
-
-            <div class="w-9 h-9 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center text-lg font-black shadow-lg shadow-amber-400/20">
-                🧩
-            </div>
-
-            <div>
-                <h1 class="font-black text-base md:text-lg tracking-tight text-white leading-none">
-                    REBUS <span class="text-amber-400">PUZZLE</span>
-                </h1>
-                <p class="text-[9px] md:text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">
-                    Word Decoder • Solo Sprint Edition
-                </p>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <span class="bg-slate-800/80 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-bold">
-                REBUS ARENA
-            </span>
-        </div>
-    </header>
+<body class="h-screen w-screen flex flex-col justify-between p-4 select-none">
 
     <script>
         class SoundFX {
@@ -365,9 +334,11 @@
     </script>
 
     <!-- MAIN CONTAINER WITH FIXED 100vh ZERO-SCROLL LAYOUT -->
-    <main id="app-root" class="flex-1 w-full max-w-6xl mx-auto flex flex-col justify-center items-center relative z-10 py-1 my-auto overflow-hidden">
+    <main id="app-root" class="w-full max-w-6xl mx-auto h-full flex flex-col justify-between py-1 px-3 relative">
+
         <!-- VIEW 1: SETUP CARD -->
         <section id="view-setup" class="flex-1 flex flex-col items-center justify-center py-0.5 overflow-hidden">
+            
             <!-- TOP SETUP HUD HEADER -->
             <div class="w-full max-w-3xl mb-2 flex items-center justify-between glass-panel px-4 py-2 rounded-xl border border-white/10 text-xs shrink-0">
                 <div class="flex items-center gap-3">
@@ -390,7 +361,7 @@
                 </div>
             </div>
 
-            <div class="glass-panel w-full max-w-4xl rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden border border-slate-700/60 flex flex-col justify-between my-auto z-20 animate-pop-in">
+            <div class="glass-panel w-full max-w-3xl rounded-2xl p-5 shadow-2xl relative overflow-hidden border border-white/10 flex flex-col justify-between my-auto z-20">
                 <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
                 <div class="absolute -left-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
@@ -499,6 +470,12 @@
             <div class="flex items-center justify-between bg-slate-800/40 rounded-2xl p-2.5 border border-white/5">
                 <!-- Circular Timer -->
                 <div class="flex items-center gap-3">
+                    <a href="../../"
+   class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-white/10 text-white hover:bg-slate-800 hover:border-amber-500/50 transition-all text-xs font-bold"
+   title="Back to Games">
+    <i class="fa-solid fa-arrow-left"></i>
+    <span class="hidden sm:inline">Back to Games</span>
+</a>
                     <div class="relative w-12 h-12 flex items-center justify-center">
                         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                             <path class="text-slate-700" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
