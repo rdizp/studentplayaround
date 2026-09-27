@@ -139,7 +139,7 @@
     </header>
 
     <!-- MAIN ROOT CONTAINER -->
-    <main id="app-root" class="flex-1 w-full max-w-5xl mx-auto flex flex-col min-h-0 overflow-hidden relative">
+    <main id="app-root" class="flex-1 w-full flex flex-col min-h-0 overflow-hidden relative">
         
         <!-- VIEW 1: SETUP SCREEN (ZERO SCROLL FIT) -->
         <section id="view-setup" class="w-full h-full flex flex-col justify-between overflow-hidden">
@@ -150,7 +150,7 @@
 
                 <!-- SECTION TITLE BAR -->
                 <div class="flex items-center justify-between border-b border-silver-300/15 pb-1.5 shrink-0">
-                    <h2 class="text-xs md:text-sm font-black text-silver-100 flex items-center gap-2 uppercase tracking-wider">
+                    <h2 class="text-sm md:text-base font-black text-silver-100 flex items-center gap-2 uppercase tracking-wider">
                         <span>🎮</span> GAME CONFIGURATION &amp; STUDENT ROSTER SETUP
                     </h2>
                     <span class="text-[10px] font-black text-gold-500 bg-gold-500/10 border border-gold-500/30 px-2 py-0.5 rounded-md tracking-wider">BLITZ SETUP</span>
@@ -168,16 +168,16 @@
                                 <label class="text-[10px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">🎯 Game Mode</label>
                                 <div class="grid grid-cols-1 gap-1">
                                     <button type="button" onclick="setMode('classic')" id="btn-mode-classic" class="p-1 rounded-lg border text-left transition-all font-bold border-gold-500/50 bg-gold-500/10 text-gold-400">
-                                        <div class="text-[11px] font-black">⚡ Classic Blitz</div>
-                                        <div class="text-[9px] text-silver-300 font-medium">+10 for correct, -5 for wrong</div>
+                                        <div class="text-xs font-black">⚡ Classic Blitz</div>
+                                        <div class="text-[9px] text-silver-300 font-medium">+1 for correct, -1 for wrong</div>
                                     </button>
                                     <button type="button" onclick="setMode('survival')" id="btn-mode-survival" class="p-1 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40">
-                                        <div class="text-[11px] font-black">🔥 Survival Sprint</div>
+                                        <div class="text-xs font-black">🔥 Survival Sprint</div>
                                         <div class="text-[9px] text-silver-300 font-medium">Must get 3 prompts per turn</div>
                                     </button>
                                     <button type="button" onclick="setMode('speed')" id="btn-mode-speed" class="p-1 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40">
-                                        <div class="text-[11px] font-black">🚀 Speed Run</div>
-                                        <div class="text-[9px] text-silver-300 font-medium">15s rapid fire per letter</div>
+                                        <div class="text-xs font-black">🚀 Speed Run</div>
+                                        <div class="text-[10px] text-silver-300 font-medium">15s rapid fire per letter</div>
                                     </button>
                                 </div>
                             </div>
@@ -186,10 +186,10 @@
                             <div class="space-y-1 bg-navy-900/80 p-2 rounded-xl border border-silver-300/15 flex flex-col justify-between">
                                 <label class="text-[10px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">⏱️ Round Timer</label>
                                 <div class="grid grid-cols-2 gap-1 my-auto">
-                                    <button type="button" onclick="setTimerSec(15)" id="btn-timer-15" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">15s</button>
-                                    <button type="button" onclick="setTimerSec(30)" id="btn-timer-30" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-gold-500/50 bg-gold-500/10 text-gold-400">30s</button>
-                                    <button type="button" onclick="setTimerSec(45)" id="btn-timer-45" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">45s</button>
-                                    <button type="button" onclick="setTimerSec(60)" id="btn-timer-60" class="py-1.5 rounded-lg border text-center font-mono font-black text-[11px] transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">60s</button>
+                                    <button type="button" onclick="setTimerSec(15)" id="btn-timer-15" class="py-1.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">15s</button>
+                                    <button type="button" onclick="setTimerSec(30)" id="btn-timer-30" class="py-1.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-gold-500/50 bg-gold-500/10 text-gold-400">30s</button>
+                                    <button type="button" onclick="setTimerSec(45)" id="btn-timer-45" class="py-1.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">45s</button>
+                                    <button type="button" onclick="setTimerSec(60)" id="btn-timer-60" class="py-1.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">60s</button>
                                 </div>
                             </div>
                         </div>
@@ -198,22 +198,22 @@
                         <div class="space-y-1 bg-navy-900/80 p-2 rounded-xl border border-silver-300/15">
                             <label class="text-[10px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">🏷️ Category Filter</label>
                             <div class="grid grid-cols-3 gap-1">
-                                <button type="button" onclick="setCategoryFilter('all')" id="btn-cat-all" class="py-1 px-1 rounded-lg border text-center transition-all border-gold-500/50 bg-gold-500/10 text-gold-300 font-black text-[10px]">
+                                <button type="button" onclick="setCategoryFilter('all')" id="btn-cat-all" class="py-1 px-1 rounded-lg border text-center transition-all border-gold-500/50 bg-gold-500/10 text-gold-300 font-black text-[11px]">
                                     🌐 ALL (200+)
                                 </button>
-                                <button type="button" onclick="setCategoryFilter('pop')" id="btn-cat-pop" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                <button type="button" onclick="setCategoryFilter('pop')" id="btn-cat-pop" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[11px]">
                                     ✨ POP CULTURE
                                 </button>
-                                <button type="button" onclick="setCategoryFilter('objects')" id="btn-cat-objects" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                <button type="button" onclick="setCategoryFilter('objects')" id="btn-cat-objects" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[11px]">
                                     🏠 OBJECTS &amp; LIFE
                                 </button>
-                                <button type="button" onclick="setCategoryFilter('food')" id="btn-cat-food" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                <button type="button" onclick="setCategoryFilter('food')" id="btn-cat-food" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[11px]">
                                     🍕 FOOD &amp; DRINK
                                 </button>
-                                <button type="button" onclick="setCategoryFilter('media')" id="btn-cat-media" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                <button type="button" onclick="setCategoryFilter('media')" id="btn-cat-media" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[11px]">
                                     🎬 MOVIES &amp; MEDIA
                                 </button>
-                                <button type="button" onclick="setCategoryFilter('nature')" id="btn-cat-nature" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[10px]">
+                                <button type="button" onclick="setCategoryFilter('nature')" id="btn-cat-nature" class="py-1 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-[11px]">
                                     🐾 ANIMALS &amp; NATURE
                                 </button>
                             </div>
@@ -230,7 +230,6 @@
                                 <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-rose-400">[W]</strong> Wrong (-5)</div>
                                 <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-cyan-300">[F]</strong> Sample Answer</div>
                                 <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-white">[N]</strong> Next Prompt</div>
-                                <div class="bg-navy-800/80 p-0.5 px-1 rounded border border-silver-300/10"><strong class="text-amber-300">[R]</strong> Reset Timer</div>
                             </div>
                         </div>
 
@@ -280,7 +279,7 @@
                                 </div>
                                 <div class="flex items-start gap-1.5">
                                     <span class="bg-gold-500/20 text-gold-300 font-mono font-bold text-[9px] px-1 rounded shrink-0">3</span>
-                                    <span><strong>Scoring &amp; Turn:</strong> Facilitator hits <strong class="text-emerald-400">[C]</strong> (+10 pts) or <strong class="text-rose-400">[W]</strong> (-5 pts), then switches to the next student!</span>
+                                    <span><strong>Scoring &amp; Turn:</strong> Facilitator hits <strong class="text-emerald-400">[C]</strong> (+1 pts) or <strong class="text-rose-400">[W]</strong> (-1 pts), then switches to the next student!</span>
                                 </div>
                             </div>
 
@@ -432,10 +431,10 @@
                     <span class="bg-navy-800 text-silver-300 text-[9px] font-mono px-1 py-0.2 rounded border border-silver-300/20 mt-0.5">[N]</span>
                 </button>
 
-                <!-- [R] Reset Timer -->
-                <button type="button" onclick="resetTimer(); startTimer();" class="glass-card hover:bg-navy-800/80 p-1.5 rounded-xl border border-amber-500/30 text-amber-300 flex flex-col items-center justify-center transition-all">
-                    <span class="text-xs font-bold flex items-center gap-1">🔄 Reset Timer</span>
-                    <span class="bg-amber-500/20 text-amber-300 text-[9px] font-mono px-1 py-0.2 rounded border border-amber-500/30 mt-0.5">[R]</span>
+                <!-- [S] Reset Timer -->
+                <button type="button" onclick="nextPlayerTurn()" class="glass-card hover:bg-navy-800/80 p-1.5 rounded-xl border border-amber-500/30 text-amber-300 flex flex-col items-center justify-center transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">🔄 Switch Student</span>
+                    <span class="bg-amber-500/20 text-amber-300 text-[9px] font-mono px-1 py-0.2 rounded border border-amber-500/30 mt-0.5">[S]</span>
                 </button>
 
             </div>
@@ -1045,10 +1044,9 @@
                 } else if (key === 'n' || e.code === 'ArrowRight') {
                     e.preventDefault();
                     nextPrompt();
-                } else if (key === 'r') {
+                } else if (key === 's') {
                     e.preventDefault();
-                    resetTimer();
-                    startTimer();
+                    nextPlayerTurn();
                 }
             }
         });
