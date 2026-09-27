@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="../../Favicon.png">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -20,23 +21,24 @@
                         mono: ['Space Grotesk', 'monospace'],
                     },
                     colors: {
-                        amber: {
-                            300: '#FCDC65',
-                            400: '#F5C22B',
-                            500: '#F4B400',
-                            600: '#D49B00',
-                        },
-                        slate: {
+                        navy: {
                             950: '#0C1827',
                             900: '#132640',
                             800: '#1E3A5F',
-                            700: '#2F527E',
-                            600: '#52729D',
-                            500: '#94A3B8',
-                            400: '#D9D9D9',
-                            300: '#E8EBEF',
-                            200: '#F8F9FA',
-                            100: '#FFFFFF',
+                            700: '#2A4D7B',
+                            600: '#3D68A0',
+                        },
+                        gold: {
+                            300: '#FDE047',
+                            400: '#FACC15',
+                            500: '#F4B400',
+                            600: '#D49B00',
+                        },
+                        silver: {
+                            100: '#F8F9FA',
+                            200: '#E8EBEF',
+                            300: '#D9D9D9',
+                            400: '#A3A3A3',
                         }
                     }
                 }
@@ -44,44 +46,53 @@
         }
     </script>
     <style>
-        body {
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             background-color: #1E3A5F;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(244, 180, 0, 0.18) 0px, transparent 50%),
-                radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(19, 38, 64, 0.8) 0px, transparent 50%);
             color: #F8F9FA;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow: hidden;
+            user-select: none;
+        }
+
+        body {
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(244, 180, 0, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.10) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(19, 38, 64, 0.85) 0px, transparent 50%);
         }
 
         .glass-panel {
-            background: rgba(19, 38, 64, 0.85);
+            background: rgba(19, 38, 64, 0.94);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(217, 217, 217, 0.22);
+            border: 1px solid rgba(217, 217, 217, 0.2);
         }
 
         .glass-card {
-            background: rgba(30, 58, 95, 0.65);
+            background: rgba(30, 58, 95, 0.75);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(217, 217, 217, 0.18);
         }
 
-        .glow-amber {
-            box-shadow: 0 0 25px -5px rgba(244, 180, 0, 0.5);
+        .glow-gold {
+            box-shadow: 0 0 20px -3px rgba(244, 180, 0, 0.45);
         }
 
         .glow-emerald {
-            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.4);
         }
 
         .glow-rose {
-            box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.4);
+            box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.4);
         }
 
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: rgba(19, 38, 64, 0.5);
@@ -107,25 +118,323 @@
             box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
         }
 
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.85; transform: scale(0.98); }
-        }
-        .animate-pulse-subtle {
-            animation: pulse-subtle 3s infinite ease-in-out;
-        }
-
         @keyframes pop-in {
-            0% { transform: scale(0.8); opacity: 0; }
+            0% { transform: scale(0.85); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
         .animate-pop-in {
-            animation: pop-in 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: pop-in 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between p-4 select-none">
+<body class="h-screen w-screen flex flex-col p-2.5 md:p-3.5 overflow-hidden">
 
+    <!-- TOP HUD HEADER BAR -->
+    <header class="w-full max-w-5xl mx-auto flex items-center justify-between px-3.5 py-1.5 bg-navy-900/90 border border-silver-300/20 rounded-xl mb-2 shrink-0 shadow-md">
+        <div class="flex items-center gap-2.5">
+            <a href="../../"
+               class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-white/10 text-white hover:bg-slate-800 hover:border-amber-500/50 transition-all text-xs font-bold"
+               title="Back to Games">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span class="hidden sm:inline">Back to Games</span>
+            </a>
+            <span class="text-xl">🧩</span>
+            <div>
+                <h1 class="text-xs md:text-sm font-black tracking-wider text-gold-500 uppercase leading-none">REBUS PUZZLE WORD DECODER</h1>
+                <div class="text-[10px] text-silver-300 font-semibold leading-tight mt-0.5">CLASSROOM RAPID-FIRE • SOLO SPRINT EDITION</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="bg-navy-800 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> READY ARENA
+            </span>
+            <span class="bg-navy-800 text-cyan-300 border border-cyan-500/30 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold">
+                🖥️ 13" DISPLAY
+            </span>
+        </div>
+    </header>
+
+    <!-- MAIN ROOT CONTAINER -->
+    <main id="app-root" class="flex-1 w-full max-w-5xl mx-auto flex flex-col min-h-0 overflow-hidden relative">
+        
+        <!-- VIEW 1: SETUP SCREEN (ZERO SCROLL 100VH FIT) -->
+        <section id="view-setup" class="w-full h-full flex flex-col justify-between overflow-hidden">
+            
+            <!-- MAIN GLASS PANEL CARD -->
+            <div class="glass-panel w-full h-full rounded-2xl p-3.5 md:p-4 shadow-2xl relative overflow-hidden border border-silver-300/20 flex flex-col justify-between gap-2.5 min-h-0">
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- SECTION TITLE BAR -->
+                <div class="flex items-center justify-between border-b border-silver-300/15 pb-2 shrink-0">
+                    <h2 class="text-xs md:text-sm font-black text-silver-100 flex items-center gap-2 uppercase tracking-wider">
+                        <span>🎮</span> GAME CONTROL &amp; STUDENT ROSTER SETUP
+                    </h2>
+                    <span class="text-[10px] font-black text-gold-500 bg-gold-500/10 border border-gold-500/30 px-2.5 py-0.5 rounded-md tracking-wider">SETUP ARENA</span>
+                </div>
+
+                <!-- MAIN DUAL COLUMN CONTENT AREA (STRICT ZERO-SCROLL GRID) -->
+                <div class="grid grid-cols-12 gap-3 flex-1 min-h-0 overflow-hidden">
+                    
+                    <!-- LEFT SIDE: GAME CONFIGURATION (7 COLS) -->
+                    <div class="col-span-7 flex flex-col justify-between gap-2 h-full overflow-hidden">
+                        
+                        <!-- Top Row: Mode & Timer -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <!-- Game Mode Selection -->
+                            <div class="space-y-1.5 bg-navy-900/80 p-2.5 rounded-xl border border-silver-300/15">
+                                <label class="text-[11px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">🎯 Game Mode</label>
+                                <div class="grid grid-cols-1 gap-1.5">
+                                    <button type="button" onclick="setMode('single_level')" id="btn-mode-single" class="p-2 rounded-lg border text-left transition-all font-bold border-gold-500/50 bg-gold-500/10 text-gold-400">
+                                        <div class="text-xs font-black">🎯 Single Level</div>
+                                        <div class="text-[10px] text-silver-300 font-medium">Practice Selected Level</div>
+                                    </button>
+                                    <button type="button" onclick="setMode('climb')" id="btn-mode-climb" class="p-2 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40">
+                                        <div class="text-xs font-black">🚀 Level Climb</div>
+                                        <div class="text-[10px] text-silver-300 font-medium">L1 → L4 Progression</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Sprint Timer Duration -->
+                            <div class="space-y-1.5 bg-navy-900/80 p-2.5 rounded-xl border border-silver-300/15 flex flex-col justify-between">
+                                <label class="text-[11px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">⏱️ Sprint Timer</label>
+                                <div class="grid grid-cols-3 gap-1.5 my-auto">
+                                    <button type="button" onclick="setTimerSec(10)" id="btn-timer-10" class="py-2.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">10s</button>
+                                    <button type="button" onclick="setTimerSec(15)" id="btn-timer-15" class="py-2.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-gold-500/50 bg-gold-500/10 text-gold-400">15s</button>
+                                    <button type="button" onclick="setTimerSec(20)" id="btn-timer-20" class="py-2.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-silver-300/20 bg-navy-800/50 text-silver-300">20s</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Target Level Pool -->
+                        <div id="level-select-container" class="space-y-1.5 bg-navy-900/80 p-2.5 rounded-xl border border-silver-300/15">
+                            <label class="text-[11px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">📊 Target Level Pool</label>
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button type="button" onclick="setLevel(1)" id="btn-lvl-1" class="py-2 px-1 rounded-lg border text-center transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-black text-xs">
+                                    L1: EASY
+                                </button>
+                                <button type="button" onclick="setLevel(2)" id="btn-lvl-2" class="py-2 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-xs">
+                                    L2: MEDIUM
+                                </button>
+                                <button type="button" onclick="setLevel(3)" id="btn-lvl-3" class="py-2 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-xs">
+                                    L3: HARD
+                                </button>
+                                <button type="button" onclick="setLevel(4)" id="btn-lvl-4" class="py-2 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-xs">
+                                    L4: SUPER
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Rules & Shortcuts Guidance -->
+                        <div class="bg-navy-900/90 border border-gold-500/30 rounded-xl p-2.5 flex flex-col gap-1.5">
+                            <div class="font-black text-gold-400 flex items-center gap-1.5 text-[11px] uppercase tracking-wider border-b border-silver-300/10 pb-1">
+                                <span>📖</span> How to Play &amp; Facilitator Shortcuts
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 text-[11px] text-silver-100">
+                                <div class="flex items-center gap-1.5 bg-navy-800/80 p-1.5 rounded-lg border border-silver-300/10 truncate">
+                                    <span>⚡</span> <span><strong class="text-gold-400">Decode:</strong> Pure visual puzzles</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-navy-800/80 p-1.5 rounded-lg border border-silver-300/10 truncate">
+                                    <span>⏱️</span> <span><strong class="text-emerald-400">Timer:</strong> Continuous sprint</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-navy-800/80 p-1.5 rounded-lg border border-silver-300/10 truncate">
+                                    <span>💡</span> <span><strong class="text-cyan-300">Hint [H]:</strong> Definition context</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-navy-800/80 p-1.5 rounded-lg border border-silver-300/10 truncate">
+                                    <span>⌨️</span> <span><strong class="text-white">Keys:</strong> [1] Pass / [C] Correct</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT SIDE: STUDENT ROSTER BUILDER (5 COLS) -->
+                    <div class="col-span-5 bg-navy-900/80 p-2.5 rounded-xl border border-silver-300/15 flex flex-col justify-between gap-2 h-full overflow-hidden">
+                        <div class="flex items-center justify-between pb-1 border-b border-silver-300/10 shrink-0">
+                            <label class="text-[11px] font-black text-silver-100 uppercase tracking-wider flex items-center gap-1">👥 Student Roster</label>
+                            <div class="flex gap-1">
+                                <button type="button" onclick="addAutoStudents(5)" class="text-[10px] bg-navy-800 hover:bg-navy-700 text-gold-400 font-extrabold px-2 py-0.5 rounded-md border border-silver-300/20 transition-all">+5</button>
+                                <button type="button" onclick="clearRoster()" class="text-[10px] bg-navy-800 hover:bg-rose-900/50 text-rose-300 font-extrabold px-2 py-0.5 rounded-md border border-silver-300/20 transition-all">Clear</button>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-1.5 shrink-0">
+                            <input type="text" id="input-new-student" placeholder="Enter student name..." class="flex-1 bg-navy-950/90 border border-silver-300/20 rounded-lg px-2.5 py-1.5 text-xs font-bold text-gold-400 focus:outline-none focus:border-gold-500 transition-colors" onkeydown="if(event.key==='Enter') addStudentFromInput()">
+                            <button type="button" onclick="addStudentFromInput()" class="bg-gold-500 hover:bg-gold-400 text-navy-950 font-black px-3 py-1.5 rounded-lg text-xs transition-all shadow-md shrink-0">Add</button>
+                        </div>
+
+                        <!-- Roster Scroll List (Internal scroll only if list exceeds height) -->
+                        <div id="roster-list-container" class="flex-1 min-h-0 overflow-y-auto bg-navy-950/80 border border-silver-300/10 rounded-lg p-2 flex flex-wrap content-start gap-1.5">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- BOTTOM FULL-WIDTH START BUTTON -->
+                <button type="button" onclick="startGameSprint()" class="w-full py-3 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 hover:from-gold-400 hover:to-gold-300 text-navy-950 font-black rounded-xl text-sm tracking-wider shadow-2xl glow-gold transition-all transform active:scale-98 flex items-center justify-center gap-2 cursor-pointer shrink-0 border border-gold-300/40 z-30">
+                    <span>🚀</span> START REBUS ARENA SESSION
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: GAMEPLAY DISPLAY -->
+        <section id="view-game" class="hidden w-full h-full flex flex-col justify-between gap-2 overflow-hidden">
+            
+            <!-- TOP BAR: TIMER, ACTIVE PLAYER & PROGRESS -->
+            <div class="flex items-center justify-between bg-navy-900/60 rounded-2xl p-2 border border-silver-300/10 shrink-0">
+                <!-- Circular Timer -->
+                <div class="flex items-center gap-3">
+                    <div class="relative w-11 h-11 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-navy-700" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="timer-circle" class="text-gold-500 transition-all duration-200" stroke-dasharray="100, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="timer-text" class="absolute font-mono font-bold text-sm text-white">15</span>
+                    </div>
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-silver-300 tracking-wider">Continuous Timer</div>
+                        <div id="timer-status-tag" class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Student Banner -->
+                <div class="bg-gold-500/10 border border-gold-500/30 px-5 py-1 rounded-xl text-center">
+                    <div class="text-[10px] font-bold text-gold-400 uppercase tracking-widest">ACTIVE PLAYER</div>
+                    <div id="active-student-display" class="text-sm font-black text-gold-300">Student 1</div>
+                </div>
+
+                <!-- Level & Word Pool Progress -->
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-[10px] uppercase font-bold text-silver-300 tracking-wider">LEVEL</div>
+                        <div id="hdr-level" class="text-xs font-bold text-emerald-400">EASY (L1)</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] uppercase font-bold text-silver-300 tracking-wider">WORD POOL</div>
+                        <div class="text-xs font-mono font-bold text-silver-100">
+                            <span id="word-current-idx">1</span> / <span id="word-total-pool">30</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN GRID: REBUS ARENA + LIVE LEADERBOARD -->
+            <div class="grid grid-cols-4 gap-2.5 flex-1 min-h-0 overflow-hidden">
+                
+                <!-- LEFT 3 COLS: REBUS FORMULA CANVAS -->
+                <div class="col-span-3 glass-panel rounded-2xl p-3 flex flex-col justify-between items-center relative overflow-hidden border border-silver-300/20">
+                    
+                    <!-- Level Badge -->
+                    <div id="puzzle-level-tag" class="absolute top-2.5 left-2.5 bg-gold-500/20 text-gold-300 border border-gold-500/30 font-bold text-[11px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        Level 1: Easy
+                    </div>
+
+                    <!-- Hint Container -->
+                    <div id="hint-display" class="hidden animate-pop-in absolute top-2.5 right-2.5 max-w-xs bg-navy-950/95 border border-cyan-500/40 px-3 py-1 rounded-xl text-xs text-cyan-200 shadow-xl z-10">
+                        <span class="font-bold text-cyan-400">💡 HINT:</span> <span id="hint-text">Definition goes here...</span>
+                    </div>
+
+                    <!-- FORMULA DISPLAY CONTAINER -->
+                    <div id="rebus-formula-container" class="flex flex-wrap items-center justify-center gap-3 md:gap-5 my-auto py-2 w-full">
+                        <!-- Dynamic Rebus Tokens rendered via JS -->
+                    </div>
+
+                    <!-- ANSWER DISPLAY CARD -->
+                    <div id="answer-box" class="h-7 flex items-center justify-center">
+                        <span id="answer-text" class="hidden text-base font-mono font-black text-emerald-400 tracking-widest bg-emerald-950/60 border border-emerald-500/40 px-4 py-0.5 rounded-xl shadow-lg">
+                            ANSWER
+                        </span>
+                    </div>
+                </div>
+
+                <!-- RIGHT 1 COL: LIVE STUDENT LEADERBOARD & TURN SWITCHER -->
+                <div class="col-span-1 glass-panel rounded-2xl p-2.5 flex flex-col justify-between border border-silver-300/20 overflow-hidden">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-silver-300/10 shrink-0">
+                        <span class="text-[11px] font-bold text-silver-100 uppercase tracking-wider flex items-center gap-1">🏆 Roster</span>
+                        <button type="button" onclick="nextPlayerTurn()" class="text-[10px] bg-gold-500/20 hover:bg-gold-500/30 text-gold-300 px-2 py-0.5 rounded border border-gold-500/30 font-bold">[R] Switch</button>
+                    </div>
+
+                    <!-- Student Score Roster -->
+                    <div id="game-roster-list" class="flex-1 overflow-y-auto space-y-1 my-1.5 pr-1 min-h-0">
+                        <!-- Dynamically rendered student score items -->
+                    </div>
+
+                    <div class="pt-1.5 border-t border-silver-300/10 text-center shrink-0">
+                        <button type="button" onclick="nextPlayerTurn()" class="w-full py-1 bg-navy-800 hover:bg-navy-700 text-gold-300 font-bold text-xs rounded-lg border border-silver-300/20 transition-all flex items-center justify-center gap-1">
+                            <span>🔄</span> Next Turn
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTTOM CONTROLS: FACILITATOR HOTKEY ACTION BUTTONS -->
+            <div class="grid grid-cols-5 gap-2 shrink-0">
+                
+                <!-- [SPACE] Start / Pause -->
+                <button type="button" onclick="toggleTimer()" id="btn-toggle-timer" class="glass-card hover:bg-navy-800/80 p-2 rounded-xl border border-gold-500/30 text-gold-300 flex flex-col items-center justify-center gap-0.5 transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1"><span id="btn-timer-icon">⏸️</span> <span id="btn-timer-label">Pause</span></span>
+                    <span class="bg-gold-500/20 text-gold-300 text-[10px] font-mono px-1.5 py-0.2 rounded border border-gold-500/30">[Space]</span>
+                </button>
+
+                <!-- [1] / [C] Correct -->
+                <button type="button" onclick="scoreAction(true)" class="glass-card hover:bg-emerald-900/40 p-2 rounded-xl border border-emerald-500/40 text-emerald-300 flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 glow-emerald">
+                    <span class="text-xs font-black flex items-center gap-1">✅ Correct</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">[1] or [C]</span>
+                </button>
+
+                <!-- [F] / [Esc] Pass / Fail -->
+                <button type="button" onclick="scoreAction(false)" class="glass-card hover:bg-rose-900/40 p-2 rounded-xl border border-rose-500/40 text-rose-300 flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 glow-rose">
+                    <span class="text-xs font-black flex items-center gap-1">❌ Pass / Fail</span>
+                    <span class="bg-rose-500/20 text-rose-300 text-[10px] font-mono px-1.5 py-0.2 rounded border border-rose-500/30">[F] or [Esc]</span>
+                </button>
+
+                <!-- [H] Hint -->
+                <button type="button" onclick="toggleHint()" class="glass-card hover:bg-cyan-900/40 p-2 rounded-xl border border-cyan-500/40 text-cyan-300 flex flex-col items-center justify-center gap-0.5 transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">💡 Hint</span>
+                    <span class="bg-cyan-500/20 text-cyan-300 text-[10px] font-mono px-1.5 py-0.2 rounded border border-cyan-500/30">[H]</span>
+                </button>
+
+                <!-- [N] / [→] Next Word -->
+                <button type="button" onclick="nextPuzzle()" class="glass-card hover:bg-navy-800/80 p-2 rounded-xl border border-silver-300/20 text-silver-100 flex flex-col items-center justify-center gap-0.5 transition-all">
+                    <span class="text-xs font-bold flex items-center gap-1">⏩ Skip Next</span>
+                    <span class="bg-navy-800 text-silver-300 text-[10px] font-mono px-1.5 py-0.2 rounded border border-silver-300/20">[N] or [→]</span>
+                </button>
+
+            </div>
+        </section>
+
+        <!-- VIEW 3: GAME OVER / SPRINT RESULT -->
+        <section id="view-gameover" class="hidden w-full h-full flex items-center justify-center py-2 overflow-hidden">
+            <div class="glass-panel w-full max-w-lg rounded-2xl p-5 text-center shadow-2xl relative border border-silver-300/20">
+                <div class="text-3xl mb-1">🎉</div>
+                <h2 class="text-xl font-black text-white mb-0.5">Session Leaderboard!</h2>
+                <p class="text-xs text-silver-300 mb-3">Final scores for all participating students</p>
+
+                <!-- Roster Final Results -->
+                <div id="final-leaderboard-list" class="space-y-1.5 max-h-40 overflow-y-auto mb-4 pr-1 text-left">
+                    <!-- Dynamic rendering -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2.5">
+                    <button onclick="startGameSprint()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black rounded-xl text-xs transition-all shadow-lg glow-emerald">
+                        🔄 Play Again
+                    </button>
+                    <button onclick="showSetupView()" class="flex-1 py-2.5 bg-navy-800 hover:bg-navy-700 text-white font-bold rounded-xl text-xs border border-silver-300/20 transition-all">
+                        ⚙️ Setup Screen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SOUND EFFECTS & GAME LOGIC -->
     <script>
         class SoundFX {
             constructor() {
@@ -144,12 +453,12 @@
                 const gain = this.ctx.createGain();
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.05);
+                osc.stop(this.ctx.currentTime + 0.04);
             }
 
             playCorrect() {
@@ -160,17 +469,17 @@
                 osc.type = 'triangle';
                 
                 osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.1);
-                osc.frequency.setValueAtTime(783.99, now + 0.2);
-                osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                osc.frequency.setValueAtTime(659.25, now + 0.08);
+                osc.frequency.setValueAtTime(783.99, now + 0.16);
+                osc.frequency.setValueAtTime(1046.50, now + 0.24);
 
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
 
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start(now);
-                osc.stop(now + 0.6);
+                osc.stop(now + 0.5);
             }
 
             playWrong() {
@@ -181,15 +490,15 @@
                 osc.type = 'sawtooth';
                 
                 osc.frequency.setValueAtTime(220, now);
-                osc.frequency.setValueAtTime(164.81, now + 0.15);
+                osc.frequency.setValueAtTime(164.81, now + 0.12);
 
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start(now);
-                osc.stop(now + 0.4);
+                osc.stop(now + 0.35);
             }
 
             playLevelUp() {
@@ -201,12 +510,12 @@
                     const gain = this.ctx.createGain();
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, now + i * 0.08);
-                    gain.gain.setValueAtTime(0.12, now + i * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3);
+                    gain.gain.setValueAtTime(0.1, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.25);
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
                     osc.start(now + i * 0.08);
-                    osc.stop(now + i * 0.08 + 0.3);
+                    osc.stop(now + i * 0.08 + 0.25);
                 });
             }
         }
@@ -214,417 +523,114 @@
         const audio = new SoundFX();
     </script>
 
+    <!-- REBUS DATABASE & APPLICATION STATE -->
     <script>
         const REBUS_DATABASE = {
-            1: [ // EASY (Level 1)
-                { id: 'e1', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🔊'}], answer: 'CLOUD', hint: 'A white or gray vapor mass floating in the sky.' },
-                { id: 'e2', formula: [{t:'emoji',v:'🌱'}, {t:'op',v:'-'}, {t:'text',v:'T'}], answer: 'PLAN', hint: 'A detailed proposal for doing or achieving something.' },
+            1: [
+                { id: 'e1', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🔊'}], answer: 'CLOUD', hint: 'A vapor mass floating in the sky.' },
+                { id: 'e2', formula: [{t:'emoji',v:'🌱'}, {t:'op',v:'-'}, {t:'text',v:'T'}], answer: 'PLAN', hint: 'A detailed proposal for achieving something.' },
                 { id: 'e3', formula: [{t:'emoji',v:'🐝'}, {t:'op',v:'+'}, {t:'emoji',v:'🍃'}], answer: 'BELIEVE', hint: 'To accept something as true or real.' },
                 { id: 'e4', formula: [{t:'emoji',v:'🌧️'}, {t:'op',v:'+'}, {t:'emoji',v:'🏹'}], answer: 'RAINBOW', hint: 'A colorful arch in the sky after rain.' },
-                { id: 'e5', formula: [{t:'emoji',v:'👑'}, {t:'op',v:'+'}, {t:'text',v:'DOM'}], answer: 'KINGDOM', hint: 'A country or territory ruled by a monarch.' },
-                { id: 'e6', formula: [{t:'emoji',v:'🚗'}, {t:'op',v:'+'}, {t:'text',v:'PET'}], answer: 'CARPET', hint: 'A thick woven fabric floor covering.' },
-                { id: 'e7', formula: [{t:'emoji',v:'🌞'}, {t:'op',v:'+'}, {t:'text',v:'SHADE'}], answer: 'SUNSHADE', hint: 'An umbrella or canopy used to block sunlight.' },
-                { id: 'e8', formula: [{t:'emoji',v:'🔑'}, {t:'op',v:'+'}, {t:'emoji',v:'📦'}], answer: 'KEYBOARD', hint: 'An input device used for typing on computers.' },
+                { id: 'e5', formula: [{t:'emoji',v:'👑'}, {t:'op',v:'+'}, {t:'text',v:'DOM'}], answer: 'KINGDOM', hint: 'A territory ruled by a monarch.' },
+                { id: 'e6', formula: [{t:'emoji',v:'🚗'}, {t:'op',v:'+'}, {t:'text',v:'PET'}], answer: 'CARPET', hint: 'A thick floor covering fabric.' },
+                { id: 'e7', formula: [{t:'emoji',v:'🌞'}, {t:'op',v:'+'}, {t:'text',v:'SHADE'}], answer: 'SUNSHADE', hint: 'A canopy used to block sunlight.' },
+                { id: 'e8', formula: [{t:'emoji',v:'🔑'}, {t:'op',v:'+'}, {t:'emoji',v:'📦'}], answer: 'KEYBOARD', hint: 'An input device for typing.' },
                 { id: 'e9', formula: [{t:'text',v:'S'}, {t:'op',v:'+'}, {t:'emoji',v:'⭐'}], answer: 'STAR', hint: 'A luminous point in the night sky.' },
                 { id: 'e10', formula: [{t:'emoji',v:'🐕'}, {t:'op',v:'+'}, {t:'text',v:'WOOD'}], answer: 'DOGWOOD', hint: 'A type of flowering tree.' },
-                { id: 'e11', formula: [{t:'emoji',v:'🍿'}, {t:'op',v:'+'}, {t:'emoji',v:'🌽'}], answer: 'POPCORN', hint: 'A popular cinema snack made from heated kernels.' },
+                { id: 'e11', formula: [{t:'emoji',v:'🍿'}, {t:'op',v:'+'}, {t:'emoji',v:'🌽'}], answer: 'POPCORN', hint: 'A cinema snack made from kernels.' },
                 { id: 'e12', formula: [{t:'text',v:'P'}, {t:'op',v:'+'}, {t:'emoji',v:'🎨'}], answer: 'PART', hint: 'A piece or segment of a whole.' },
-                { id: 'e13', formula: [{t:'text',v:'B'}, {t:'op',v:'+'}, {t:'emoji',v:'🦉'}], answer: 'BOWL', hint: 'A round deep dish used for soup or cereal.' },
-                { id: 'e14', formula: [{t:'emoji',v:'🦶'}, {t:'op',v:'+'}, {t:'emoji',v:'⚽'}], answer: 'FOOTBALL', hint: 'A major international team sport played with a spherical ball.' },
-                { id: 'e15', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'emoji',v:'🐴'}], answer: 'SEAHORSE', hint: 'A small marine fish with a horse-like head.' },
-                { id: 'e16', formula: [{t:'emoji',v:'🚪'}, {t:'op',v:'+'}, {t:'emoji',v:'🔔'}], answer: 'DOORBELL', hint: 'A signaling device placed near a house entry.' },
-                { id: 'e17', formula: [{t:'text',v:'F'}, {t:'op',v:'+'}, {t:'emoji',v:'👑'}], answer: 'FLING', hint: 'To throw or hurl forcefully.' },
-                { id: 'e18', formula: [{t:'emoji',v:'🔥'}, {t:'op',v:'+'}, {t:'emoji',v:'🪰'}], answer: 'FIREFLY', hint: 'A nocturnal beetle that produces soft glowing light.' },
-                { id: 'e19', formula: [{t:'text',v:'T'}, {t:'op',v:'+'}, {t:'emoji',v:'🌧️'}], answer: 'TRAIN', hint: 'A series of connected railway cars.' },
-                { id: 'e20', formula: [{t:'emoji',v:'🌙'}, {t:'op',v:'+'}, {t:'emoji',v:'🐴'}], answer: 'NIGHTMARE', hint: 'A frightening or unpleasant dream.' },
-                { id: 'e21', formula: [{t:'emoji',v:'🍯'}, {t:'op',v:'+'}, {t:'emoji',v:'🌙'}], answer: 'HONEYMOON', hint: 'A holiday taken by a newly married couple.' }
+                { id: 'e13', formula: [{t:'text',v:'B'}, {t:'op',v:'+'}, {t:'emoji',v:'🦉'}], answer: 'BOWL', hint: 'A deep round dish for soup.' },
+                { id: 'e14', formula: [{t:'emoji',v:'🦶'}, {t:'op',v:'+'}, {t:'emoji',v:'⚽'}], answer: 'FOOTBALL', hint: 'A sport played with a spherical ball.' },
+                { id: 'e15', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'emoji',v:'🐴'}], answer: 'SEAHORSE', hint: 'A small marine fish with a horse head.' },
+                { id: 'e16', formula: [{t:'emoji',v:'🔥'}, {t:'op',v:'+'}, {t:'emoji',v:'🪰'}], answer: 'FIREFLY', hint: 'A nocturnal beetle emitting light.' },
+                { id: 'e17', formula: [{t:'emoji',v:'⭐'}, {t:'op',v:'+'}, {t:'emoji',v:'🐟'}], answer: 'STARFISH', hint: 'A sea animal with five rays.' },
+                { id: 'e18', formula: [{t:'emoji',v:'🍳'}, {t:'op',v:'+'}, {t:'emoji',v:'🎂'}], answer: 'PANCAKE', hint: 'A flat, round breakfast cake.' },
+                { id: 'e19', formula: [{t:'emoji',v:'🐲'}, {t:'op',v:'+'}, {t:'emoji',v:'🪰'}], answer: 'DRAGONFLY', hint: 'A long-bodied insect with large eyes.' },
+                { id: 'e20', formula: [{t:'emoji',v:'🌧️'}, {t:'op',v:'+'}, {t:'emoji',v:'🧥'}], answer: 'RAINCOAT', hint: 'Waterproof outer clothing.' },
+                { id: 'e21', formula: [{t:'emoji',v:'👂'}, {t:'op',v:'+'}, {t:'emoji',v:'💍'}], answer: 'EARRING', hint: 'Jewelry worn on the earlobe.' },
+                { id: 'e22', formula: [{t:'emoji',v:'💡'}, {t:'op',v:'+'}, {t:'emoji',v:'🏠'}], answer: 'LIGHTHOUSE', hint: 'A tower with a beacon for ships.' },
+                { id: 'e23', formula: [{t:'emoji',v:'🧈'}, {t:'op',v:'+'}, {t:'emoji',v:'🪰'}], answer: 'BUTTERFLY', hint: 'An insect with large colorful wings.' },
+                { id: 'e24', formula: [{t:'emoji',v:'🧊'}, {t:'op',v:'+'}, {t:'emoji',v:'🍦'}], answer: 'ICECREAM', hint: 'A frozen sweet dessert.' },
+                { id: 'e25', formula: [{t:'emoji',v:'☕'}, {t:'op',v:'+'}, {t:'emoji',v:'🥤'}], answer: 'TEACUP', hint: 'A small cup for hot drinks.' },
+                { id: 'e26', formula: [{t:'emoji',v:'☃️'}, {t:'op',v:'+'}, {t:'emoji',v:'👨'}], answer: 'SNOWMAN', hint: 'A figure made of packed snow.' },
+                { id: 'e27', formula: [{t:'emoji',v:'🦷'}, {t:'op',v:'+'}, {t:'emoji',v:'🖌️'}], answer: 'TOOTHBRUSH', hint: 'A small brush for cleaning teeth.' },
+                { id: 'e28', formula: [{t:'emoji',v:'📚'}, {t:'op',v:'+'}, {t:'emoji',v:'🧳'}], answer: 'BOOKCASE', hint: 'A cabinet for storing books.' }
             ],
-            2: [ // MEDIUM (Level 2)
-                { id: 'm1', formula: [{t:'emoji',v:'🧠'}, {t:'op',v:'+'}, {t:'emoji',v:'🌩️'}], answer: 'BRAINSTORM', hint: 'A group problem-solving technique for generating ideas.' },
-                { id: 'm2', formula: [{t:'text',v:'GR'}, {t:'op',v:'+'}, {t:'emoji',v:'🍇', sub:'G = P'}], answer: 'GRAPE', hint: 'A small green or purple fruit growing in clusters.' },
-                { id: 'm3', formula: [{t:'emoji',v:'🐱'}, {t:'op',v:'+'}, {t:'text',v:'FISH'}], answer: 'CATFISH', hint: 'A freshwater fish with whisker-like barbels.' },
-                { id: 'm4', formula: [{t:'emoji',v:'🍞'}, {t:'op',v:'-'}, {t:'text',v:'AD'}], answer: 'BREA', hint: 'Phonetic root or shortened word segment.' },
-                { id: 'm5', formula: [{t:'emoji',v:'📜'}, {t:'op',v:'+'}, {t:'text',v:'BACK'}], answer: 'PAPERBACK', hint: 'A book with a flexible, thin cover.' },
-                { id: 'm6', formula: [{t:'emoji',v:'🍉'}, {t:'op',v:'+'}, {t:'emoji',v:'🌊'}], answer: 'WATERMELON', hint: 'A large juicy fruit with dark red sweet flesh.' },
-                { id: 'm7', formula: [{t:'emoji',v:'☀️'}, {t:'op',v:'+'}, {t:'emoji',v:'🌻'}], answer: 'SUNFLOWER', hint: 'A tall plant with a large yellow flower head.' },
-                { id: 'm8', formula: [{t:'text',v:'S'}, {t:'op',v:'+'}, {t:'emoji',v:'🦅'}], answer: 'SHOCK', hint: 'A sudden discharge of electricity or surprise.' },
-                { id: 'm9', formula: [{t:'emoji',v:'🍦'}, {t:'op',v:'+'}, {t:'text',v:'CREAM'}], answer: 'ICE CREAM', hint: 'A frozen sweet dessert made from dairy.' },
-                { id: 'm10', formula: [{t:'text',v:'B'}, {t:'op',v:'+'}, {t:'emoji',v:'🐂'}], answer: 'BOX', hint: 'A square or rectangular container.' },
-                { id: 'm11', formula: [{t:'emoji',v:'🖊️'}, {t:'op',v:'+'}, {t:'emoji',v:'🗡️'}], answer: 'PENGUIN', hint: 'A flightless aquatic bird living in polar regions.' },
-                { id: 'm12', formula: [{t:'text',v:'SP'}, {t:'op',v:'+'}, {t:'emoji',v:'👁️'}], answer: 'SPY', hint: 'A person who secretly collects intelligence.' },
-                { id: 'm13', formula: [{t:'emoji',v:'👂'}, {t:'op',v:'+'}, {t:'emoji',v:'💍'}], answer: 'EARRING', hint: 'A piece of jewelry worn on the earlobe.' },
-                { id: 'm14', formula: [{t:'emoji',v:'🐉'}, {t:'op',v:'+'}, {t:'emoji',v:'🪰'}], answer: 'DRAGONFLY', hint: 'An insect with long body and transparent wings.' },
-                { id: 'm15', formula: [{t:'text',v:'F'}, {t:'op',v:'+'}, {t:'emoji',v:'🥖'}], answer: 'THREAD', hint: 'A long thin strand used in sewing.' },
-                { id: 'm16', formula: [{t:'text',v:'ST'}, {t:'op',v:'+'}, {t:'emoji',v:'💍'}], answer: 'STRING', hint: 'Thin cord or twine used for tying.' },
-                { id: 'm17', formula: [{t:'emoji',v:'🥛'}, {t:'op',v:'+'}, {t:'emoji',v:'🐮'}], answer: 'MILKSHAKE', hint: 'A sweet beverage made by blending milk and ice cream.' },
-                { id: 'm18', formula: [{t:'text',v:'J'}, {t:'op',v:'+'}, {t:'emoji',v:'🎒'}], answer: 'JACK', hint: 'A playing card or mechanical lifting tool.' },
-                { id: 'm19', formula: [{t:'emoji',v:'🪥'}, {t:'op',v:'+'}, {t:'emoji',v:'🪥'}], answer: 'TOOTHBRUSH', hint: 'A brush used for cleaning teeth.' },
-                { id: 'm20', formula: [{t:'emoji',v:'💡'}, {t:'op',v:'+'}, {t:'text',v:'HOUSE'}], answer: 'LIGHTHOUSE', hint: 'A tower with a bright light to guide ships at sea.' },
-                { id: 'm21', formula: [{t:'text',v:'D'}, {t:'op',v:'+'}, {t:'emoji',v:'🛋️'}], answer: 'DRESS', hint: 'A one-piece garment for women or girls.' }
+            2: [
+                { id: 'm1', formula: [{t:'emoji',v:'🧠'}, {t:'op',v:'+'}, {t:'emoji',v:'🌩️'}], answer: 'BRAINSTORM', hint: 'Generating creative ideas.' },
+                { id: 'm2', formula: [{t:'text',v:'GR'}, {t:'op',v:'+'}, {t:'emoji',v:'🍇', sub:'G → P'}], answer: 'GRAPE', hint: 'A small fruit growing in clusters.' },
+                { id: 'm3', formula: [{t:'emoji',v:'🐱'}, {t:'op',v:'+'}, {t:'text',v:'FISH'}], answer: 'CATFISH', hint: 'A fish with whisker barbels.' },
+                { id: 'm4', formula: [{t:'emoji',v:'📜'}, {t:'op',v:'+'}, {t:'text',v:'BACK'}], answer: 'PAPERBACK', hint: 'A book with a flexible thin cover.' },
+                { id: 'm5', formula: [{t:'emoji',v:'🍉'}, {t:'op',v:'+'}, {t:'emoji',v:'🌊'}], answer: 'WATERMELON', hint: 'A large juicy red fruit.' },
+                { id: 'm6', formula: [{t:'emoji',v:'✋'}, {t:'op',v:'+'}, {t:'emoji',v:'👜'}], answer: 'HANDBAG', hint: 'A small personal bag for belongings.' },
+                { id: 'm7', formula: [{t:'emoji',v:'✝️'}, {t:'op',v:'+'}, {t:'emoji',v:'🚶'}], answer: 'CROSSWALK', hint: 'A marked pedestrian road lane.' },
+                { id: 'm8', formula: [{t:'emoji',v:'🌙'}, {t:'op',v:'+'}, {t:'emoji',v:'💡'}], answer: 'MOONLIGHT', hint: 'Light glowing from the moon.' },
+                { id: 'm9', formula: [{t:'emoji',v:'🖤'}, {t:'op',v:'+'}, {t:'emoji',v:'📦'}], answer: 'BLACKBOARD', hint: 'A dark panel written on with chalk.' },
+                { id: 'm10', formula: [{t:'emoji',v:'🔥'}, {t:'op',v:'+'}, {t:'text',v:'WORK'}], answer: 'FIREWORK', hint: 'An explosive device producing lights.' },
+                { id: 'm11', formula: [{t:'emoji',v:'🐴'}, {t:'op',v:'+'}, {t:'emoji',v:'⚡'}], answer: 'HORSEPOWER', hint: 'A unit of engine strength.' },
+                { id: 'm12', formula: [{t:'emoji',v:'👄'}, {t:'op',v:'+'}, {t:'text',v:'STICK'}], answer: 'LIPSTICK', hint: 'Cosmetic product applied to lips.' },
+                { id: 'm13', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'emoji',v:'🐚'}], answer: 'SEASHELL', hint: 'A hard shell found on beaches.' },
+                { id: 'm14', formula: [{t:'emoji',v:'☀️'}, {t:'op',v:'+'}, {t:'emoji',v:'🕶️'}], answer: 'SUNGLASSES', hint: 'Eyewear protecting from glare.' },
+                { id: 'm15', formula: [{t:'emoji',v:'🛞'}, {t:'op',v:'+'}, {t:'emoji',v:'🪑'}], answer: 'WHEELCHAIR', hint: 'A mobility chair with wheels.' },
+                { id: 'm16', formula: [{t:'emoji',v:'🔙'}, {t:'op',v:'+'}, {t:'emoji',v:'🦴'}], answer: 'BACKBONE', hint: 'The spine or courage.' },
+                { id: 'm17', formula: [{t:'emoji',v:'🌲'}, {t:'op',v:'+'}, {t:'emoji',v:'🍎'}], answer: 'PINEAPPLE', hint: 'A tropical spiky sweet fruit.' },
+                { id: 'm18', formula: [{t:'emoji',v:'🌍'}, {t:'op',v:'+'}, {t:'emoji',v:'🫨'}], answer: 'EARTHQUAKE', hint: 'Sudden shaking of the ground.' },
+                { id: 'm19', formula: [{t:'emoji',v:'🦶'}, {t:'op',v:'+'}, {t:'emoji',v:'🖼️'}], answer: 'FOOTPRINT', hint: 'An impression made by a foot.' },
+                { id: 'm20', formula: [{t:'emoji',v:'🚪'}, {t:'op',v:'+'}, {t:'emoji',v:'🔔'}], answer: 'DOORBELL', hint: 'A chime at an entrance door.' }
             ],
-            3: [ // HARD (Level 3)
-                { id: 'h1', formula: [{t:'emoji',v:'🚗'}, {t:'op',v:'+'}, {t:'strike',v:'C'}, {t:'emoji',v:'🐱', sub:'C = T'}], answer: 'CARAT', hint: 'A unit of weight for precious stones and gold purity.' },
-                { id: 'h2', formula: [{t:'emoji',v:'🐝'}, {t:'op',v:'+'}, {t:'emoji',v:'4️⃣'}, {t:'op',v:'-'}, {t:'text',v:'R'}], answer: 'BEFORE', hint: 'During the time preceding a certain event.' },
-                { id: 'h3', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🧢'}, {t:'op',v:'+'}, {t:'text',v:'TIN'}], answer: 'CAPTAIN', hint: 'The leader or commander of a ship, aircraft, or team.' },
-                { id: 'h4', formula: [{t:'emoji',v:'👨'}, {t:'op',v:'+'}, {t:'text',v:'GO'}], answer: 'MANGO', hint: 'A sweet tropical fruit with yellow-orange flesh.' },
-                { id: 'h5', formula: [{t:'text',v:'P'}, {t:'op',v:'+'}, {t:'emoji',v:'🛏️'}, {t:'op',v:'-'}, {t:'text',v:'D'}, {t:'op',v:'+'}, {t:'text',v:'AL'}], answer: 'PEDAL', hint: 'A foot-operated lever on a bicycle or vehicle.' },
-                { id: 'h6', formula: [{t:'text',v:'TH'}, {t:'op',v:'+'}, {t:'emoji',v:'🧊'}], answer: 'THIS', hint: 'Used to identify a specific person or thing close at hand.' },
-                { id: 'h7', formula: [{t:'emoji',v:'🏆'}, {t:'op',v:'+'}, {t:'emoji',v:'🚪'}], answer: 'WINDOW', hint: 'An opening in a wall to let in light and air.' },
-                { id: 'h8', formula: [{t:'emoji',v:'🦧', sub:'APE = APR'}, {t:'op',v:'+'}, {t:'text',v:'IL'}], answer: 'APRIL', hint: 'The fourth month of the calendar year.' },
-                { id: 'h9', formula: [{t:'text',v:'HER'}, {t:'op',v:'+'}, {t:'emoji',v:'💍'}, {t:'op',v:'+'}, {t:'text',v:'ES'}], answer: 'HEROES', hint: 'People admired for courage or outstanding achievements.' },
-                { id: 'h10', formula: [{t:'emoji',v:'🐜'}, {t:'op',v:'+'}, {t:'emoji',v:'⛰️'}], answer: 'ANTHILL', hint: 'A mound formed by ants building their underground nest.' },
-                { id: 'h11', formula: [{t:'emoji',v:'🚪'}, {t:'op',v:'+'}, {t:'emoji',v:'📜'}], answer: 'OUTLAW', hint: 'A fugitive who has violated the legal code.' },
-                { id: 'h12', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🌽', sub:'RN = CO'}], answer: 'COCO', hint: 'Short form or sound unit for chocolate/coconut.' },
-                { id: 'h13', formula: [{t:'text',v:'S'}, {t:'op',v:'+'}, {t:'emoji',v:'🎯'}, {t:'op',v:'+'}, {t:'text',v:'E'}], answer: 'SAME', hint: 'Identical, not different.' },
-                { id: 'h14', formula: [{t:'emoji',v:'🌧️'}, {t:'op',v:'+'}, {t:'emoji',v:'🦌'}], answer: 'REINDEER', hint: 'A deer of tundra regions with large antlers.' },
-                { id: 'h15', formula: [{t:'text',v:'DIS'}, {t:'op',v:'+'}, {t:'emoji',v:'🎯'}], answer: 'DISCOUNT', hint: 'A deduction from the usual price of something.' },
-                { id: 'h16', formula: [{t:'emoji',v:'🌞'}, {t:'op',v:'+'}, {t:'emoji',v:'🛏️'}], answer: 'DAYDREAM', hint: 'Pleasant thoughts that make you forget current surroundings.' },
-                { id: 'h17', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'emoji',v:'🐚'}], answer: 'SEASHELL', hint: 'The hard protective outer layer of a marine animal.' },
-                { id: 'h18', formula: [{t:'emoji',v:'👑'}, {t:'op',v:'+'}, {t:'emoji',v:'🐟'}], answer: 'KINGFISH', hint: 'A large edible ocean fish.' },
-                { id: 'h19', formula: [{t:'text',v:'M'}, {t:'op',v:'+'}, {t:'emoji',v:'🪨'}], answer: 'MORE', hint: 'A greater or additional quantity.' },
-                { id: 'h20', formula: [{t:'text',v:'L'}, {t:'op',v:'+'}, {t:'emoji',v:'👂'}, {t:'op',v:'+'}, {t:'text',v:'N'}], answer: 'LEARN', hint: 'To acquire knowledge or skills through study.' }
+            3: [
+                { id: 'h1', formula: [{t:'emoji',v:'🚗'}, {t:'op',v:'+'}, {t:'strike',v:'C'}, {t:'emoji',v:'🐱', sub:'C → T'}], answer: 'CARAT', hint: 'Gem weight unit.' },
+                { id: 'h2', formula: [{t:'emoji',v:'🐝'}, {t:'op',v:'+'}, {t:'emoji',v:'4️⃣'}, {t:'op',v:'-'}, {t:'text',v:'R'}], answer: 'BEFORE', hint: 'Preceding a certain time.' },
+                { id: 'h3', formula: [{t:'text',v:'C'}, {t:'op',v:'+'}, {t:'emoji',v:'🧢'}, {t:'op',v:'+'}, {t:'text',v:'TIN'}], answer: 'CAPTAIN', hint: 'Commander of a ship or team.' },
+                { id: 'h4', formula: [{t:'emoji',v:'🍬'}, {t:'op',v:'+'}, {t:'emoji',v:'👁️'}, {t:'op',v:'+'}, {t:'text',v:'DATE'}], answer: 'CANDIDATE', hint: 'A person applying for a position.' },
+                { id: 'h5', formula: [{t:'emoji',v:'4️⃣'}, {t:'op',v:'+'}, {t:'emoji',v:'🎁'}], answer: 'FORGIVE', hint: 'To stop feeling angry at someone.' },
+                { id: 'h6', formula: [{t:'emoji',v:'🚗'}, {t:'op',v:'+'}, {t:'emoji',v:'🖊️'}, {t:'op',v:'+'}, {t:'text',v:'TER'}], answer: 'CARPENTER', hint: 'A artisan skilled with wood.' },
+                { id: 'h7', formula: [{t:'emoji',v:'4️⃣'}, {t:'op',v:'+'}, {t:'emoji',v:'🎵'}], answer: 'FORTUNE', hint: 'Luck, chance, or wealth.' },
+                { id: 'h8', formula: [{t:'emoji',v:'2️⃣'}, {t:'op',v:'+'}, {t:'emoji',v:'🏃'}, {t:'op',v:'+'}, {t:'text',v:'MENT'}], answer: 'TOURNAMENT', hint: 'A series of sports contests.' },
+                { id: 'h9', formula: [{t:'emoji',v:'🐮'}, {t:'op',v:'+'}, {t:'text',v:'SH'}, {t:'op',v:'+'}, {t:'emoji',v:'🍄'}], answer: 'MUSHROOM', hint: 'A fungi with an umbrella cap.' },
+                { id: 'h10', formula: [{t:'emoji',v:'👨'}, {t:'op',v:'+'}, {t:'text',v:'U'}, {t:'op',v:'+'}, {t:'emoji',v:'📜'}], answer: 'MANUSCRIPT', hint: 'An original handwritten document.' },
+                { id: 'h11', formula: [{t:'emoji',v:'👨'}, {t:'op',v:'+'}, {t:'emoji',v:'📅'}], answer: 'MANDATE', hint: 'An official order or requirement.' },
+                { id: 'h12', formula: [{t:'emoji',v:'2️⃣'}, {t:'op',v:'+'}, {t:'emoji',v:'🎲'}], answer: 'PARADISE', hint: 'An idyllic place or heaven.' },
+                { id: 'h13', formula: [{t:'emoji',v:'🍬'}, {t:'op',v:'+'}, {t:'emoji',v:'🛋️'}], answer: 'CANDLE', hint: 'A wax cylinder providing light.' },
+                { id: 'h14', formula: [{t:'emoji',v:'🥩'}, {t:'op',v:'+'}, {t:'emoji',v:'4️⃣'}], answer: 'METAPHOR', hint: 'A figure of symbolic speech.' }
             ],
-            4: [ // SUPER HARD (Level 4)
-                { id: 'sh1', formula: [{t:'text',v:'M'}, {t:'op',v:'+'}, {t:'emoji',v:'🧊'}, {t:'op',v:'-'}, {t:'text',v:'CE'}, {t:'op',v:'+'}, {t:'text',v:'SS'}], answer: 'MISS', hint: 'To fail to hit, reach, or catch something.' },
-                { id: 'sh2', formula: [{t:'emoji',v:'👁️'}, {t:'op',v:'+'}, {t:'emoji',v:'🔤'}, {t:'op',v:'-'}, {t:'text',v:'TER'}], answer: 'ISLET', hint: 'A very small island.' },
-                { id: 'sh3', formula: [{t:'text',v:'B'}, {t:'op',v:'+'}, {t:'emoji',v:'🎯'}, {t:'op',v:'-'}, {t:'text',v:'LL'}, {t:'op',v:'+'}, {t:'text',v:'S'}], answer: 'BUS', hint: 'Large motor vehicle carrying passengers.' },
-                { id: 'sh4', formula: [{t:'emoji',v:'🍎'}, {t:'op',v:'-'}, {t:'text',v:'PLE'}, {t:'op',v:'+'}, {t:'emoji',v:'🚗'}], answer: 'APART', hint: 'Separated by a distance or distance in time.' },
-                { id: 'sh5', formula: [{t:'text',v:'FOR'}, {t:'op',v:'+'}, {t:'emoji',v:'🪨'}], answer: 'FORGET', hint: 'To fail to remember or recall.' },
-                { id: 'sh6', formula: [{t:'emoji',v:'🪵'}, {t:'op',v:'+'}, {t:'text',v:'I'}, {t:'op',v:'+'}, {t:'text',v:'CAL'}], answer: 'LOGICAL', hint: 'Clear, sound reasoning and sensible conclusions.' },
-                { id: 'sh7', formula: [{t:'text',v:'SUB'}, {t:'op',v:'+'}, {t:'emoji',v:'🌊'}], answer: 'SUBMARINE', hint: 'A warship designed to operate completely underwater.' },
-                { id: 'sh8', formula: [{t:'emoji',v:'🔥'}, {t:'op',v:'+'}, {t:'text',v:'MAKER'}], answer: 'MATCHMAKER', hint: 'A person who arranges marriages or relationships.' },
-                { id: 'sh9', formula: [{t:'emoji',v:'🪐'}, {t:'op',v:'+'}, {t:'emoji',v:'🚢'}], answer: 'SPACESHIP', hint: 'A vehicle designed for travel in outer space.' },
-                { id: 'sh10', formula: [{t:'text',v:'OVER'}, {t:'op',v:'+'}, {t:'emoji',v:'⏰'}], answer: 'OVERTIME', hint: 'Time worked in addition to normal working hours.' },
-                { id: 'sh11', formula: [{t:'emoji',v:'⚡'}, {t:'op',v:'+'}, {t:'emoji',v:'💡'}], answer: 'FLASHLIGHT', hint: 'A portable battery-powered electric lamp.' },
-                { id: 'sh12', formula: [{t:'text',v:'UNDER'}, {t:'op',v:'+'}, {t:'emoji',v:'🐕'}], answer: 'UNDERDOG', hint: 'A competitor thought to have little chance of winning.' },
-                { id: 'sh13', formula: [{t:'emoji',v:'🌧️'}, {t:'op',v:'+'}, {t:'emoji',v:'🧥'}], answer: 'RAINCOAT', hint: 'A waterproof coat worn to protect from rain.' },
-                { id: 'sh14', formula: [{t:'text',v:'OUT'}, {t:'op',v:'+'}, {t:'emoji',v:'🚪'}], answer: 'OUTSIDE', hint: 'The external side or outer surface.' },
-                { id: 'sh15', formula: [{t:'emoji',v:'🌊'}, {t:'op',v:'+'}, {t:'text',v:'AL'}], answer: 'TIDAL', hint: 'Relating to or affected by ocean tides.' },
-                { id: 'sh16', formula: [{t:'text',v:'UP'}, {t:'op',v:'+'}, {t:'emoji',v:'📜'}], answer: 'UPSTAIRS', hint: 'On or to a higher floor of a building.' },
-                { id: 'sh17', formula: [{t:'emoji',v:'☀️'}, {t:'op',v:'+'}, {t:'emoji',v:'💥'}], answer: 'SUNBURST', hint: 'A sudden burst of sunlight through clouds.' },
-                { id: 'sh18', formula: [{t:'text',v:'GRAND'}, {t:'op',v:'+'}, {t:'emoji',v:'🎹'}], answer: 'GRAND PIANO', hint: 'A large acoustic piano with horizontal strings.' }
+            4: [
+                { id: 's1', formula: [{t:'emoji',v:'🍺'}, {t:'op',v:'+'}, {t:'emoji',v:'👨‍💻'}], answer: 'BARCODE', hint: 'Scannable machine pattern on products.' },
+                { id: 's2', formula: [{t:'emoji',v:'🧠'}, {t:'op',v:'+'}, {t:'emoji',v:'🧼'}], answer: 'BRAINWASH', hint: 'Pressuring someone into changing beliefs.' },
+                { id: 's3', formula: [{t:'emoji',v:'🥪'}, {t:'op',v:'+'}, {t:'emoji',v:'🌊'}], answer: 'SUBMARINE', hint: 'A vessel that operates underwater.' },
+                { id: 's4', formula: [{t:'emoji',v:'👇'}, {t:'op',v:'+'}, {t:'emoji',v:'🧍'}], answer: 'UNDERSTANDING', hint: 'Comprehension or empathy.' },
+                { id: 's5', formula: [{t:'emoji',v:'🔝'}, {t:'op',v:'+'}, {t:'emoji',v:'🌊'}], answer: 'OVERFLOW', hint: 'Spilling over the rim of a container.' },
+                { id: 's6', formula: [{t:'emoji',v:'💧'}, {t:'op',v:'+'}, {t:'emoji',v:'🛡️'}], answer: 'WATERPROOF', hint: 'Resistant to water penetration.' },
+                { id: 's7', formula: [{t:'emoji',v:'💔'}, {t:'op',v:'+'}, {t:'emoji',v:'🏃'}], answer: 'BREAKFAST', hint: 'The first meal of the day.' },
+                { id: 's8', formula: [{t:'emoji',v:'⏰'}, {t:'op',v:'+'}, {t:'emoji',v:'🧩'}], answer: 'TIMEPIECE', hint: 'An instrument for measuring time.' },
+                { id: 's9', formula: [{t:'emoji',v:'🎭'}, {t:'op',v:'+'}, {t:'emoji',v:'⛰️'}], answer: 'PLAYGROUND', hint: 'An outdoor area for children to play.' },
+                { id: 's10', formula: [{t:'emoji',v:'🆓'}, {t:'op',v:'+'}, {t:'emoji',v:'👑'}], answer: 'FREEDOM', hint: 'The power to act without restraint.' },
+                { id: 's11', formula: [{t:'emoji',v:'🆕'}, {t:'op',v:'+'}, {t:'emoji',v:'📜'}], answer: 'NEWSPAPER', hint: 'A daily publication of news.' },
+                { id: 's12', formula: [{t:'emoji',v:'⬆️'}, {t:'op',v:'+'}, {t:'emoji',v:'🛣️'}], answer: 'HIGHWAY', hint: 'A main public road for travel.' },
+                { id: 's13', formula: [{t:'emoji',v:'📈'}, {t:'op',v:'+'}, {t:'emoji',v:'🏷️'}], answer: 'TRADEMARK', hint: 'A legally protected symbol or brand.' },
+                { id: 's14', formula: [{t:'emoji',v:'🌙'}, {t:'op',v:'+'}, {t:'emoji',v:'🐴'}], answer: 'NIGHTMARE', hint: 'A terrifying dream.' }
             ]
         };
-    </script>
 
-    <script>
         const state = {
-            view: 'setup',
             mode: 'single_level',
             currentLevel: 1,
             timerSetting: 15,
             timerRemaining: 15,
-            timerInterval: null,
             timerRunning: false,
-            puzzleResolved: false,
-            
+            timerInterval: null,
+            showHint: false,
             playerRoster: [
                 { id: 1, name: 'Student 1', score: 0, correct: 0, passed: 0 },
                 { id: 2, name: 'Student 2', score: 0, correct: 0, passed: 0 },
                 { id: 3, name: 'Student 3', score: 0, correct: 0, passed: 0 }
             ],
             activePlayerIndex: 0,
-            
             puzzlePool: [],
             currentPuzzleIndex: 0,
-            currentPuzzle: null,
-            
-            showHint: false
+            currentPuzzle: null
         };
-    </script>
 
-    <!-- MAIN CONTAINER WITH FIXED 100vh ZERO-SCROLL LAYOUT -->
-    <main id="app-root" class="w-full max-w-6xl mx-auto h-full flex flex-col justify-between py-1 px-3 relative">
-
-        <!-- VIEW 1: SETUP CARD -->
-        <section id="view-setup" class="flex-1 flex flex-col items-center justify-center py-0.5 overflow-hidden">
-            
-            <!-- TOP SETUP HUD HEADER -->
-            <div class="w-full max-w-3xl mb-2 flex items-center justify-between glass-panel px-4 py-2 rounded-xl border border-white/10 text-xs shrink-0">
-                <div class="flex items-center gap-3">
-                    <a href="../../"
-                           class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-white/10 text-white hover:bg-slate-800 hover:border-amber-500/50 transition-all text-xs font-bold"
-                           title="Back to Games">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span class="hidden sm:inline">Back to Games</span>
-                    </a>
-                    <span class="text-2xl">🧩</span>
-                    <div>
-                        <div class="font-extrabold text-amber-400 tracking-wider text-sm uppercase flex items-center gap-2">
-                            <span>REBUS PUZZLE</span>
-                            <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-amber-500/30">WORD DECODER</span>
-                        </div>
-                        <div class="text-xs text-slate-300 font-semibold">CLASSROOM RAPID-FIRE • SOLO SPRINT EDITION</div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="bg-slate-800/80 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> READY
-                    </span>
-                    <span class="bg-slate-800/80 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-lg text-xs font-bold">
-                        🖥️ 13" DISPLAY
-                    </span>
-                </div>
-            </div>
-
-            <div class="glass-panel w-full max-w-3xl rounded-2xl p-5 shadow-2xl relative overflow-hidden border border-white/10 flex flex-col justify-between my-auto z-20">
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-                <div class="absolute -left-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-                <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
-                    <h2 class="text-sm font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
-                        <span>🎮</span> SESSION CONFIGURATION &amp; ROSTER
-                    </h2>
-                    <span class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-lg">SETUP ARENA</span>
-                </div>
-
-                <!-- 3-COLUMN TOP CONFIGURATION ROW -->
-                <div class="grid grid-cols-3 gap-3 mb-3">
-                    <!-- Game Mode Selection -->
-                    <div class="space-y-1.5 bg-slate-900/50 p-2.5 rounded-xl border border-white/5">
-                        <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">🎯 Game Mode</label>
-                        <div class="grid grid-cols-1 gap-1.5">
-                            <button type="button" onclick="setMode('single_level')" id="btn-mode-single" class="p-2 rounded-xl border text-left transition-all text-xs font-bold border-amber-500/50 bg-amber-500/10 text-amber-300">
-                                <div class="text-xs font-extrabold">🎯 Single Level</div>
-                                <div class="text-[10px] text-slate-300 font-medium">Practice 1 Level</div>
-                            </button>
-                            <button type="button" onclick="setMode('climb')" id="btn-mode-climb" class="p-2 rounded-xl border text-left transition-all text-xs font-bold border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600">
-                                <div class="text-xs font-extrabold">🚀 Level Climb</div>
-                                <div class="text-[10px] text-slate-300 font-medium">L1 → L4 Progression</div>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Timer Duration Option -->
-                    <div class="space-y-1.5 bg-slate-900/50 p-2.5 rounded-xl border border-white/5 flex flex-col justify-between">
-                        <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">⏱️ Sprint Timer</label>
-                        <div class="grid grid-cols-3 gap-1.5 my-auto">
-                            <button type="button" onclick="setTimerSec(10)" id="btn-timer-10" class="py-2.5 rounded-xl border text-center font-mono font-black text-xs transition-all border-slate-700 bg-slate-800/50 text-slate-400">10s</button>
-                            <button type="button" onclick="setTimerSec(15)" id="btn-timer-15" class="py-2.5 rounded-xl border text-center font-mono font-black text-xs transition-all border-amber-500/50 bg-amber-500/10 text-amber-300">15s</button>
-                            <button type="button" onclick="setTimerSec(20)" id="btn-timer-20" class="py-2.5 rounded-xl border text-center font-mono font-black text-xs transition-all border-slate-700 bg-slate-800/50 text-slate-400">20s</button>
-                        </div>
-                    </div>
-
-                    <!-- Target Level Pool -->
-                    <div id="level-select-container" class="space-y-1.5 bg-slate-900/50 p-2.5 rounded-xl border border-white/5">
-                        <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">📊 Level Pool</label>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <button type="button" onclick="setLevel(1)" id="btn-lvl-1" class="p-1.5 rounded-xl border text-center transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-black text-xs">
-                                L1: EASY
-                            </button>
-                            <button type="button" onclick="setLevel(2)" id="btn-lvl-2" class="p-1.5 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-black text-xs">
-                                L2: MEDIUM
-                            </button>
-                            <button type="button" onclick="setLevel(3)" id="btn-lvl-3" class="p-1.5 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-black text-xs">
-                                L3: HARD
-                            </button>
-                            <button type="button" onclick="setLevel(4)" id="btn-lvl-4" class="p-1.5 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-black text-xs">
-                                L4: SUPER HARD
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2-COLUMN MAIN SECTION: ROSTER & HOW TO PLAY -->
-                <div class="grid grid-cols-5 gap-3 mb-3">
-                    <!-- Student Roster Builder (3 Cols) -->
-                    <div class="col-span-3 space-y-2 bg-slate-900/50 p-3 rounded-xl border border-white/5">
-                        <div class="flex items-center justify-between">
-                            <label class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1">👥 Student Roster</label>
-                            <div class="flex gap-1.5">
-                                <button type="button" onclick="addAutoStudents(5)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold px-2.5 py-0.5 rounded-lg border border-slate-700">+5 Students</button>
-                                <button type="button" onclick="clearRoster()" class="text-xs bg-slate-800 hover:bg-rose-900/50 text-rose-300 font-bold px-2.5 py-0.5 rounded-lg border border-slate-700">Clear All</button>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2">
-                            <input type="text" id="input-new-student" placeholder="Enter student name..." class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-amber-300 focus:outline-none focus:border-amber-500 transition-colors" onkeydown="if(event.key==='Enter') addStudentFromInput()">
-                            <button type="button" onclick="addStudentFromInput()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-xl text-xs transition-all">Add Student</button>
-                        </div>
-
-                        <!-- Roster Scroll List -->
-                        <div id="roster-list-container" class="max-h-20 overflow-y-auto bg-slate-900/80 border border-slate-800 rounded-xl p-1.5 flex flex-wrap gap-1.5">
-                            <!-- Rendered dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- HOW TO PLAY GUIDANCE (2 Cols) -->
-                    <div class="col-span-2 bg-slate-900/70 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-                        <div class="font-extrabold text-amber-400 flex items-center gap-1.5 text-xs uppercase tracking-wider border-b border-white/5 pb-1">
-                            <span>📖</span> Rules &amp; Shortcuts
-                        </div>
-                        <ul class="space-y-1 text-xs text-slate-200 py-1">
-                            <li class="flex items-center gap-1.5">⚡ <strong class="text-amber-300">Decode Words:</strong> Emojis &amp; letter swaps.</li>
-                            <li class="flex items-center gap-1.5">⏱️ <strong class="text-emerald-300">Continuous:</strong> Timer stays running.</li>
-                            <li class="flex items-center gap-1.5">💡 <strong class="text-cyan-300">Hint [H]:</strong> Definition context only.</li>
-                            <li class="flex items-center gap-1.5">⌨️ <strong class="text-white">Keys:</strong> [Space] Pause, [1] Pass, [F] Fail.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Action Button -->
-                <button type="button" onclick="startGameSprint()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-sm tracking-wider shadow-xl glow-amber transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer relative z-30">
-                    <span>🚀</span> START REBUS ARENA SESSION
-                </button>
-            </div>
-        </section>
-
-        <!-- VIEW 2: GAMEPLAY DISPLAY -->
-        <section id="view-game" class="hidden flex-1 flex flex-col justify-between py-1 gap-2">
-            
-            <!-- TOP BAR: TIMER, ACTIVE PLAYER & PROGRESS -->
-            <div class="flex items-center justify-between bg-slate-800/40 rounded-2xl p-2.5 border border-white/5">
-                <!-- Circular Timer -->
-                <div class="flex items-center gap-3">
-                    <div class="relative w-12 h-12 flex items-center justify-center">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path class="text-slate-700" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path id="timer-circle" class="text-amber-500 transition-all duration-200" stroke-dasharray="100, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        </svg>
-                        <span id="timer-text" class="absolute font-mono font-bold text-base text-white">15</span>
-                    </div>
-                    <div>
-                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Continuous Timer</div>
-                        <div id="timer-status-tag" class="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Student Banner -->
-                <div class="bg-amber-500/10 border border-amber-500/30 px-5 py-1.5 rounded-xl text-center">
-                    <div class="text-[9px] font-bold text-amber-400/80 uppercase tracking-widest">ACTIVE PLAYER</div>
-                    <div id="active-student-display" class="text-base font-black text-amber-300">Student 1</div>
-                </div>
-
-                <!-- Level & Word Pool Progress -->
-                <div class="flex items-center gap-4">
-                    <div class="text-right">
-                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">LEVEL</div>
-                        <div id="hdr-level" class="text-xs font-bold text-emerald-400">EASY (L1)</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">WORD POOL</div>
-                        <div class="text-xs font-mono font-bold text-slate-200">
-                            <span id="word-current-idx">1</span> / <span id="word-total-pool">20</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MAIN GRID: REBUS ARENA + LIVE LEADERBOARD -->
-            <div class="grid grid-cols-4 gap-3 flex-1 min-h-0">
-                
-                <!-- LEFT 3 COLS: REBUS FORMULA CANVAS -->
-                <div class="col-span-3 glass-panel rounded-2xl p-4 flex flex-col justify-between items-center relative overflow-hidden border border-white/10">
-                    
-                    <!-- Level Badge -->
-                    <div id="puzzle-level-tag" class="absolute top-3 left-3 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-xs px-3 py-0.5 rounded-full uppercase tracking-wider">
-                        Level 1: Easy
-                    </div>
-
-                    <!-- Hint Container -->
-                    <div id="hint-display" class="hidden animate-pop-in absolute top-3 right-3 max-w-sm bg-slate-900/95 border border-cyan-500/40 px-3 py-1.5 rounded-xl text-xs text-cyan-200 shadow-xl z-10">
-                        <span class="font-bold text-cyan-400">💡 HINT:</span> <span id="hint-text">Definition goes here...</span>
-                    </div>
-
-                    <!-- FORMULA DISPLAY CONTAINER -->
-                    <div id="rebus-formula-container" class="flex flex-wrap items-center justify-center gap-4 md:gap-6 my-auto py-4 w-full">
-                        <!-- Dynamic Rebus Tokens rendered via JS -->
-                    </div>
-
-                    <!-- ANSWER DISPLAY CARD -->
-                    <div id="answer-box" class="h-8 flex items-center justify-center">
-                        <span id="answer-text" class="hidden text-lg font-mono font-black text-emerald-400 tracking-widest bg-emerald-950/60 border border-emerald-500/40 px-5 py-1 rounded-xl shadow-lg">
-                            ANSWER
-                        </span>
-                    </div>
-                </div>
-
-                <!-- RIGHT 1 COL: LIVE STUDENT LEADERBOARD & TURN SWITCHER -->
-                <div class="col-span-1 glass-panel rounded-2xl p-3 flex flex-col justify-between border border-white/10">
-                    <div class="flex items-center justify-between pb-2 border-b border-white/10">
-                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1">🏆 Leaderboard</span>
-                        <button type="button" onclick="nextPlayerTurn()" class="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 font-bold">[R] Switch</button>
-                    </div>
-
-                    <!-- Student Score Roster -->
-                    <div id="game-roster-list" class="flex-1 overflow-y-auto space-y-1.5 my-2 pr-1">
-                        <!-- Dynamically rendered student score items -->
-                    </div>
-
-                    <div class="pt-2 border-t border-white/10 text-center">
-                        <button type="button" onclick="nextPlayerTurn()" class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1">
-                            <span>🔄</span> Next Student Turn
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- BOTTOM CONTROLS: FACILITATOR HOTKEY ACTION BUTTONS -->
-            <div class="grid grid-cols-5 gap-2">
-                
-                <!-- [SPACE] Start / Pause -->
-                <button type="button" onclick="toggleTimer()" id="btn-toggle-timer" class="glass-card hover:bg-slate-800/80 p-2.5 rounded-xl border border-amber-500/30 text-amber-300 flex flex-col items-center justify-center gap-0.5 transition-all">
-                    <span class="text-xs font-bold flex items-center gap-1"><span id="btn-timer-icon">⏸️</span> <span id="btn-timer-label">Pause</span></span>
-                    <span class="bg-amber-500/20 text-amber-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-amber-500/30">[Space]</span>
-                </button>
-
-                <!-- [1] / [C] Correct -->
-                <button type="button" onclick="scoreAction(true)" class="glass-card hover:bg-emerald-900/40 p-2.5 rounded-xl border border-emerald-500/40 text-emerald-300 flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 glow-emerald">
-                    <span class="text-xs font-black flex items-center gap-1">✅ Correct</span>
-                    <span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">[1] or [C]</span>
-                </button>
-
-                <!-- [F] / [Esc] Pass / Fail -->
-                <button type="button" onclick="scoreAction(false)" class="glass-card hover:bg-rose-900/40 p-2.5 rounded-xl border border-rose-500/40 text-rose-300 flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 glow-rose">
-                    <span class="text-xs font-black flex items-center gap-1">❌ Pass / Fail</span>
-                    <span class="bg-rose-500/20 text-rose-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-rose-500/30">[F] or [Esc]</span>
-                </button>
-
-                <!-- [H] Hint -->
-                <button type="button" onclick="toggleHint()" class="glass-card hover:bg-cyan-900/40 p-2.5 rounded-xl border border-cyan-500/40 text-cyan-300 flex flex-col items-center justify-center gap-0.5 transition-all">
-                    <span class="text-xs font-bold flex items-center gap-1">💡 Hint</span>
-                    <span class="bg-cyan-500/20 text-cyan-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-cyan-500/30">[H]</span>
-                </button>
-
-                <!-- [N] / [→] Next Word -->
-                <button type="button" onclick="nextPuzzle()" class="glass-card hover:bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 text-slate-200 flex flex-col items-center justify-center gap-0.5 transition-all">
-                    <span class="text-xs font-bold flex items-center gap-1">⏩ Skip Next</span>
-                    <span class="bg-slate-700 text-slate-300 text-[9px] font-mono px-1.5 py-0.2 rounded border border-slate-600">[N] or [→]</span>
-                </button>
-
-            </div>
-        </section>
-
-        <!-- VIEW 3: GAME OVER / SPRINT RESULT -->
-        <section id="view-gameover" class="hidden flex-1 flex items-center justify-center py-4">
-            <div class="glass-panel w-full max-w-xl rounded-2xl p-6 text-center shadow-2xl relative border border-white/10">
-                <div class="text-4xl mb-2">🎉</div>
-                <h2 class="text-2xl font-black text-white mb-1">Session Leaderboard!</h2>
-                <p class="text-xs text-slate-400 mb-4">Final scores for all participating students</p>
-
-                <!-- Roster Final Results -->
-                <div id="final-leaderboard-list" class="space-y-2 max-h-48 overflow-y-auto mb-6 pr-1 text-left">
-                    <!-- Dynamic rendering -->
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex gap-3">
-                    <button onclick="startGameSprint()" class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg glow-emerald">
-                        🔄 Play Again
-                    </button>
-                    <button onclick="showSetupView()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm border border-slate-700 transition-all">
-                        ⚙️ Setup Screen
-                    </button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <script>
         function setMode(m) {
             state.mode = m;
             const singleBtn = document.getElementById('btn-mode-single');
@@ -632,12 +638,12 @@
             const lvlContainer = document.getElementById('level-select-container');
 
             if (m === 'single_level') {
-                singleBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-amber-500/50 bg-amber-500/10 text-amber-300";
-                climbBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600";
+                singleBtn.className = "p-2 rounded-lg border text-left transition-all font-bold border-gold-500/50 bg-gold-500/10 text-gold-400";
+                climbBtn.className = "p-2 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40";
                 lvlContainer.classList.remove('opacity-40', 'pointer-events-none');
             } else {
-                climbBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-amber-500/50 bg-amber-500/10 text-amber-300";
-                singleBtn.className = "p-2.5 rounded-xl border text-left transition-all text-xs font-bold border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600";
+                climbBtn.className = "p-2 rounded-lg border text-left transition-all font-bold border-gold-500/50 bg-gold-500/10 text-gold-400";
+                singleBtn.className = "p-2 rounded-lg border text-left transition-all font-bold border-silver-300/20 bg-navy-800/50 text-silver-300 hover:border-silver-300/40";
                 lvlContainer.classList.add('opacity-40', 'pointer-events-none');
             }
         }
@@ -647,9 +653,9 @@
             [10, 15, 20].forEach(s => {
                 const btn = document.getElementById(`btn-timer-${s}`);
                 if (s === sec) {
-                    btn.className = "py-2 rounded-xl border text-center font-mono font-bold text-xs transition-all border-amber-500/50 bg-amber-500/10 text-amber-300";
+                    btn.className = "py-2.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-gold-500/50 bg-gold-500/10 text-gold-400";
                 } else {
-                    btn.className = "py-2 rounded-xl border text-center font-mono font-bold text-xs transition-all border-slate-700 bg-slate-800/50 text-slate-400";
+                    btn.className = "py-2.5 rounded-lg border text-center font-mono font-black text-xs transition-all border-silver-300/20 bg-navy-800/50 text-silver-300";
                 }
             });
         }
@@ -659,9 +665,9 @@
             [1, 2, 3, 4].forEach(l => {
                 const btn = document.getElementById(`btn-lvl-${l}`);
                 if (l === lvl) {
-                    btn.className = "p-2 rounded-xl border text-center transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-bold text-xs";
+                    btn.className = "py-2 px-1 rounded-lg border text-center transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-black text-xs";
                 } else {
-                    btn.className = "p-2 rounded-xl border text-center transition-all border-slate-700 bg-slate-800/50 text-slate-400 font-bold text-xs";
+                    btn.className = "py-2 px-1 rounded-lg border text-center transition-all border-silver-300/20 bg-navy-800/50 text-silver-300 font-black text-xs";
                 }
             });
         }
@@ -673,10 +679,10 @@
 
             state.playerRoster.forEach((player) => {
                 const tag = document.createElement('div');
-                tag.className = 'bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-200 flex items-center gap-2';
+                tag.className = 'bg-navy-800 border border-silver-300/20 rounded-lg px-2.5 py-1 text-xs font-bold text-silver-100 flex items-center gap-1.5';
                 tag.innerHTML = `
                     <span>${player.name}</span>
-                    <button type="button" onclick="removeStudent(${player.id})" class="text-slate-500 hover:text-rose-400 font-black">✕</button>
+                    <button type="button" onclick="removeStudent(${player.id})" class="text-silver-300 hover:text-rose-400 font-black ml-1">✕</button>
                 `;
                 container.appendChild(tag);
             });
@@ -730,18 +736,18 @@
             state.playerRoster.forEach((player, idx) => {
                 const isActive = idx === state.activePlayerIndex;
                 const item = document.createElement('div');
-                item.className = `p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                item.className = `p-2 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
                     isActive 
-                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold' 
-                        : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                        ? 'bg-gold-500/20 border-gold-500/50 text-gold-300 font-bold' 
+                        : 'bg-navy-950/50 border-silver-300/10 text-silver-300 hover:border-silver-300/20'
                 }`;
                 item.onclick = () => selectPlayerTurn(idx);
                 item.innerHTML = `
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        <span class="text-[10px] ${isActive ? 'text-amber-400' : 'text-slate-500'} font-mono">${idx + 1}.</span>
-                        <span class="text-xs truncate">${player.name}</span>
+                    <div class="flex items-center gap-1.5 overflow-hidden">
+                        <span class="text-xs ${isActive ? 'text-gold-400' : 'text-silver-300'} font-mono">${idx + 1}.</span>
+                        <span class="text-xs font-bold truncate">${player.name}</span>
                     </div>
-                    <span class="font-mono text-xs font-black ${isActive ? 'text-amber-400' : 'text-slate-300'}">${player.score} PT</span>
+                    <span class="font-mono text-xs font-black ${isActive ? 'text-gold-400' : 'text-silver-100'}">${player.score} PT</span>
                 `;
                 list.appendChild(item);
             });
@@ -810,7 +816,6 @@
         }
 
         function renderPuzzle() {
-            state.puzzleResolved = false;
             if (!state.currentPuzzle) return;
 
             const container = document.getElementById('rebus-formula-container');
@@ -821,17 +826,17 @@
                 wrapper.className = 'flex flex-col items-center justify-center animate-pop-in';
 
                 if (token.t === 'text') {
-                    wrapper.innerHTML = `<span class="text-4xl md:text-6xl font-mono font-black text-amber-300 drop-shadow-md px-2">${token.v}</span>`;
+                    wrapper.innerHTML = `<span class="text-4xl md:text-5xl font-mono font-black text-gold-400 drop-shadow-md px-1.5">${token.v}</span>`;
                 } else if (token.t === 'op') {
-                    wrapper.innerHTML = `<span class="text-3xl md:text-5xl font-mono font-bold text-slate-500 px-1">${token.v}</span>`;
+                    wrapper.innerHTML = `<span class="text-3xl md:text-4xl font-mono font-bold text-silver-300 px-1">${token.v}</span>`;
                 } else if (token.t === 'emoji') {
                     let subBadge = '';
                     if (token.sub) {
-                        subBadge = `<span class="mt-1 text-[11px] font-mono font-bold text-amber-300 bg-amber-950/90 border border-amber-500/50 px-2 py-0.5 rounded-md shadow-md animate-pulse">(${token.sub})</span>`;
+                        subBadge = `<span class="mt-1 text-[11px] font-mono font-bold text-gold-300 bg-navy-950/90 border border-gold-500/50 px-2 py-0.5 rounded-md shadow-md animate-pulse">(${token.sub})</span>`;
                     }
-                    wrapper.innerHTML = `<span class="text-6xl md:text-8xl drop-shadow-lg">${token.v}</span>${subBadge}`;
+                    wrapper.innerHTML = `<span class="text-5xl md:text-7xl drop-shadow-lg">${token.v}</span>${subBadge}`;
                 } else if (token.t === 'strike') {
-                    wrapper.innerHTML = `<span class="strike-through text-4xl md:text-6xl font-mono font-black text-slate-400 px-2">${token.v}</span>`;
+                    wrapper.innerHTML = `<span class="strike-through text-4xl md:text-5xl font-mono font-black text-silver-300 px-1.5">${token.v}</span>`;
                 }
                 container.appendChild(wrapper);
             });
@@ -884,9 +889,6 @@
         }
 
         function scoreAction(isCorrect) {
-            if (state.puzzleResolved) return;
-            state.puzzleResolved = true;
-            
             const activePlayer = state.playerRoster[state.activePlayerIndex];
             
             if (isCorrect) {
@@ -954,8 +956,8 @@
             } else {
                 label.innerText = 'Resume';
                 icon.innerText = '▶️';
-                tag.className = 'text-xs font-bold text-amber-400 flex items-center gap-1';
-                tag.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span> PAUSED';
+                tag.className = 'text-xs font-bold text-gold-400 flex items-center gap-1';
+                tag.innerHTML = '<span class="w-2 h-2 rounded-full bg-gold-400"></span> PAUSED';
             }
         }
 
@@ -977,16 +979,16 @@
 
             sortedRoster.forEach((p, rank) => {
                 const card = document.createElement('div');
-                card.className = 'bg-slate-900/80 border border-slate-800 rounded-xl p-3 flex items-center justify-between';
+                card.className = 'bg-navy-900/80 border border-silver-300/10 rounded-xl p-2.5 flex items-center justify-between';
                 card.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="font-mono text-sm font-black text-amber-400">#${rank + 1}</span>
+                    <div class="flex items-center gap-2.5">
+                        <span class="font-mono text-xs font-black text-gold-400">#${rank + 1}</span>
                         <div>
                             <div class="text-xs font-bold text-white">${p.name}</div>
-                            <div class="text-[10px] text-slate-400">Correct: ${p.correct} | Passed: ${p.passed}</div>
+                            <div class="text-[10px] text-silver-300">Correct: ${p.correct} | Passed: ${p.passed}</div>
                         </div>
                     </div>
-                    <div class="font-mono text-lg font-black text-emerald-400">${p.score} PT</div>
+                    <div class="font-mono text-sm font-black text-emerald-400">${p.score} PT</div>
                 `;
                 listContainer.appendChild(card);
             });
