@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Word Search - Team Battle Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Zero-scroll layout fit for classroom 13" laptop & projectors */
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #0b1523;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(244, 180, 0, 0.12) 0px, transparent 45%),
+                radial-gradient(at 100% 100%, rgba(30, 58, 95, 0.85) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(11, 21, 35, 0.98) 0px, transparent 100%);
+            color: #F8F9FA;
+        }
+
+        .glass-panel {
+            background: rgba(30, 58, 95, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(217, 217, 217, 0.22);
+            box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(248, 249, 250, 0.15);
+        }
+
+        .glass-card {
+            background: rgba(15, 30, 51, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(217, 217, 217, 0.18);
+        }
+
+        /* Full stretch interactive grid cell styling */
+        .grid-cell {
+            font-family: 'JetBrains Mono', monospace;
+            transition: background-color 0.12s ease, transform 0.1s ease;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            line-height: 1;
+        }
+
+        .grid-cell:hover {
+            background-color: rgba(244, 180, 0, 0.45) !important;
+            color: #1E3A5F !important;
+            transform: scale(1.08);
+            z-index: 20;
+            border-radius: 6px;
+        }
+
+        .grid-cell.selected {
+            background: linear-gradient(135deg, #F4B400 0%, #d39e00 100%) !important;
+            color: #0b1523 !important;
+            font-weight: 900;
+            box-shadow: 0 0 12px rgba(244, 180, 0, 0.9) !important;
+            z-index: 25;
+            border-radius: 4px;
+        }
+
+        /* TEAM A (RED/ROSE) FOUND HIGHLIGHT */
+        .grid-cell.found-team-a {
+            background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%) !important;
+            color: #FFFFFF !important;
+            font-weight: 900;
+            box-shadow: 0 0 10px rgba(225, 29, 72, 0.75) !important;
+        }
+
+        /* TEAM B (GREEN/EMERALD) FOUND HIGHLIGHT */
+        .grid-cell.found-team-b {
+            background: linear-gradient(135deg, #10B981 0%, #047857 100%) !important;
+            color: #FFFFFF !important;
+            font-weight: 900;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.75) !important;
+        }
+
+        .grid-cell.hint-glow {
+            animation: pulseHint 0.7s infinite alternate;
+        }
+
+        @keyframes pulseHint {
+            0% { background-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px #EC4899; }
+            100% { background-color: rgba(236, 72, 153, 0.95); color: #FFF; box-shadow: 0 0 20px #EC4899; }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.92) translateY(8px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .animate-pop-in {
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 30, 51, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(244, 180, 0, 0.5);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="h-full w-full flex flex-col justify-between relative text-[#F8F9FA] p-2 sm:p-3 overflow-hidden">
+
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- HEADER HUD BAR -->
+    <header class="w-full max-w-7xl mx-auto flex justify-between items-center gap-3 px-3 py-1.5 glass-panel rounded-2xl border border-[#D9D9D9]/20 shadow-lg shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <a href="../../"
+           class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-[#D9D9D9]/20 text-[#F8F9FA] hover:bg-[#1E3A5F] hover:border-[#F4B400]/50 transition-all text-xs font-bold"
+           title="Back to Games">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span class="hidden sm:inline">Back to Games</span>
+            <div class="w-9 h-9 rounded-xl bg-[#F4B400] text-[#1E3A5F] flex items-center justify-center text-lg font-black shadow-lg shadow-[#F4B400]/20 border border-[#F8F9FA]/40 shrink-0">
+                <i class="fa-solid fa-users-viewfinder"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-sm md:text-lg tracking-tight text-[#F8F9FA] leading-none">
+                    CLASSROOM <span class="text-[#F4B400]">WORD BATTLE</span>
+                </h1>
+                <p class="text-[9px] md:text-[10px] text-[#D9D9D9] font-semibold uppercase tracking-wider mt-0.5">8-Direction Full Stretch Grid • Team Competition</p>
+            </div>
+        </div>
+
+        <!-- DUAL TEAM SCOREBOARD -->
+        <div id="topStatsBar" class="flex items-center gap-2 md:gap-3">
+            <!-- Team A Score Badge -->
+            <div id="scoreBadgeTeamA" class="flex items-center gap-2 px-3 py-1 rounded-xl bg-rose-950/80 border-2 border-rose-500 shadow-md transition-all">
+                <i class="fa-solid fa-flag text-rose-400 text-xs"></i>
+                <div>
+                    <p id="labelTeamA" class="text-[8px] uppercase font-black text-rose-200 leading-none">Team RED</p>
+                    <p id="scoreTeamA" class="text-xs md:text-sm font-black text-rose-400 leading-none mt-0.5">0 PTS</p>
+                </div>
+            </div>
+
+            <div class="text-xs font-black text-[#D9D9D9]/60 uppercase tracking-widest">VS</div>
+
+            <!-- Team B Score Badge -->
+            <div id="scoreBadgeTeamB" class="flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-950/80 border-2 border-emerald-500/30 opacity-60 transition-all">
+                <i class="fa-solid fa-flag text-emerald-400 text-xs"></i>
+                <div>
+                    <p id="labelTeamB" class="text-[8px] uppercase font-black text-emerald-200 leading-none">Team GREEN</p>
+                    <p id="scoreTeamB" class="text-xs md:text-sm font-black text-emerald-400 leading-none mt-0.5">0 PTS</p>
+                </div>
+            </div>
+
+            <button id="soundToggleBtn" class="w-8 h-8 rounded-xl glass-card flex items-center justify-center text-[#F8F9FA] hover:bg-[#1E3A5F] transition-all border border-[#D9D9D9]/20 ml-1">
+                <i class="fa-solid fa-volume-high text-xs" id="soundIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN GAME CONTAINER -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col justify-center items-center relative z-10 py-1.5 my-auto overflow-hidden min-h-0">
+
+        <!-- 1. SETUP SCREEN -->
+        <section id="setupScreen" class="w-full max-w-4xl glass-panel p-4 sm:p-5 rounded-3xl shadow-2xl border border-[#D9D9D9]/25 animate-pop-in my-auto text-center max-h-full overflow-y-auto">
+            
+            <div class="flex justify-center items-center gap-2 mb-1">
+                <span class="px-3 py-0.5 rounded-full text-[10px] font-black bg-[#F4B400]/20 text-[#F4B400] border border-[#F4B400]/30 uppercase tracking-widest">
+                    <i class="fa-solid fa-gamepad mr-1"></i> CLASSROOM TEAM BATTLE MODE
+                </span>
+            </div>
+            
+            <h2 class="text-xl md:text-2xl font-black text-[#F8F9FA]">Setup Word Search Battle</h2>
+            <p class="text-[#D9D9D9] text-xs mt-0.5 mb-3 max-w-xl mx-auto">
+                Words are placed in all 8 directions (Horizontal, Vertical, & Diagonal both forward & backwards). Collect maximum points!
+            </p>
+
+            <!-- HOW TO PLAY CARD -->
+            <div class="bg-[#0f1e33]/90 p-3 rounded-2xl border border-[#F4B400]/30 text-left mb-4 shadow-inner">
+                <h3 class="text-xs font-black uppercase text-[#F4B400] flex items-center gap-1.5 mb-1.5">
+                    <i class="fa-solid fa-circle-info text-sm"></i> How to Play:
+                </h3>
+                <ul class="text-[11px] text-[#D9D9D9] space-y-1 list-disc list-inside font-medium">
+                    <li><strong class="text-rose-400">Team A (RED)</strong> & <strong class="text-emerald-400">Team B (GREEN)</strong> play together on one big word grid.</li>
+                    <li><strong>Active Turn:</strong> Finding a word keeps your team's turn active! Use <em>Switch Turn (T)</em> to pass the turn.</li>
+                    <li>Words are hidden in <strong>8 Directions</strong> (Horizontal, Vertical, Diagonal, & Reversed).</li>
+                    <li>Click the <strong>Start Letter</strong> then <strong>End Letter</strong> to highlight a word.</li>
+                </ul>
+            </div>
+
+            <!-- SETUP INPUTS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left mb-4">
+                
+                <!-- TEAM CONFIGURATION -->
+                <div class="space-y-2 bg-[#0f1e33]/80 p-3 rounded-2xl border border-[#D9D9D9]/20">
+                    <p class="text-xs font-black text-[#F4B400] uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-users"></i> Team Names
+                    </p>
+                    
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-rose-400 uppercase tracking-wider mb-0.5">Team A Name (RED)</label>
+                        <input type="text" id="teamANameInput" value="Team Alpha" class="w-full px-2.5 py-1.5 rounded-xl bg-[#1E3A5F] border border-rose-500/40 text-white font-bold text-xs focus:outline-none focus:border-rose-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider mb-0.5">Team B Name (GREEN)</label>
+                        <input type="text" id="teamBNameInput" value="Team Bravo" class="w-full px-2.5 py-1.5 rounded-xl bg-[#1E3A5F] border border-emerald-500/40 text-white font-bold text-xs focus:outline-none focus:border-emerald-400">
+                    </div>
+                </div>
+
+                <!-- GAME CONFIGURATION -->
+                <div class="space-y-2 bg-[#0f1e33]/80 p-3 rounded-2xl border border-[#D9D9D9]/20">
+                    <p class="text-xs font-black text-[#F4B400] uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Board & Vocab Settings
+                    </p>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-[#D9D9D9] uppercase tracking-wider mb-0.5">Select Vocabulary Topic</label>
+                        <select id="topicSelect" class="w-full px-2.5 py-1.5 rounded-xl bg-[#1E3A5F] border border-[#D9D9D9]/30 text-white font-bold text-xs focus:outline-none focus:border-[#F4B400]">
+                            <option value="policy" selected>Public Policy & Governance (32 Words)</option>
+                            <option value="admin">Public Administration & Org (32 Words)</option>
+                            <option value="business">Business, Econ & Finance (32 Words)</option>
+                            <option value="tech">AI, Science & Innovation (32 Words)</option>
+                            <option value="pop">Pop Culture & Cinema (32 Words)</option>
+                            <option value="custom">-- Custom Word List --</option>
+                        </select>
+                    </div>
+
+                    <div id="customWordsContainer" class="hidden">
+                        <label class="block text-[10px] font-extrabold text-[#F4B400] uppercase tracking-wider mb-0.5">Custom Words (Comma Separated)</label>
+                        <input type="text" id="customWordsInput" placeholder="GOVERNANCE, POLICY, EQUITY, JUSTICE, DIPLOMACY, STRATEGY, BUDGET" class="w-full px-2 py-1 rounded-xl bg-[#1E3A5F] border border-[#D9D9D9]/30 text-white font-bold text-xs">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-[#D9D9D9] uppercase tracking-wider mb-0.5">Grid Density</label>
+                            <select id="gridSizeSelect" class="w-full px-2.5 py-1.5 rounded-xl bg-[#1E3A5F] border border-[#D9D9D9]/30 text-white font-bold text-xs">
+                                <option value="14">14 x 14 Grid</option>
+                                <option value="16" selected>16 x 16 (Recommended for 30+ Words)</option>
+                                <option value="18">18 x 18 (Maximum Density)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-[#D9D9D9] uppercase tracking-wider mb-0.5">Round Timer</label>
+                            <select id="timerSelect" class="w-full px-2.5 py-1.5 rounded-xl bg-[#1E3A5F] border border-[#D9D9D9]/30 text-white font-bold text-xs">
+                                <option value="300">5 Minutes</option>
+                                <option value="420" selected>7 Minutes</option>
+                                <option value="600">10 Minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button id="startSessionBtn" class="w-full py-3 rounded-2xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-black text-sm shadow-xl shadow-[#F4B400]/20 transition-all flex items-center justify-center gap-2 border border-[#F8F9FA]/40 active:scale-95">
+                <i class="fa-solid fa-play text-base"></i>
+                <span>Start Team Word Battle</span>
+            </button>
+        </section>
+
+        <!-- 2. GAME PRESENTATION ARENA -->
+        <section id="gameScreen" class="w-full max-w-7xl hidden flex-col justify-between h-full py-0.5 gap-2 min-h-0">
+
+            <!-- Round HUD Bar & Turn Selector -->
+            <div class="w-full glass-panel px-3 py-1.5 rounded-2xl flex justify-between items-center border border-[#D9D9D9]/20 shadow-lg shrink-0">
+                
+                <!-- ACTIVE TURN SELECTOR -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black uppercase text-[#D9D9D9]">Current Turn:</span>
+                    <button id="turnBtnTeamA" class="px-3 py-1 rounded-xl text-xs font-black bg-rose-600 text-white border border-rose-300 shadow-lg transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-check"></i> <span id="turnLabelTeamA">Team Alpha</span>
+                    </button>
+                    <button id="turnBtnTeamB" class="px-3 py-1 rounded-xl text-xs font-black bg-[#152843] text-emerald-400 border border-emerald-500/40 hover:bg-emerald-950/60 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-user"></i> <span id="turnLabelTeamB">Team Bravo</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#0f1e33] border border-[#D9D9D9]/20 rounded-xl">
+                        <i class="fa-regular fa-clock text-amber-400 text-xs"></i>
+                        <span id="timerText" class="text-xs font-mono font-bold text-amber-400">07:00</span>
+                        <button id="toggleTimerBtn" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded border border-amber-500/40">Pause</button>
+                    </div>
+
+                    <div class="hidden sm:flex items-center gap-1 px-2.5 py-1 bg-[#0f1e33] border border-[#D9D9D9]/20 rounded-xl text-xs font-bold text-[#D9D9D9]">
+                        <span>Found:</span>
+                        <span id="remainingCountText" class="text-amber-400 font-mono">0 / 0</span>
+                    </div>
+
+                    <button id="howToPlayBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-circle-question text-amber-400 text-xs"></i>
+                        How to Play
+                    </button>
+                    <div class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl text-center">
+                        <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Active Score</span>
+                        <span id="scoreDisplay" class="text-lg font-black text-amber-400">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN BOARD AREA (Split View: Grid Left 100% stretch, Target Word Bank Right) -->
+            <div class="w-full flex-1 glass-panel p-2 rounded-2xl flex flex-row gap-2 justify-between items-center border border-[#D9D9D9]/20 shadow-2xl relative overflow-hidden min-h-0 min-w-0">
+                
+                <!-- WORD SEARCH GRID CONTAINER (Stretches 100% of left box) -->
+                <div class="flex-1 h-full w-full min-h-0 min-w-0 bg-[#0f1e33]/90 p-1.5 rounded-xl border border-[#D9D9D9]/20 shadow-inner flex flex-col justify-center items-center">
+                    <div id="wordGrid" class="w-full h-full min-h-0 min-w-0 grid gap-0.5 p-0.5">
+                        <!-- Dynamic full-stretch grid cells injected by JS -->
+                    </div>
+                </div>
+
+                <!-- TARGET WORD LIST & SCORE RECAP -->
+                <div class="w-64 md:w-72 h-full flex flex-col justify-between bg-[#0f1e33]/85 p-2.5 rounded-xl border border-[#D9D9D9]/20 shrink-0 overflow-hidden min-h-0">
+                    <div class="flex flex-col h-full min-h-0">
+                        <div class="flex items-center justify-between pb-1 border-b border-[#D9D9D9]/20 mb-1.5 shrink-0">
+                            <span class="text-xs font-black uppercase text-[#F4B400] flex items-center gap-1">
+                                <i class="fa-solid fa-list-check"></i> Word Bank (<span id="totalWordCount">0</span>)
+                            </span>
+                            <span class="text-[9px] text-[#D9D9D9]">Click start & end</span>
+                        </div>
+                        <div id="wordBankList" class="grid grid-cols-2 gap-1 overflow-y-auto pr-1 flex-1 min-h-0">
+                            <!-- Word badges injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Hint / Turn Notice Box -->
+                    <div id="hintContainer" class="p-2 rounded-xl bg-[#1E3A5F]/80 border border-[#F4B400]/30 mt-2 shrink-0">
+                        <p class="text-[9px] uppercase font-black text-[#F4B400] flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb"></i> Facilitator Clue
+                        </p>
+                        <p id="hintText" class="text-xs font-bold text-[#F8F9FA] italic mt-0.5 line-clamp-2">
+                            Click start letter then end letter on board!
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3. PRESENTER CONTROL TOOLBAR -->
+            <div class="w-full glass-panel p-2 rounded-2xl border border-[#D9D9D9]/20 shadow-xl shrink-0">
+                <div class="flex justify-between items-center px-1 mb-1">
+                    <p class="text-[9px] uppercase font-black tracking-widest text-[#D9D9D9] flex items-center gap-1">
+                        <i class="fa-solid fa-sliders text-[#F4B400]"></i> Facilitator Controls
+                    </p>
+                    <p class="text-[9px] text-[#D9D9D9] font-medium hidden sm:block">
+                        Hotkeys: <kbd class="px-1 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">T</kbd> Switch Team | <kbd class="px-1 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">H</kbd> Hint | <kbd class="px-1 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">F</kbd> Reveal All | <kbd class="px-1 py-0.5 rounded bg-[#0f1e33] border border-[#D9D9D9]/30 text-[#F4B400] font-mono">Space</kbd> +1 Pt
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-6 gap-1.5">
+                    <button id="btnSwitchTurn" class="py-1.5 px-2 rounded-xl bg-[#1E3A5F] hover:bg-[#254673] text-[#F8F9FA] border border-[#D9D9D9]/30 font-bold text-xs flex items-center justify-center gap-1 transition-all active:scale-95">
+                        <i class="fa-solid fa-rotate text-[#F4B400]"></i>
+                        <span>Switch Turn (T)</span>
+                    </button>
+
+                    <button id="btnHint" class="py-1.5 px-2 rounded-xl bg-[#0f1e33] hover:bg-[#152843] text-[#F8F9FA] border border-[#D9D9D9]/30 font-bold text-xs flex items-center justify-center gap-1 transition-all active:scale-95">
+                        <i class="fa-solid fa-lightbulb text-[#F4B400]"></i>
+                        <span>Hint (H)</span>
+                    </button>
+
+                    <button id="btnAutoSolve" class="py-1.5 px-2 rounded-xl bg-[#0f1e33] hover:bg-[#152843] text-[#F8F9FA] border border-[#D9D9D9]/30 font-bold text-xs flex items-center justify-center gap-1 transition-all active:scale-95">
+                        <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i>
+                        <span>Solve 1 Word</span>
+                    </button>
+
+                    <button id="btnRegenerate" class="py-1.5 px-2 rounded-xl bg-[#0f1e33] hover:bg-[#152843] text-[#F8F9FA] border border-[#D9D9D9]/30 font-bold text-xs flex items-center justify-center gap-1 transition-all active:scale-95">
+                        <i class="fa-solid fa-arrows-rotate text-amber-400"></i>
+                        <span>New Grid (R)</span>
+                    </button>
+
+                    <button id="btnAddScore" class="py-1.5 px-2 rounded-xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-extrabold text-xs flex items-center justify-center gap-1 transition-all active:scale-95 shadow-md">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>+1 Active Pt</span>
+                    </button>
+
+                    <button id="btnRevealAll" class="py-1.5 px-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs flex items-center justify-center gap-1 transition-all active:scale-95 shadow-md col-span-2 sm:col-span-1">
+                        <i class="fa-solid fa-eye"></i>
+                        <span>Reveal All (F)</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. MATCH SUMMARY & WINNER ANNOUNCEMENT MODAL -->
+        <section id="summaryScreen" class="w-full max-w-2xl glass-panel p-5 rounded-3xl shadow-2xl border border-[#D9D9D9]/25 hidden flex-col items-center text-center animate-pop-in my-auto">
+            <div class="w-14 h-14 rounded-2xl bg-[#F4B400]/20 text-[#F4B400] flex items-center justify-center text-2xl mb-2 border border-[#F4B400]/30 shadow-lg">
+                <i class="fa-solid fa-trophy text-[#F4B400]"></i>
+            </div>
+            
+            <h2 id="winnerText" class="text-2xl md:text-3xl font-black text-[#F8F9FA]">TEAM ALPHA WINS!</h2>
+            <p class="text-[#D9D9D9] text-xs mt-0.5 mb-4">Word Search Battle Match Summary</p>
+
+            <div class="grid grid-cols-2 gap-4 w-full mb-5">
+                <!-- Team A Final Box -->
+                <div class="p-4 rounded-2xl bg-rose-950/80 border-2 border-rose-500 shadow-xl">
+                    <p id="summaryLabelA" class="text-xs font-black text-rose-300 uppercase mb-1">TEAM ALPHA</p>
+                    <p id="summaryScoreA" class="text-3xl font-black text-rose-400">0 PTS</p>
+                    <p id="summaryFoundA" class="text-[10px] text-rose-200 mt-1">0 Words Found</p>
+                </div>
+
+                <!-- Team B Final Box -->
+                <div class="p-4 rounded-2xl bg-emerald-950/80 border-2 border-emerald-500 shadow-xl">
+                    <p id="summaryLabelB" class="text-xs font-black text-emerald-300 uppercase mb-1">TEAM BRAVO</p>
+                    <p id="summaryScoreB" class="text-3xl font-black text-emerald-400">0 PTS</p>
+                    <p id="summaryFoundB" class="text-[10px] text-emerald-200 mt-1">0 Words Found</p>
+                </div>
+            </div>
+
+            <div class="flex gap-3 justify-center w-full">
+                <button id="btnRestartSession" class="py-3 px-6 rounded-xl bg-[#F4B400] hover:bg-[#e0a500] text-[#1E3A5F] font-black text-xs shadow-lg transition-all border border-[#F8F9FA]/40">
+                    <i class="fa-solid fa-rotate-right mr-1.5"></i> Play Rematch
+                </button>
+                <button id="btnBackToSetup" class="py-3 px-6 rounded-xl glass-card hover:bg-[#1E3A5F] text-[#F8F9FA] font-black text-xs border border-[#D9D9D9]/30 transition-all">
+                    <i class="fa-solid fa-gear mr-1.5"></i> Change Settings
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div id="howToPlayModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-slate-200">
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1">&times;</button>
+            
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-lg">?</div>
+                <h2 class="text-xl font-extrabold text-white tracking-wide">How to Play Word Search</h2>
+            </div>
+
+            <div class="space-y-4 text-sm leading-relaxed text-slate-300">
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+                    <h3 class="font-bold text-amber-400 mb-1 text-xs uppercase tracking-wider">1. Select Words on Grid</h3>
+                    <p>Find any word from the <strong>Target Words</strong> panel. Click or tap the <strong>first letter</strong>, then click or tap the <strong>last letter</strong>. Connect letters horizontally, vertically, or diagonally!</p>
+                </div>
+
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+                    <h3 class="font-bold text-amber-400 mb-1 text-xs uppercase tracking-wider">2. Classroom Facilitator Shortcuts</h3>
+                    <ul class="list-disc list-inside space-y-1 text-xs text-slate-300">
+                        <li><kbd class="px-1.5 py-0.5 bg-slate-700 text-amber-300 rounded text-[10px] font-mono">T</kbd> <strong>Switch Turn:</strong> Pass turn to the other team.</li>
+                        <li><kbd class="px-1.5 py-0.5 bg-slate-700 text-amber-300 rounded text-[10px] font-mono">H</kbd> <strong>Hint:</strong> Highlight the starting letter of a missing word.</li>
+                        <li><kbd class="px-1.5 py-0.5 bg-slate-700 text-amber-300 rounded text-[10px] font-mono">F</kbd> <strong>Reveal All:</strong> Uncover every word on the board.</li>
+                        <li><kbd class="px-1.5 py-0.5 bg-slate-700 text-amber-300 rounded text-[10px] font-mono">Space</kbd> <strong>Add Point:</strong> Manually award a point.</li>
+                        <li><kbd class="px-1.5 py-0.5 bg-slate-700 text-amber-300 rounded text-[10px] font-mono">R</kbd> <strong>New Grid:</strong> Generate a fresh puzzle grid.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+                    <h3 class="font-bold text-amber-400 mb-1 text-xs uppercase tracking-wider">3. Timer & Discussion Pause</h3>
+                    <p>Use the <strong>Pause</strong> button on the top timer bar when pausing for student discussions or explanations.</p>
+                </div>
+            </div>
+
+            <button id="gotItBtn" class="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg text-sm">
+                Got it, Let's Play!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* EXPANDED 32+ WORD PRESETS */
+        const VOCAB_PRESETS = {
+            policy: [
+                { word: "GOVERNANCE", hint: "Institutions by which authority in a country is exercised." },
+                { word: "ADVOCACY", hint: "Public support or recommendation for a policy." },
+                { word: "AMENDMENT", hint: "Formal change made to a law or constitutional document." },
+                { word: "EQUITY", hint: "Fairness and justice in public resource distribution." },
+                { word: "FISCAL", hint: "Relating to government revenues, taxation, and spending." },
+                { word: "REGULATION", hint: "Rule or order issued by an executive authority." },
+                { word: "CONSENSUS", hint: "General agreement among deliberative council members." },
+                { word: "DIPLOMACY", hint: "Profession of conducting international relations." },
+                { word: "JUSTICE", hint: "Fair treatment and legal accountability." },
+                { word: "LEGISLATION", hint: "Laws considered collectively by a legislative body." },
+                { word: "DEMOCRACY", hint: "System of government by the whole population." },
+                { word: "REFORM", hint: "Improvement or amendment of what is wrong or corrupt." },
+                { word: "TRANSPARENCY", hint: "Openness and accountability in administrative action." },
+                { word: "AUTONOMY", hint: "Right or condition of self-government." },
+                { word: "COUNCIL", hint: "Advisory, deliberative, or administrative body." },
+                { word: "STATUTE", hint: "Enacted law passed by a legislative body." },
+                { word: "DECREE", hint: "An official order issued by a legal authority." },
+                { word: "RATIFY", hint: "Sign or give formal consent to make officially valid." },
+                { word: "BALLOT", hint: "System or process of voting, typically in secret." },
+                { word: "SANCTION", hint: "Threatened penalty for disobeying a policy rule." },
+                { word: "MANDATE", hint: "Official order or commission to do something." },
+                { word: "ALLIANCE", hint: "Union formed for mutual benefit between nations." },
+                { word: "CIVIC", hint: "Relating to a city or citizens' duties." },
+                { word: "RIGHTS", hint: "Moral or legal entitlement to have or do something." },
+                { word: "TREATY", hint: "Formally concluded and ratified agreement between states." },
+                { word: "PARLIAMENT", hint: "Legislative assembly of representatives." },
+                { word: "CAMPAIGN", hint: "Organized course of action to achieve a goal." },
+                { word: "VERDICT", hint: "Decision on a disputed issue in a civil or criminal case." },
+                { word: "JUDICIARY", hint: "Judicial authorities of a country collectively." },
+                { word: "FACTION", hint: "Small organized dissenting group within a larger one." },
+                { word: "DEBATE", hint: "Formal discussion on a particular topic in a public meeting." },
+                { word: "CHARTER", hint: "Grant or guarantee of rights or privileges." }
+            ],
+            admin: [
+                { word: "BUREAUCRACY", hint: "System of administration marked by strict procedures." },
+                { word: "COMPLIANCE", hint: "Action of complying with an official command or rule." },
+                { word: "EFFICIENCY", hint: "Maximum productivity with minimum wasted effort." },
+                { word: "ALLOCATION", hint: "Distribution of resources for specific purposes." },
+                { word: "INTEGRITY", hint: "Adherence to moral and ethical principles." },
+                { word: "STRATEGY", hint: "Plan of action designed to achieve long-term goals." },
+                { word: "AUDIT", hint: "Official inspection of an organization's accounts." },
+                { word: "BUDGET", hint: "Estimate of income and expenditure for a set period." },
+                { word: "CAPACITY", hint: "Maximum amount or ability that something can produce." },
+                { word: "PROTOCOL", hint: "Official procedure or system of rules." },
+                { word: "DELEGATE", hint: "Entrust a task or responsibility to another." },
+                { word: "DIRECTIVE", hint: "Official instruction or guiding standard." },
+                { word: "DISPATCH", hint: "Send off to a destination for a new purpose." },
+                { word: "EVALUATE", hint: "Form an idea of the value or performance of a system." },
+                { word: "LOGISTICS", hint: "Detailed coordination of a complex operation." },
+                { word: "OVERSIGHT", hint: "Action of overseeing and supervising a project." },
+                { word: "RECORD", hint: "Sum of past achievements or official written notes." },
+                { word: "RESOURCES", hint: "Stock or supply of money, materials, and staff." },
+                { word: "SCHEDULE", hint: "Plan for carrying out a process or list of events." },
+                { word: "WORKFLOW", hint: "Sequence of industrial, administrative, or other processes." },
+                { word: "BENCHMARK", hint: "Standard or point of reference against which to evaluate." },
+                { word: "CONTRACT", hint: "Written or spoken agreement intended to be enforceable." },
+                { word: "OUTCOME", hint: "Way a thing turns out; a consequence or result." },
+                { word: "SERVICE", hint: "Action of helping or doing work for someone." },
+                { word: "VENDOR", hint: "Person or company offering something for sale." },
+                { word: "MANAGER", hint: "Person responsible for controlling or administering." },
+                { word: "OPERATIONS", hint: "Fact or condition of functioning or being active." },
+                { word: "KPI", hint: "Key performance indicator measuring success." },
+                { word: "PROCESS", hint: "Series of actions taken to achieve an end." },
+                { word: "STRUCTURE", hint: "Arrangement of and relations between parts." },
+                { word: "GOALS", hint: "Object of a person's ambition or effort." },
+                { word: "REPORT", hint: "Spoken or written account of something observed." }
+            ],
+            business: [
+                { word: "CAPITAL", hint: "Wealth in the form of money or other assets." },
+                { word: "REVENUE", hint: "Income generated from normal business operations." },
+                { word: "INVESTMENT", hint: "Action of investing money for profit." },
+                { word: "PORTFOLIO", hint: "Range of investments held by a person or organization." },
+                { word: "MERGER", hint: "Combining two existing companies into one." },
+                { word: "INNOVATION", hint: "Process of introducing new ideas or products." },
+                { word: "DIVERSITY", hint: "Inclusion of different types of people or products." },
+                { word: "LEADERSHIP", hint: "Action of leading a team or organization." },
+                { word: "MONOPOLY", hint: "Exclusive possession or control of the trade." },
+                { word: "DIVIDEND", hint: "Sum paid regularly by a company to shareholders." },
+                { word: "ASSET", hint: "Useful or valuable quality, person, or piece of property." },
+                { word: "DEBT", hint: "Money that is owed or due to be paid back." },
+                { word: "EQUITY", hint: "Value of shares issued by a company." },
+                { word: "PROFIT", hint: "Financial gain when revenue exceeds expenses." },
+                { word: "MARGIN", hint: "Difference between cost and selling price." },
+                { word: "MARKET", hint: "Medium where buyers and sellers trade goods." },
+                { word: "VENTURE", hint: "Risky or daring journey or business undertaking." },
+                { word: "GROWTH", hint: "Process of increasing in physical size or revenue." },
+                { word: "BRAND", hint: "Type of product manufactured under a particular name." },
+                { word: "CLIENT", hint: "Person or organization using professional services." },
+                { word: "DEMAND", hint: "Consumer's desire to purchase goods and services." },
+                { word: "EXPORTS", hint: "Send goods or services to another country for sale." },
+                { word: "SUPPLY", hint: "Total amount of a specific good available." },
+                { word: "VALUATION", hint: "Estimation of something's worth or value." },
+                { word: "YIELD", hint: "Produce or provide an aggregate financial return." },
+                { word: "TRADE", hint: "Action of buying and selling goods and services." },
+                { word: "FINANCE", hint: "Management of large amounts of money." },
+                { word: "BANKING", hint: "Business conducted or services offered by a bank." },
+                { word: "STOCKS", hint: "Goods or merchandise kept on premises for sale." },
+                { word: "CREDIT", hint: "Ability of a customer to obtain goods before payment." },
+                { word: "SAVINGS", hint: "Money set aside for future use." },
+                { word: "INCOME", hint: "Money received on a regular basis for work." }
+            ],
+            tech: [
+                { word: "ALGORITHM", hint: "Set of rules to be followed in calculations." },
+                { word: "DATABASE", hint: "Structured set of data held in a computer system." },
+                { word: "AUTOMATION", hint: "Use of technology to perform tasks with reduced human input." },
+                { word: "CYBERSECURITY", hint: "Protection of systems from digital attacks." },
+                { word: "NETWORK", hint: "Group or system of interconnected computers." },
+                { word: "HARDWARE", hint: "Physical components of a computer system." },
+                { word: "SOFTWARE", hint: "Programs used by a computer system." },
+                { word: "BANDWIDTH", hint: "Maximum rate of data transfer across a path." },
+                { word: "CLOUD", hint: "Network of remote servers hosted on the Internet." },
+                { word: "ENCRYPTION", hint: "Process of converting information into secret code." },
+                { word: "FIREWALL", hint: "Network security system that monitors traffic." },
+                { word: "INTERFACE", hint: "Point where two systems meet and interact." },
+                { word: "PROGRAM", hint: "Series of coded instructions to control a computer." },
+                { word: "SERVER", hint: "Computer managing access to a centralized resource." },
+                { word: "VIRTUAL", hint: "Not physically existing but made by software." },
+                { word: "ANALYTICS", hint: "Systematic computational analysis of data." },
+                { word: "COMPILER", hint: "Program converting instructions into machine code." },
+                { word: "DOMAIN", hint: "Distinct subset of the Internet with common address." },
+                { word: "GIGABYTE", hint: "Unit of information equal to one billion bytes." },
+                { word: "LATENCY", hint: "Delay before a transfer of data begins." },
+                { word: "MEMORY", hint: "Component of a computer where data is stored." },
+                { word: "PIXEL", hint: "Minute area of illumination on a display screen." },
+                { word: "ROUTER", hint: "Device forwarding data packets between networks." },
+                { word: "SCRIPT", hint: "Automated series of instructions executed by a system." },
+                { word: "SENSOR", hint: "Device detecting or measuring a physical property." },
+                { word: "PYTHON", hint: "High-level popular computer programming language." },
+                { word: "CODING", hint: "Process of writing computer programs." },
+                { word: "BINARY", hint: "System expressed using digits 0 and 1." },
+                { word: "VECTOR", hint: "Quantity having direction as well as magnitude." },
+                { word: "KERNEL", hint: "Core of a computer operating system." },
+                { word: "ROBOT", hint: "Machine capable of carrying out complex actions." },
+                { word: "WIFI", hint: "Facility allowing computers to connect to internet." }
+            ],
+            pop: [
+                { word: "AVATAR", hint: "Icon or figure representing a person in films or games." },
+                { word: "NETFLIX", hint: "Global movie and series streaming giant." },
+                { word: "MARVEL", hint: "Comic universe featuring Avengers superheroes." },
+                { word: "PIKACHU", hint: "Iconic yellow electric mouse from Pokémon." },
+                { word: "BARBIE", hint: "Famous fashion doll brand and cinema hit." },
+                { word: "BATMAN", hint: "Dark knight vigilante protector of Gotham City." },
+                { word: "DISNEY", hint: "Entertainment conglomerate famous for animation." },
+                { word: "GOTHAM", hint: "Fictional city inhabited by comic superheroes." },
+                { word: "HEROES", hint: "Characters admired for their courage or achievements." },
+                { word: "JOKER", hint: "Archenemy supervillain of Batman." },
+                { word: "OSCAR", hint: "Prestigious annual film academy award." },
+                { word: "SPIDERMAN", hint: "Web-slinging superhero alter-ego Peter Parker." },
+                { word: "STARWARS", hint: "Epic intergalactic space opera movie franchise." },
+                { word: "VILLAIN", hint: "Character whose evil actions drive the plot." },
+                { word: "ZOMBIE", hint: "Undead fictional creature in horror genre." },
+                { word: "ACTION", hint: "Genre involving high energy and physical stunts." },
+                { word: "CINEMA", hint: "Movie theater or the film industry." },
+                { word: "DIRECTOR", hint: "Person who controls a film's artistic aspect." },
+                { word: "GAMING", hint: "Playing video games electronically." },
+                { word: "MOVIERAT", hint: "Avid film enthusiast or cinematic reviewer." },
+                { word: "PODCAST", hint: "Digital audio program available on the internet." },
+                { word: "SERIES", hint: "Set of related television or streaming episodes." },
+                { word: "STUDIO", hint: "Room or building where films are produced." },
+                { word: "STREAM", hint: "Transmit or receive video data over the Internet." },
+                { word: "TRENDING", hint: "Currently popular or widely discussed online." },
+                { word: "ANIME", hint: "Style of Japanese film and television animation." },
+                { word: "COMICS", hint: "Publications consisting of comic art strips." },
+                { word: "ACTOR", hint: "Person whose profession is acting on stage or screen." },
+                { word: "MUSIC", hint: "Vocal or instrumental sounds combined in harmony." },
+                { word: "STAGE", hint: "Raised floor or platform in a theater." },
+                { word: "TIKTOK", hint: "Popular short-form video social media network." },
+                { word: "VALORANT", hint: "Popular competitive tactical shooter video game." }
+            ]
+        };
+
+        let activeGridSize = 16;
+        let activeWords = [];
+        let gridData = [];
+        let placedWordLocations = [];
+        let selectedStartCell = null;
+        
+        let foundWords = new Set();
+        let wordFoundByMap = {}; // word -> "A" or "B"
+        
+        let teamAName = "Team Alpha";
+        let teamBName = "Team Bravo";
+        let teamAScore = 0;
+        let teamBScore = 0;
+        let teamAFoundCount = 0;
+        let teamBFoundCount = 0;
+        let activeTeam = "A"; // "A" or "B"
+
+        let timerSeconds = 420;
+        let timerInterval = null;
+        let isTimerPaused = false;
+        let soundEnabled = true;
+
+        /* AUDIO SYNTHESIZER */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.exponentialRampToValueAtTime(850, now + 0.05);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'found') {
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.35, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'win') {
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(783.99, now + 0.15);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                }
+            } catch (e) { console.log(e); }
+        }
+
+        const setupScreen = document.getElementById('setupScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const summaryScreen = document.getElementById('summaryScreen');
+
+        const topicSelect = document.getElementById('topicSelect');
+        const customWordsContainer = document.getElementById('customWordsContainer');
+        const customWordsInput = document.getElementById('customWordsInput');
+        const gridSizeSelect = document.getElementById('gridSizeSelect');
+        const timerSelect = document.getElementById('timerSelect');
+        const teamANameInput = document.getElementById('teamANameInput');
+        const teamBNameInput = document.getElementById('teamBNameInput');
+        const startSessionBtn = document.getElementById('startSessionBtn');
+
+        const wordGrid = document.getElementById('wordGrid');
+        const wordBankList = document.getElementById('wordBankList');
+        const totalWordCount = document.getElementById('totalWordCount');
+        const remainingCountText = document.getElementById('remainingCountText');
+        const timerText = document.getElementById('timerText');
+        const toggleTimerBtn = document.getElementById('toggleTimerBtn');
+        const hintText = document.getElementById('hintText');
+
+        const turnBtnTeamA = document.getElementById('turnBtnTeamA');
+        const turnBtnTeamB = document.getElementById('turnBtnTeamB');
+        const turnLabelTeamA = document.getElementById('turnLabelTeamA');
+        const turnLabelTeamB = document.getElementById('turnLabelTeamB');
+
+        const scoreBadgeTeamA = document.getElementById('scoreBadgeTeamA');
+        const scoreBadgeTeamB = document.getElementById('scoreBadgeTeamB');
+        const scoreTeamA = document.getElementById('scoreTeamA');
+        const scoreTeamB = document.getElementById('scoreTeamB');
+        const labelTeamA = document.getElementById('labelTeamA');
+        const labelTeamB = document.getElementById('labelTeamB');
+
+        topicSelect.addEventListener('change', () => {
+            if (topicSelect.value === 'custom') {
+                customWordsContainer.classList.remove('hidden');
+            } else {
+                customWordsContainer.classList.add('hidden');
+            }
+        });
+
+        turnBtnTeamA.addEventListener('click', () => setTurn("A"));
+        turnBtnTeamB.addEventListener('click', () => setTurn("B"));
+
+        startSessionBtn.addEventListener('click', initGameSession);
+        toggleTimerBtn.addEventListener('click', toggleTimer);
+
+        document.getElementById('btnSwitchTurn').addEventListener('click', toggleTurn);
+        document.getElementById('btnHint').addEventListener('click', triggerHint);
+        document.getElementById('btnAutoSolve').addEventListener('click', autoSolveOneWord);
+        document.getElementById('btnRegenerate').addEventListener('click', generateWordSearchGrid);
+        document.getElementById('btnAddScore').addEventListener('click', addScoreToActiveTeam);
+        document.getElementById('btnRevealAll').addEventListener('click', revealAllAnswers);
+
+        document.getElementById('btnRestartSession').addEventListener('click', initGameSession);
+        document.getElementById('btnBackToSetup').addEventListener('click', () => {
+            summaryScreen.classList.add('hidden');
+            gameScreen.classList.add('hidden');
+            setupScreen.classList.remove('hidden');
+        });
+
+        document.getElementById('soundToggleBtn').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').className = soundEnabled ? "fa-solid fa-volume-high text-xs" : "fa-solid fa-volume-xmark text-xs text-rose-400";
+        });
+
+        /* HOTKEY LISTENERS */
+        window.addEventListener('keydown', (e) => {
+            if (gameScreen.classList.contains('hidden')) return;
+            const key = e.key.toUpperCase();
+            if (key === 'T') toggleTurn();
+            else if (key === 'H') triggerHint();
+            else if (key === 'R') generateWordSearchGrid();
+            else if (key === 'F') revealAllAnswers();
+            else if (e.code === 'Space') {
+                e.preventDefault();
+                addScoreToActiveTeam();
+            }
+        });
+
+        function setTurn(team) {
+            activeTeam = team;
+            playSound('click');
+            if (activeTeam === "A") {
+                turnBtnTeamA.className = "px-3 py-1 rounded-xl text-xs font-black bg-rose-600 text-white border border-rose-300 shadow-lg transition-all flex items-center gap-1.5 scale-105";
+                turnBtnTeamA.querySelector('i').className = "fa-solid fa-user-check";
+                
+                turnBtnTeamB.className = "px-3 py-1 rounded-xl text-xs font-black bg-[#152843] text-emerald-400 border border-emerald-500/40 hover:bg-emerald-950/60 transition-all flex items-center gap-1.5 opacity-80";
+                turnBtnTeamB.querySelector('i').className = "fa-solid fa-user";
+
+                scoreBadgeTeamA.classList.remove('opacity-60');
+                scoreBadgeTeamB.classList.add('opacity-60');
+                hintText.textContent = `Active Turn: ${teamAName} (Red)`;
+            } else {
+                turnBtnTeamB.className = "px-3 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white border border-emerald-300 shadow-lg transition-all flex items-center gap-1.5 scale-105";
+                turnBtnTeamB.querySelector('i').className = "fa-solid fa-user-check";
+
+                turnBtnTeamA.className = "px-3 py-1 rounded-xl text-xs font-black bg-[#152843] text-rose-400 border border-rose-500/40 hover:bg-rose-950/60 transition-all flex items-center gap-1.5 opacity-80";
+                turnBtnTeamA.querySelector('i').className = "fa-solid fa-user";
+
+                scoreBadgeTeamB.classList.remove('opacity-60');
+                scoreBadgeTeamA.classList.add('opacity-60');
+                hintText.textContent = `Active Turn: ${teamBName} (Green)`;
+            }
+        }
+
+        function toggleTurn() {
+            setTurn(activeTeam === "A" ? "B" : "A");
+        }
+
+        function addScoreToActiveTeam() {
+            if (activeTeam === "A") teamAScore++;
+            else teamBScore++;
+            updateHUD();
+            playSound('click');
+        }
+
+        /* INIT GAME SESSION */
+        function initGameSession() {
+            activeGridSize = parseInt(gridSizeSelect.value);
+            timerSeconds = parseInt(timerSelect.value);
+            
+            teamAName = teamANameInput.value.trim() || "Team Alpha";
+            teamBName = teamBNameInput.value.trim() || "Team Bravo";
+
+            turnLabelTeamA.textContent = teamAName;
+            turnLabelTeamB.textContent = teamBName;
+            labelTeamA.textContent = teamAName.toUpperCase();
+            labelTeamB.textContent = teamBName.toUpperCase();
+
+            teamAScore = 0;
+            teamBScore = 0;
+            teamAFoundCount = 0;
+            teamBFoundCount = 0;
+            foundWords.clear();
+            wordFoundByMap = {};
+
+            // Vocabulary Selection
+            let selectedTopic = topicSelect.value;
+            if (selectedTopic === 'custom') {
+                let raw = customWordsInput.value.trim().toUpperCase().split(',');
+                activeWords = raw.map(w => ({ word: w.trim().replace(/[^A-Z]/g, ''), hint: "Custom Word" })).filter(w => w.word.length >= 2);
+                if (activeWords.length < 5) activeWords = VOCAB_PRESETS.policy;
+            } else {
+                activeWords = VOCAB_PRESETS[selectedTopic];
+            }
+
+            setupScreen.classList.add('hidden');
+            summaryScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+
+            setTurn("A");
+            generateWordSearchGrid();
+            startTimer();
+        }
+
+        /* 8-DIRECTIONAL GRID PLACEMENT ALGORITHM */
+        function generateWordSearchGrid() {
+            gridData = Array(activeGridSize).fill(null).map(() => Array(activeGridSize).fill(''));
+            placedWordLocations = [];
+            foundWords.clear();
+            wordFoundByMap = {};
+            selectedStartCell = null;
+
+            // All 8 Directions: Horiz, Vert, Diag, Backwards
+            const dirs = [
+                { r: 0, c: 1 },   // Right
+                { r: 0, c: -1 },  // Left (Reverse)
+                { r: 1, c: 0 },   // Down
+                { r: -1, c: 0 },  // Up (Reverse)
+                { r: 1, c: 1 },   // Down-Right
+                { r: 1, c: -1 },  // Down-Left
+                { r: -1, c: 1 },  // Up-Right
+                { r: -1, c: -1 }  // Up-Left
+            ];
+
+            let sortedWords = [...activeWords].sort((a, b) => b.word.length - a.word.length);
+
+            sortedWords.forEach(item => {
+                let w = item.word;
+                if (w.length > activeGridSize) return;
+
+                let placed = false;
+                let attempts = 0;
+
+                while (!placed && attempts < 200) {
+                    attempts++;
+                    let dir = dirs[Math.floor(Math.random() * dirs.length)];
+                    
+                    let startR = Math.floor(Math.random() * activeGridSize);
+                    let startC = Math.floor(Math.random() * activeGridSize);
+
+                    let endR = startR + dir.r * (w.length - 1);
+                    let endC = startC + dir.c * (w.length - 1);
+
+                    if (endR >= 0 && endR < activeGridSize && endC >= 0 && endC < activeGridSize) {
+                        let canPlace = true;
+                        let path = [];
+
+                        for (let i = 0; i < w.length; i++) {
+                            let currR = startR + dir.r * i;
+                            let currC = startC + dir.c * i;
+                            let charInGrid = gridData[currR][currC];
+
+                            if (charInGrid !== '' && charInGrid !== w[i]) {
+                                canPlace = false;
+                                break;
+                            }
+                            path.push({ r: currR, c: currC });
+                        }
+
+                        if (canPlace) {
+                            path.forEach((pt, idx) => {
+                                gridData[pt.r][pt.c] = w[idx];
+                            });
+                            placedWordLocations.push({ word: w, hint: item.hint, path });
+                            placed = true;
+                        }
+                    }
+                }
+            });
+
+            // Fill empty cells with random letters
+            const alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            for (let r = 0; r < activeGridSize; r++) {
+                for (let c = 0; c < activeGridSize; c++) {
+                    if (gridData[r][c] === '') {
+                        gridData[r][c] = alphabets[Math.floor(Math.random() * alphabets.length)];
+                    }
+                }
+            }
+
+            renderGridUI();
+            renderWordBankUI();
+            updateHUD();
+        }
+
+        /* RENDER GRID UI WITH 100% CONTAINER STRETCH */
+        function renderGridUI() {
+            wordGrid.innerHTML = '';
+            
+            // Fixed 1fr equal distribution for 100% stretch across left box
+            wordGrid.style.gridTemplateColumns = `repeat(${activeGridSize}, minmax(0, 1fr))`;
+            wordGrid.style.gridTemplateRows = `repeat(${activeGridSize}, minmax(0, 1fr))`;
+
+            // Compact font sizing based on grid size
+            let fontClass = 'text-xs sm:text-sm md:text-base';
+            if (activeGridSize === 16) fontClass = 'text-[11px] sm:text-xs md:text-sm';
+            if (activeGridSize >= 18) fontClass = 'text-[9px] sm:text-[10px] md:text-xs';
+
+            for (let r = 0; r < activeGridSize; r++) {
+                for (let c = 0; c < activeGridSize; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = `grid-cell w-full h-full min-w-0 min-h-0 rounded bg-[#152843] border border-[#D9D9D9]/15 flex items-center justify-center font-extrabold text-[#F8F9FA] ${fontClass}`;
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    cell.textContent = gridData[r][c];
+
+                    cell.addEventListener('click', () => handleCellClick(r, c, cell));
+                    wordGrid.appendChild(cell);
+                }
+            }
+        }
+
+        /* RENDER TARGET WORD BANK */
+        function renderWordBankUI() {
+            wordBankList.innerHTML = '';
+            totalWordCount.textContent = placedWordLocations.length;
+
+            placedWordLocations.forEach(item => {
+                const badge = document.createElement('div');
+                badge.id = `word-badge-${item.word}`;
+                badge.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#152843] border border-[#D9D9D9]/25 text-[#F8F9FA] flex items-center justify-between cursor-pointer hover:border-[#F4B400] transition-all`;
+                badge.innerHTML = `<span class="truncate">${item.word}</span> <i class="fa-regular fa-circle text-[8px] text-[#D9D9D9] status-icon ml-1"></i>`;
+                
+                badge.addEventListener('click', () => {
+                    hintText.textContent = item.hint;
+                });
+
+                wordBankList.appendChild(badge);
+            });
+        }
+
+        /* CELL SELECTION LOGIC */
+        function handleCellClick(r, c, cell) {
+            playSound('click');
+
+            if (!selectedStartCell) {
+                // First click
+                selectedStartCell = { r, c, cell };
+                clearHighlights('selected');
+                cell.classList.add('selected');
+            } else {
+                // Second click: check path
+                let endCell = { r, c, cell };
+                let path = getPathBetween(selectedStartCell, endCell);
+
+                if (path) {
+                    let forwardWord = path.map(pt => gridData[pt.r][pt.c]).join('');
+                    let reverseWord = path.map(pt => gridData[pt.r][pt.c]).reverse().join('');
+
+                    let matchedObj = placedWordLocations.find(w => (w.word === forwardWord || w.word === reverseWord) && !foundWords.has(w.word));
+
+                    if (matchedObj) {
+                        // Word Found!
+                        foundWords.add(matchedObj.word);
+                        wordFoundByMap[matchedObj.word] = activeTeam;
+
+                        if (activeTeam === "A") {
+                            teamAScore++;
+                            teamAFoundCount++;
+                            highlightPath(matchedObj.path, 'found-team-a');
+                            markWordAsFound(matchedObj.word, "A");
+                        } else {
+                            teamBScore++;
+                            teamBFoundCount++;
+                            highlightPath(matchedObj.path, 'found-team-b');
+                            markWordAsFound(matchedObj.word, "B");
+                        }
+
+                        playSound('found');
+                        hintText.textContent = `🎉 ${activeTeam === "A" ? teamAName : teamBName} found "${matchedObj.word}"! (+1 Pt)`;
+
+                        if (foundWords.size === placedWordLocations.length) {
+                            setTimeout(endGameSession, 600);
+                        }
+                    }
+                }
+
+                clearHighlights('selected');
+                selectedStartCell = null;
+            }
+            updateHUD();
+        }
+
+        function getPathBetween(start, end) {
+            let dr = end.r - start.r;
+            let dc = end.c - start.c;
+
+            let stepR = dr === 0 ? 0 : (dr > 0 ? 1 : -1);
+            let stepC = dc === 0 ? 0 : (dc > 0 ? 1 : -1);
+
+            if (dr !== 0 && dc !== 0 && Math.abs(dr) !== Math.abs(dc)) return null;
+
+            let steps = Math.max(Math.abs(dr), Math.abs(dc));
+            let path = [];
+
+            for (let i = 0; i <= steps; i++) {
+                path.push({ r: start.r + stepR * i, c: start.c + stepC * i });
+            }
+            return path;
+        }
+
+        function highlightPath(path, className) {
+            path.forEach(pt => {
+                const el = document.querySelector(`.grid-cell[data-r="${pt.r}"][data-c="${pt.c}"]`);
+                if (el) {
+                    el.classList.remove('selected', 'hint-glow');
+                    el.classList.add(className);
+                }
+            });
+        }
+
+        function clearHighlights(className) {
+            document.querySelectorAll(`.grid-cell.${className}`).forEach(el => el.classList.remove(className));
+        }
+
+        function markWordAsFound(word, team) {
+            const badge = document.getElementById(`word-badge-${word}`);
+            if (badge) {
+                if (team === "A") {
+                    badge.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-950/90 border border-rose-500 text-rose-300 flex items-center justify-between line-through`;
+                    badge.querySelector('.status-icon').className = "fa-solid fa-flag text-[8px] text-rose-400";
+                } else {
+                    badge.className = `px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-950/90 border border-emerald-500 text-emerald-300 flex items-center justify-between line-through`;
+                    badge.querySelector('.status-icon').className = "fa-solid fa-flag text-[8px] text-emerald-400";
+                }
+            }
+        }
+
+        function triggerHint() {
+            let unfound = placedWordLocations.filter(item => !foundWords.has(item.word));
+            if (unfound.length === 0) return;
+
+            let target = unfound[Math.floor(Math.random() * unfound.length)];
+            let firstPt = target.path[0];
+
+            hintText.textContent = `💡 Hint: "${target.hint}" (Starts with '${target.word[0]}')`;
+            
+            const cell = document.querySelector(`.grid-cell[data-r="${firstPt.r}"][data-c="${firstPt.c}"]`);
+            if (cell) {
+                cell.classList.add('hint-glow');
+                setTimeout(() => cell.classList.remove('hint-glow'), 3000);
+            }
+            playSound('click');
+        }
+
+        function autoSolveOneWord() {
+            let unfound = placedWordLocations.filter(item => !foundWords.has(item.word));
+            if (unfound.length === 0) return;
+
+            let target = unfound[0];
+            foundWords.add(target.word);
+            wordFoundByMap[target.word] = activeTeam;
+
+            if (activeTeam === "A") {
+                teamAScore++;
+                teamAFoundCount++;
+                highlightPath(target.path, 'found-team-a');
+                markWordAsFound(target.word, "A");
+            } else {
+                teamBScore++;
+                teamBFoundCount++;
+                highlightPath(target.path, 'found-team-b');
+                markWordAsFound(target.word, "B");
+            }
+
+            playSound('found');
+            updateHUD();
+
+            if (foundWords.size === placedWordLocations.length) {
+                setTimeout(endGameSession, 600);
+            }
+        }
+
+        function revealAllAnswers() {
+            placedWordLocations.forEach(item => {
+                if (!foundWords.has(item.word)) {
+                    foundWords.add(item.word);
+                    highlightPath(item.path, 'found-team-a');
+                    markWordAsFound(item.word, "A");
+                }
+            });
+            playSound('win');
+            updateHUD();
+            setTimeout(endGameSession, 1200);
+        }
+
+        /* TIMER MANAGEMENT */
+        function startTimer() {
+            clearInterval(timerInterval);
+            isTimerPaused = false;
+            if (toggleTimerBtn) toggleTimerBtn.textContent = "Pause";
+            
+            timerInterval = setInterval(() => {
+                if (!isTimerPaused) {
+                    timerSeconds--;
+                    updateHUD();
+                    if (timerSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        endGameSession();
+                    }
+                }
+            }, 1000);
+        }
+
+        function toggleTimer() {
+            isTimerPaused = !isTimerPaused;
+            if (toggleTimerBtn) {
+                toggleTimerBtn.textContent = isTimerPaused ? "Resume" : "Pause";
+            }
+        }
+
+        function updateHUD() {
+            if (scoreTeamA) scoreTeamA.textContent = `${teamAScore} PTS`;
+            if (scoreTeamB) scoreTeamB.textContent = `${teamBScore} PTS`;
+            
+            let scoreDisp = document.getElementById('scoreDisplay');
+            if (scoreDisp) scoreDisp.textContent = activeTeam === 'A' ? teamAScore : teamBScore;
+
+            if (remainingCountText) {
+                remainingCountText.textContent = `${foundWords.size} / ${placedWordLocations.length}`;
+            }
+
+            if (timerText) {
+                let mins = Math.floor(Math.max(0, timerSeconds) / 60);
+                let secs = Math.max(0, timerSeconds) % 60;
+                timerText.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+        }
+
+        function endGameSession() {
+            clearInterval(timerInterval);
+            gameScreen.classList.add('hidden');
+            gameScreen.classList.remove('flex');
+            summaryScreen.classList.remove('hidden');
+            summaryScreen.classList.add('flex');
+
+            const winnerText = document.getElementById('winnerText');
+            const summaryLabelA = document.getElementById('summaryLabelA');
+            const summaryScoreA = document.getElementById('summaryScoreA');
+            const summaryFoundA = document.getElementById('summaryFoundA');
+            const summaryLabelB = document.getElementById('summaryLabelB');
+            const summaryScoreB = document.getElementById('summaryScoreB');
+            const summaryFoundB = document.getElementById('summaryFoundB');
+
+            if (summaryLabelA) summaryLabelA.textContent = teamAName;
+            if (summaryScoreA) summaryScoreA.textContent = `${teamAScore} PTS`;
+            if (summaryFoundA) summaryFoundA.textContent = `${teamAFoundCount} Words Found`;
+
+            if (summaryLabelB) summaryLabelB.textContent = teamBName;
+            if (summaryScoreB) summaryScoreB.textContent = `${teamBScore} PTS`;
+            if (summaryFoundB) summaryFoundB.textContent = `${teamBFoundCount} Words Found`;
+
+            if (teamAScore > teamBScore) {
+                if (winnerText) winnerText.textContent = `${teamAName.toUpperCase()} WINS! 🏆`;
+            } else if (teamBScore > teamAScore) {
+                if (winnerText) winnerText.textContent = `${teamBName.toUpperCase()} WINS! 🏆`;
+            } else {
+                if (winnerText) winnerText.textContent = "IT'S A DRAW! 🤝";
+            }
+
+            fireConfetti();
+            playSound('win');
+        }
+
+        /* CONFETTI ANIMATION */
+        function fireConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#F4B400', '#E11D48', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
+
+            for (let i = 0; i < 120; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: Math.random() * 4 + 2,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rSpeed: (Math.random() - 0.5) * 6
+                });
+            }
+
+            let animationFrame;
+            let startTime = Date.now();
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.rotation += p.rSpeed;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                });
+
+                if (Date.now() - startTime < 4000) {
+                    animationFrame = requestAnimationFrame(render);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            render();
+        }
+
+        /* HOW TO PLAY MODAL BINDINGS */
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('howToPlayModal');
+            const openBtn = document.getElementById('howToPlayBtn');
+            const closeBtn = document.getElementById('closeModalBtn');
+            const gotItBtn = document.getElementById('gotItBtn');
+
+            const openModal = () => modal?.classList.remove('hidden');
+            const closeModal = () => modal?.classList.add('hidden');
+
+            openBtn?.addEventListener('click', openModal);
+            closeBtn?.addEventListener('click', closeModal);
+            gotItBtn?.addEventListener('click', closeModal);
+            
+            modal?.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+        });
+    </script>
+</body>
+</html>
