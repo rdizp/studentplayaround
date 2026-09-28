@@ -702,17 +702,16 @@ function getBackToCourseURL() {
 
     if (currentCourse) {
         params.set('course', currentCourse);
+
+        if (currentSubCourse) {
+            params.set('subcourse', currentSubCourse);
+        }
+    } else {
+        params.set('course', GAME_CONTEXT.course);
     }
 
-    if (currentSubCourse) {
-        params.set('subcourse', currentSubCourse);
-    }
-
-    const query = params.toString();
-
-    return query ? `../../?${query}` : '../../';
+    return `../../?${params.toString()}`;
 }
-
 const backToCourseBtn = document.getElementById('backToCourseBtn');
 
 if (backToCourseBtn) {
