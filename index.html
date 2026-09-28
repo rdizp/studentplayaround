@@ -1548,41 +1548,66 @@
 
 
         /* =========================================================
-           INITIALIZE FROM URL
-           ========================================================= */
+   INITIALIZE FROM URL
+   ========================================================= */
 
-        const initialState =
-            readURLState();
+function initializeFromURL() {
 
+    const state = readURLState();
+
+    if (!state.course) {
+        return;
+    }
+
+    const course = COURSES[state.course];
+
+    if (!course) {
+        return;
+    }
+
+    // Open the correct course view
+    selectedCourse = state.course;
+    selectedSubCourse = null;
+
+    courseSelectionView.classList.add("view-hidden");
+    courseGamesView.classList.remove("view-hidden");
+
+    courseTitle.textContent = course.name;
+    courseDescription.textContent = course.description || "";
+
+    gameGrid.innerHTML = "";
+
+    subcourseSection.classList.add("hidden");
+
+    gamesSectionTitle.textContent =
+        "Available Games";
+
+    // Practicum Computer requires a sub-course
+    if (course.subCourses) {
+
+        subcourseSection.classList.remove("hidden");
+
+        gameCount.textContent =
+            "Select a class context";
+
+        gamesSectionTitle.textContent =
+            "Select Class Context";
 
         if (
-            initialState.course &&
-            COURSES[initialState.course]
+            state.subcourse &&
+            course.subCourses[state.subcourse]
         ) {
-
-            selectCourse(
-                initialState.course
-            );
-
-
-            if (
-                initialState.course ===
-                    "praktikum-komputer" &&
-                initialState.subcourse &&
-                COURSES[
-                    initialState.course
-                ].subCourses[
-                    initialState.subcourse
-                ]
-            ) {
-
-                selectSubCourse(
-                    initialState.subcourse
-                );
-
-            }
-
+            selectSubCourse(state.subcourse);
         }
+
+        return;
+    }
+
+    // Normal course
+    renderGames(course.games);
+}
+
+initializeFromURL();
 
     </script>
 
