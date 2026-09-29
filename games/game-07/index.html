@@ -468,25 +468,30 @@
    COURSE CONTEXT / NAVIGATION
    ========================================================================== */
 
+const GAME_CONTEXT = {
+    course: 'english-practice',
+    subcourse: null
+};
+        
 const urlParams = new URLSearchParams(window.location.search);
 
 const currentCourse = urlParams.get('course');
 const currentSubCourse = urlParams.get('subcourse');
 
-function getBackToCourseURL() {
+ffunction getBackToCourseURL() {
     const params = new URLSearchParams();
 
     if (currentCourse) {
         params.set('course', currentCourse);
+
+        if (currentSubCourse) {
+            params.set('subcourse', currentSubCourse);
+        }
+    } else {
+        params.set('course', GAME_CONTEXT.course);
     }
 
-    if (currentSubCourse) {
-        params.set('subcourse', currentSubCourse);
-    }
-
-    const query = params.toString();
-
-    return query ? `../../?${query}` : '../../';
+    return `../../?${params.toString()}`;
 }
 
 const backToCourseBtn = document.getElementById('backToCourseBtn');
