@@ -209,13 +209,11 @@
         ::-webkit-scrollbar-thumb { background: rgba(217, 119, 6, 0.4); border-radius: 3px; }
     </style>
 </head>
-<body class="flex flex-col h-screen w-screen overflow-hidden antialiased">
+<body class="h-full flex flex-col justify-between relative text-[#F8F9FA] p-2 sm:p-3">
 
-   <div id="setupModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/90 backdrop-blur-md">
-    <div class="glass-panel w-full max-w-2xl rounded-2xl p-5 md:p-6 border border-gold-500/30 shadow-2xl flex flex-col gap-4 max-h-[95vh] overflow-y-auto">
+    <header class="w-full max-w-7xl mx-auto flex justify-between items-center px-4 py-2 glass-panel rounded-2xl border border-[#D9D9D9]/20 shadow-lg shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
 
-        <!-- Setup Header -->
-        <div class="flex items-center justify-between gap-3">
             <a id="backToCourseBtn"
                href="../../?course=english-practice"
                class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-[#D9D9D9]/20 text-[#F8F9FA] hover:bg-[#1E3A5F] hover:border-[#F4B400]/50 transition-all text-xs font-bold"
@@ -224,254 +222,280 @@
                 <span class="hidden sm:inline">Back to Course</span>
             </a>
 
-            <span class="text-[10px] font-extrabold uppercase tracking-widest text-gold-400">
-                English Practice
-            </span>
-        </div>
-
-        <!-- Game Title -->
-        <div class="text-center border-b border-white/10 pb-4">
-            <div class="flex items-center justify-center gap-2 mb-2">
-                <i class="fa-solid fa-cubes-stacked text-gold-400 text-lg"></i>
-
-                <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-gold-400">
-                    Classroom Game
-                </span>
+            <div class="w-9 h-9 rounded-xl bg-[#F4B400] text-[#1E3A5F] flex items-center justify-center text-lg font-black shadow-lg shadow-[#F4B400]/20 border border-[#F8F9FA]/40 shrink-0">
+                <i class="fa-solid fa-cubes-stacked"></i>
             </div>
 
-            <h1 class="text-xl md:text-2xl font-black text-slate-100">
-                Classroom Scrabble Showdown
-            </h1>
+            <div class="min-w-0">
+                <h1 class="font-black text-base md:text-lg tracking-tight text-[#F8F9FA] leading-none truncate">
+                    CLASSROOM <span class="text-[#F4B400]">SCRABBLE</span>
+                </h1>
 
-            <p class="text-[11px] text-slate-400 mt-1">
-                Build words, connect ideas, and battle for the highest score.
-            </p>
+                <p class="text-[9px] md:text-[10px] text-[#D9D9D9] font-semibold uppercase tracking-wider mt-0.5">
+                    University Word-Building Battle
+                </p>
+            </div>
         </div>
 
-        <!-- Game Settings -->
-        <div class="glass-card rounded-2xl p-4 border border-white/10">
-            <div class="flex items-center gap-2 mb-3">
-                <i class="fa-solid fa-sliders text-gold-400 text-xs"></i>
+        <div class="hidden sm:flex items-center gap-2.5 md:gap-4">
 
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-gold-400">
-                    Game Settings
-                </span>
+            <div class="flex items-center gap-2 px-2.5 py-1 rounded-xl glass-card border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-users text-[#F4B400] text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-[#D9D9D9] leading-none">Mode</p>
+                    <p class="text-xs font-black text-[#F4B400] leading-none mt-0.5">TEAM BATTLE</p>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="flex items-center gap-2 px-2.5 py-1 rounded-xl glass-card border border-[#D9D9D9]/20">
+                <i class="fa-solid fa-table-cells-large text-[#F4B400] text-xs"></i>
+                <div>
+                    <p class="text-[8px] uppercase font-bold text-[#D9D9D9] leading-none">Board</p>
+                    <p class="text-xs font-black text-[#F8F9FA] leading-none mt-0.5">15 × 15</p>
+                </div>
+            </div>
 
-                <!-- Vocabulary Topic -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold text-gold-400 uppercase tracking-wider">
-                        <i class="fa-solid fa-book-open mr-1"></i> Vocabulary Topic
-                    </label>
+        </div>
+    </header>
 
-                    <select id="topicSelect"
-                            class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
-                        <option value="public_policy">Public Policy & Governance</option>
-                        <option value="business">Business & Economics</option>
-                        <option value="computer_science">Computer Science & AI</option>
-                        <option value="healthcare">Healthcare & Medicine</option>
-                        <option value="custom">Custom Word Bank...</option>
-                    </select>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col justify-center items-center relative z-10 py-1 my-auto overflow-hidden">
+
+        <section id="setupScreen"
+                 class="w-full max-w-5xl glass-panel p-5 sm:p-6 rounded-3xl shadow-2xl border border-[#D9D9D9]/25 animate-pop-in my-auto">
+
+            <!-- Setup Heading -->
+            <div class="flex items-center justify-between gap-3 mb-4">
+
+                <div>
+                    <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#F4B400]">
+                        English Practice • Classroom Game
+                    </p>
+
+                    <h2 class="text-xl md:text-2xl font-black text-[#F8F9FA] mt-1">
+                        Classroom Scrabble Showdown
+                    </h2>
+
+                    <p class="text-[11px] text-[#D9D9D9] mt-1">
+                        Build words, connect ideas, and battle for the highest score.
+                    </p>
                 </div>
 
-                <!-- Timer Settings -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold text-gold-400 uppercase tracking-wider">
-                        <i class="fa-solid fa-clock mr-1"></i> Turn Time Limit
-                    </label>
-
-                    <select id="timerSelect"
-                            class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
-                        <option value="60">60 Seconds</option>
-                        <option value="90" selected>90 Seconds</option>
-                        <option value="120">120 Seconds</option>
-                        <option value="180">180 Seconds</option>
-                    </select>
-                </div>
-
-                <!-- Game Rounds -->
-                <div class="flex flex-col gap-1.5 md:col-span-2">
-                    <label class="text-[10px] font-bold text-gold-400 uppercase tracking-wider">
-                        <i class="fa-solid fa-flag-checkered mr-1"></i> Match Duration (Rounds)
-                    </label>
-
-                    <select id="roundsSelect"
-                            class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
-                        <option value="5">5 Rounds</option>
-                        <option value="8" selected>8 Rounds</option>
-                        <option value="10">10 Rounds</option>
-                        <option value="12">12 Rounds</option>
-                    </select>
+                <div class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl glass-card border border-[#F4B400]/20">
+                    <i class="fa-solid fa-layer-group text-[#F4B400]"></i>
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-300">
+                        Setup
+                    </span>
                 </div>
 
             </div>
-        </div>
 
-        <!-- Custom Word Bank -->
-        <div id="customWordContainer" class="hidden flex-col gap-1.5">
-            <label class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                Custom Vocabulary (Comma Separated)
-            </label>
 
-            <input type="text"
-                   id="customWordsInput"
-                   placeholder="LAW, POLICY, CITIZEN, VOTING, REFORM"
-                   class="w-full bg-navy-900 border border-amber-500/30 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none">
-        </div>
+            <!-- Settings + Rosters -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        <!-- Team Rosters -->
-        <div class="glass-card rounded-2xl p-4 border border-white/10">
+                <!-- GAME SETTINGS -->
+                <div class="glass-card rounded-2xl p-4 border border-white/10">
 
-            <div class="flex items-center gap-2 mb-3">
-                <i class="fa-solid fa-users text-gold-400 text-xs"></i>
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-sliders text-[#F4B400] text-xs"></i>
 
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-gold-400">
-                    Team Rosters
-                </span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-
-                <!-- Team Red -->
-                <div class="glass-card p-3.5 rounded-xl border-l-4 border-rose-500">
-                    <div class="flex items-center gap-2 mb-2 text-rose-400 font-bold text-xs">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        Team Red
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#F4B400]">
+                            Game Settings
+                        </span>
                     </div>
 
-                    <input type="text"
-                           id="teamRedName"
-                           value="Team Red"
-                           class="w-full bg-navy-900/90 border border-rose-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
+                    <div class="grid grid-cols-2 gap-3">
 
-                    <input type="text"
-                           id="teamRedPlayers"
-                           value="Alex, Jordan, Taylor"
-                           placeholder="Roster comma separated"
-                           class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
-                </div>
+                        <!-- Vocabulary -->
+                        <div class="flex flex-col gap-1.5 col-span-2">
 
-                <!-- Team Green -->
-                <div class="glass-card p-3.5 rounded-xl border-l-4 border-emerald-500">
-                    <div class="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-xs">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        Team Green
+                            <label class="text-[10px] font-bold text-[#F4B400] uppercase tracking-wider">
+                                <i class="fa-solid fa-book-open mr-1"></i>
+                                Vocabulary Topic
+                            </label>
+
+                            <select id="topicSelect"
+                                    class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
+
+                                <option value="public_policy">
+                                    Public Policy & Governance
+                                </option>
+
+                                <option value="business">
+                                    Business & Economics
+                                </option>
+
+                                <option value="computer_science">
+                                    Computer Science & AI
+                                </option>
+
+                                <option value="healthcare">
+                                    Healthcare & Medicine
+                                </option>
+
+                                <option value="custom">
+                                    Custom Word Bank...
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Timer -->
+                        <div class="flex flex-col gap-1.5">
+
+                            <label class="text-[10px] font-bold text-[#F4B400] uppercase tracking-wider">
+                                <i class="fa-solid fa-clock mr-1"></i>
+                                Turn Time Limit
+                            </label>
+
+                            <select id="timerSelect"
+                                    class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
+
+                                <option value="60">60 Seconds</option>
+                                <option value="90" selected>90 Seconds</option>
+                                <option value="120">120 Seconds</option>
+                                <option value="180">180 Seconds</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Rounds -->
+                        <div class="flex flex-col gap-1.5">
+
+                            <label class="text-[10px] font-bold text-[#F4B400] uppercase tracking-wider">
+                                <i class="fa-solid fa-flag-checkered mr-1"></i>
+                                Match Duration
+                            </label>
+
+                            <select id="roundsSelect"
+                                    class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
+
+                                <option value="5">5 Rounds</option>
+                                <option value="8" selected>8 Rounds</option>
+                                <option value="10">10 Rounds</option>
+                                <option value="12">12 Rounds</option>
+
+                            </select>
+
+                        </div>
+
                     </div>
 
-                    <input type="text"
-                           id="teamGreenName"
-                           value="Team Green"
-                           class="w-full bg-navy-900/90 border border-emerald-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
 
-                    <input type="text"
-                           id="teamGreenPlayers"
-                           value="Sam, Morgan, Casey"
-                           placeholder="Roster comma separated"
-                           class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
-                </div>
+                    <!-- Custom Word Bank -->
+                    <div id="customWordContainer"
+                         class="hidden flex-col gap-1.5 mt-3">
 
-            </div>
-        </div>
+                        <label class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
+                            Custom Vocabulary (Comma Separated)
+                        </label>
 
-        <!-- Actions -->
-        <div class="flex flex-col sm:flex-row items-center gap-3 pt-1">
+                        <input type="text"
+                               id="customWordsInput"
+                               placeholder="LAW, POLICY, CITIZEN, VOTING, REFORM"
+                               class="w-full bg-navy-900 border border-amber-500/30 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none">
 
-            <button id="openInteractiveHowToPlayBtn"
-                    class="w-full sm:flex-1 py-3 bg-navy-800 hover:bg-navy-700 text-gold-300 border border-gold-500/40 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                <i class="fa-solid fa-circle-play text-gold-400 text-base"></i>
-                How To Play Demo
-            </button>
-
-            <button id="startGameBtn"
-                    class="w-full sm:flex-1 py-3 bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-extrabold rounded-xl shadow-lg shadow-gold-500/20 text-sm transition-all transform active:scale-98">
-                START MATCH
-                <i class="fa-solid fa-play ml-1.5"></i>
-            </button>
-
-        </div>
-
-    </div>
-</div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Vocabulary Topic Selection -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-bold text-gold-400 uppercase tracking-wider">
-                        <i class="fa-solid fa-book-open mr-1"></i> Vocabulary Topic
-                    </label>
-                    <select id="topicSelect" class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
-                        <option value="public_policy">Public Policy & Governance</option>
-                        <option value="business">Business & Economics</option>
-                        <option value="computer_science">Computer Science & AI</option>
-                        <option value="healthcare">Healthcare & Medicine</option>
-                        <option value="custom">Custom Word Bank...</option>
-                    </select>
-                </div>
-
-                <!-- Timer Settings -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-bold text-gold-400 uppercase tracking-wider">
-                        <i class="fa-solid fa-clock mr-1"></i> Turn Time Limit
-                    </label>
-                    <select id="timerSelect" class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
-                        <option value="60">60 Seconds</option>
-                        <option value="90" selected>90 Seconds</option>
-                        <option value="120">120 Seconds</option>
-                        <option value="180">180 Seconds</option>
-                    </select>
-                </div>
-
-                <!-- Game Rounds -->
-                <div class="flex flex-col gap-1.5 md:col-span-2">
-                    <label class="text-xs font-bold text-gold-400 uppercase tracking-wider">
-                        <i class="fa-solid fa-flag-checkered mr-1"></i> Match Duration (Rounds)
-                    </label>
-                    <select id="roundsSelect" class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
-                        <option value="5">5 Rounds</option>
-                        <option value="8" selected>8 Rounds</option>
-                        <option value="10">10 Rounds</option>
-                        <option value="12">12 Rounds</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Custom Word Bank Container -->
-            <div id="customWordContainer" class="hidden flex-col gap-1.5">
-                <label class="text-xs font-bold text-amber-300 uppercase tracking-wider">Custom Vocabulary (Comma Separated)</label>
-                <input type="text" id="customWordsInput" placeholder="LAW, POLICY, CITIZEN, VOTING, REFORM" class="w-full bg-navy-900 border border-amber-500/30 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none">
-            </div>
-
-            <!-- Team Rosters Setup -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="glass-card p-3.5 rounded-xl border-l-4 border-rose-500">
-                    <div class="flex items-center gap-2 mb-2 text-rose-400 font-bold text-xs">
-                        <i class="fa-solid fa-shield-halved"></i> Team Red (Rose Squad)
                     </div>
-                    <input type="text" id="teamRedName" value="Team Red" class="w-full bg-navy-900/90 border border-rose-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
-                    <input type="text" id="teamRedPlayers" value="Alex, Jordan, Taylor" placeholder="Roster comma separated" class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
+
                 </div>
 
-                <div class="glass-card p-3.5 rounded-xl border-l-4 border-emerald-500">
-                    <div class="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-xs">
-                        <i class="fa-solid fa-shield-halved"></i> Team Green (Emerald Squad)
+
+                <!-- TEAM ROSTERS -->
+                <div class="glass-card rounded-2xl p-4 border border-white/10">
+
+                    <div class="flex items-center gap-2 mb-3">
+
+                        <i class="fa-solid fa-users text-[#F4B400] text-xs"></i>
+
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#F4B400]">
+                            Team Rosters
+                        </span>
+
                     </div>
-                    <input type="text" id="teamGreenName" value="Team Green" class="w-full bg-navy-900/90 border border-emerald-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
-                    <input type="text" id="teamGreenPlayers" value="Sam, Morgan, Casey" placeholder="Roster comma separated" class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
+
+
+                    <div class="grid grid-cols-2 gap-3">
+
+                        <!-- Team Red -->
+                        <div class="glass-card p-3 rounded-xl border-l-4 border-rose-500">
+
+                            <div class="flex items-center gap-2 mb-2 text-rose-400 font-bold text-xs">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                Team Red
+                            </div>
+
+                            <input type="text"
+                                   id="teamRedName"
+                                   value="Team Red"
+                                   class="w-full bg-navy-900/90 border border-rose-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
+
+                            <input type="text"
+                                   id="teamRedPlayers"
+                                   value="Alex, Jordan, Taylor"
+                                   placeholder="Roster comma separated"
+                                   class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
+
+                        </div>
+
+
+                        <!-- Team Green -->
+                        <div class="glass-card p-3 rounded-xl border-l-4 border-emerald-500">
+
+                            <div class="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-xs">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                Team Green
+                            </div>
+
+                            <input type="text"
+                                   id="teamGreenName"
+                                   value="Team Green"
+                                   class="w-full bg-navy-900/90 border border-emerald-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
+
+                            <input type="text"
+                                   id="teamGreenPlayers"
+                                   value="Sam, Morgan, Casey"
+                                   placeholder="Roster comma separated"
+                                   class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
+
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
-                <button id="openInteractiveHowToPlayBtn" class="w-full sm:w-1/2 py-3 bg-navy-800 hover:bg-navy-700 text-gold-300 border border-gold-500/40 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-play text-gold-400 text-base"></i> How To Play Demo
+
+            <!-- ACTIONS -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 pt-4">
+
+                <button id="openInteractiveHowToPlayBtn"
+                        class="w-full sm:flex-1 py-3 bg-navy-800 hover:bg-navy-700 text-gold-300 border border-gold-500/40 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+
+                    <i class="fa-solid fa-circle-play text-gold-400 text-base"></i>
+                    How To Play Demo
+
                 </button>
-                <button id="startGameBtn" class="w-full sm:w-1/2 py-3 bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-extrabold rounded-xl shadow-lg shadow-gold-500/20 text-sm transition-all transform active:scale-98">
-                    START MATCH <i class="fa-solid fa-play ml-1.5"></i>
+
+
+                <button id="startGameBtn"
+                        class="w-full sm:flex-1 py-3 bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-extrabold rounded-xl shadow-lg shadow-gold-500/20 text-sm transition-all transform active:scale-98">
+
+                    START MATCH
+                    <i class="fa-solid fa-play ml-1.5"></i>
+
                 </button>
+
             </div>
-        </div>
-    </div>
+
+        </section>
+
+    </main>
 
     <header class="h-14 px-4 glass-panel border-b border-white/10 flex items-center justify-between z-20 shrink-0">
         <div class="flex items-center gap-3">
@@ -1218,28 +1242,51 @@
                 actionMsg: "Autoplay: Team Green hooks L-A-W vertically using 'L' = +8 Points!"
             },
             3: {
-                title: "Step 3 of 4: Bonus Multiplier Squares",
-                desc: `
-                    <p class="font-bold text-rose-300">Score Multipliers:</p>
-                    <p>Place tiles on colored bonus squares to multiply individual letter points or entire word totals:</p>
-                    <div class="grid grid-cols-2 gap-2 text-xs font-bold pt-1">
-                        <div class="p-1.5 rounded bg-blue-900/60 border border-blue-400 text-blue-200">DL = 2x Letter Value</div>
-                        <div class="p-1.5 rounded bg-blue-700/80 border border-blue-300 text-blue-100">TL = 3x Letter Value</div>
-                        <div class="p-1.5 rounded bg-orange-900/60 border border-orange-400 text-orange-200">DW = 2x Total Word</div>
-                        <div class="p-1.5 rounded bg-red-900/80 border border-red-400 text-red-200">TW = 3x Total Word</div>
-                    </div>
-                `,
-                proTip: "Using all 7 rack tiles in a single turn awards a 50-POINT BINGO BONUS!",
-                gridLetters: [
-                    { r: 3, c: 1, letter: 'P', dl: true },
-                    { r: 3, c: 2, letter: 'O' },
-                    { r: 3, c: 3, letter: 'L', star: true },
-                    { r: 3, c: 4, letter: 'I' },
-                    { r: 3, c: 5, letter: 'C' },
-                    { r: 3, c: 6, letter: 'Y', tw: true }
-                ],
-                actionMsg: "Autoplay: Multipliers triggered: DL on 'P' + TW on 'Y'!"
-            },
+    title: "Step 3 of 4: How Scoring Works",
+
+    desc: `
+        <p class="font-bold text-amber-300">
+            Watch the points build in real time:
+        </p>
+
+        <p>
+            Every tile has its own letter value.
+            Then board bonuses modify that value or the whole word total.
+        </p>
+
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold pt-1">
+
+            <div class="p-1.5 rounded bg-slate-900/70 border border-white/10 text-slate-200">
+                Letter Value = base points
+            </div>
+
+            <div class="p-1.5 rounded bg-cyan-900/60 border border-cyan-400/40 text-cyan-200">
+                DL / TL = 2× / 3× letter
+            </div>
+
+            <div class="p-1.5 rounded bg-orange-900/60 border border-orange-400/40 text-orange-200">
+                DW / TW = 2× / 3× word
+            </div>
+
+            <div class="p-1.5 rounded bg-amber-900/60 border border-amber-400/40 text-amber-200">
+                BINGO = +50 for 7 tiles
+            </div>
+
+        </div>
+    `,
+
+    proTip:
+        "The animation shows the calculation order: add letter values → apply letter bonus → apply word bonus → add any Bingo bonus.",
+
+    gridLetters: [
+        { r: 3, c: 1, letter: 'C' },
+        { r: 3, c: 2, letter: 'A' },
+        { r: 3, c: 3, letter: 'T', dl: true }
+    ],
+
+    actionMsg:
+        "Watch: C = 3 • A = 1 • T = 1 → base 5 → DL makes T = 2 → word subtotal = 6."
+},
             4: {
                 title: "Step 4 of 4: University Team Battle & Hotkeys",
                 desc: `
@@ -1273,6 +1320,109 @@
             }
         }
 
+        function runScoringTutorialAnimation(cellMap, stepData) {
+
+    const action =
+        document.getElementById('tutorialActionText');
+
+    const progress =
+        document.getElementById('tutAutoplayProgress');
+
+    const sequence = [
+
+        [
+            0,
+            '<i class="fa-solid fa-cube text-gold-400"></i> C lands: +3 points'
+        ],
+
+        [
+            900,
+            '<i class="fa-solid fa-cube text-gold-400"></i> A lands: +1 point → base total = 4'
+        ],
+
+        [
+            1800,
+            '<i class="fa-solid fa-cube text-gold-400"></i> T lands on <strong>DL</strong>: 1 × 2 = +2 → subtotal = 6'
+        ],
+
+        [
+            3000,
+            '<i class="fa-solid fa-calculator text-cyan-300"></i> <strong>Letter bonus applied:</strong> 3 + 1 + 2 = <strong>6</strong>'
+        ],
+
+        [
+            4100,
+            '<i class="fa-solid fa-xmark text-orange-300"></i> <strong>DW example:</strong> 6 × 2 = <strong>12</strong>'
+        ],
+
+        [
+            5200,
+            '<i class="fa-solid fa-xmark text-red-300"></i> <strong>TW example:</strong> 6 × 3 = <strong>18</strong>'
+        ],
+
+        [
+            6300,
+            '<i class="fa-solid fa-star text-amber-300"></i> <strong>BINGO:</strong> use all 7 rack tiles → <strong>+50 bonus</strong>'
+        ]
+
+    ];
+
+
+    sequence.forEach(([delay, html]) => {
+
+        const timeout = setTimeout(() => {
+
+            action.innerHTML = html;
+
+            if (
+                delay === 3000 ||
+                delay === 4100 ||
+                delay === 5200 ||
+                delay === 6300
+            ) {
+                sfx.success();
+            }
+
+        }, delay);
+
+        tutTileAnimTimeouts.push(timeout);
+
+    });
+
+
+    const total = 7600;
+
+
+    if (isTutAutoplay) {
+
+        progress.classList.remove('animate-progress-bar');
+
+        void progress.offsetWidth;
+
+        progress.style.animationDuration = total + 'ms';
+
+        progress.classList.add('animate-progress-bar');
+
+
+        tutAutoplayTimer = setTimeout(() => {
+
+            if (isTutAutoplay) {
+
+                currentTutStep = 4;
+
+                renderTutorialGrid(
+                    currentTutStep,
+                    true
+                );
+
+            }
+
+        }, total);
+
+    }
+
+}
+        
         function renderTutorialGrid(step, animateTiles = true) {
             clearTutTimeouts();
             const gridEl = document.getElementById('tutorialGrid');
@@ -1303,10 +1453,54 @@
                     cellMap[`${r},${c}`] = cell;
                 }
             }
+const items = stepData.gridLetters;
 
-            const items = stepData.gridLetters;
+if (step === 3 && animateTiles) {
 
-            if (animateTiles) {
+    const scoringItems =
+        items.map(item => ({ ...item }));
+
+
+    scoringItems.forEach((item, index) => {
+
+        const timeout = setTimeout(() => {
+
+            const targetCell =
+                cellMap[`${item.r},${item.c}`];
+
+            if (targetCell) {
+
+                targetCell.textContent = '';
+
+                const tileDiv =
+                    document.createElement('div');
+
+                tileDiv.className =
+                    'tile w-full h-full text-xs font-extrabold animate-tile-pop';
+
+                tileDiv.innerHTML =
+                    `${item.letter}<span class="points">${LETTER_VALUES[item.letter]}</span>`;
+
+                targetCell.appendChild(tileDiv);
+
+                sfx.place();
+
+            }
+
+        }, index * 900);
+
+        tutTileAnimTimeouts.push(timeout);
+
+    });
+
+
+    runScoringTutorialAnimation(
+        cellMap,
+        stepData
+    );
+
+
+} else if (animateTiles) {
                 items.forEach((item, index) => {
                     const timeout = setTimeout(() => {
                         const targetCell = cellMap[`${item.r},${item.c}`];
@@ -1322,7 +1516,7 @@
                             targetCell.appendChild(tileDiv);
                             sfx.place();
                         }
-                    }, index * 380);
+                    }, index * 550);
 
                     tutTileAnimTimeouts.push(timeout);
                 });
@@ -1368,14 +1562,28 @@
             
             if (isTutAutoplay) {
                 progressBar.classList.add('animate-progress-bar');
-                const totalAnimDuration = (items.length * 380) + 3000;
-                tutAutoplayTimer = setTimeout(() => {
-                    if (isTutAutoplay) {
-                        currentTutStep = (currentTutStep % 4) + 1;
-                        renderTutorialGrid(currentTutStep, true);
-                    }
-                }, totalAnimDuration);
-            }
+               if (step !== 3) {
+
+    const totalAnimDuration =
+        (items.length * 650) + 4200;
+
+    tutAutoplayTimer = setTimeout(() => {
+
+        if (isTutAutoplay) {
+
+            currentTutStep =
+                (currentTutStep % 4) + 1;
+
+            renderTutorialGrid(
+                currentTutStep,
+                true
+            );
+
+        }
+
+    }, totalAnimDuration);
+
+}
         }
 
         function toggleAutoplay() {
@@ -1535,7 +1743,7 @@ if (hasContext && !isValidContext) {
             loadTopicHints();
             startTimer();
 
-            document.getElementById('setupModal').classList.add('hidden');
+            document.getElementById('setupScreen').classList.add('hidden');
         }
 
         document.getElementById('startGameBtn').addEventListener('click', initGame);
