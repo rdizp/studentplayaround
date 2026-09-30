@@ -258,8 +258,7 @@
                                          text-[9px] font-extrabold
                                          uppercase tracking-wider">
 
-                                10 Games
-
+                            <span id="english-game-count">0 Games</span>
                             </span>
 
                         </div>
@@ -940,6 +939,7 @@
 
             1: {
                 title: "Spelling Bee",
+                status: "ready',
                 description:
                     "Listen carefully, spell the word correctly, and compete through each round.",
                 icon: "fa-spell-check",
@@ -949,6 +949,7 @@
 
             2: {
                 title: "Word Unscramble",
+                status: "ready",
                 description:
                     "Unscramble vocabulary words against the clock and race through each round.",
                 icon: "fa-shuffle",
@@ -958,6 +959,7 @@
 
             3: {
                 title: "English Taboo",
+                status: "ready",
                 description:
                     "Describe the target word in English without saying the forbidden taboo words.",
                 icon: "fa-ban",
@@ -967,6 +969,7 @@
 
             4: {
                 title: "Word Chain",
+                status: "ready",
                 description:
                     "Build a vocabulary chain by starting each word with the last letter of the previous word.",
                 icon: "fa-link",
@@ -976,6 +979,7 @@
 
             5: {
                 title: "1-Minute Impromptu",
+                status: "ready",
                 description:
                     "Pick a topic, think on your feet, and speak for one minute. No script. Just speak up!",
                 icon: "fa-microphone",
@@ -985,6 +989,7 @@
 
             6: {
                 title: "5-Second Rule",
+                status: "ready",
                 description:
                     "Think fast, answer on the spot, and race against the clock in rapid-fire prompts.",
                 icon: "fa-stopwatch",
@@ -994,6 +999,7 @@
 
             7: {
                 title: "Synonym / Antonym Sprint",
+                status: "ready",
                 description:
                     "Think fast and name synonyms or antonyms before the timer runs out.",
                 icon: "fa-spell-check",
@@ -1003,6 +1009,7 @@
 
             8: {
                 title: "Rebus Puzzle",
+                status: "ready",
                 description:
                     "Decode words from emojis, letters, and clever combinations before the timer runs out.",
                 icon: "fa-puzzle-piece",
@@ -1012,6 +1019,7 @@
 
             9: {
                 title: "Category Blitz Arena",
+                status: "ready",
                 description:
                     "Think fast, name answers from the selected category, and survive the blitz.",
                 icon: "fa-layer-group",
@@ -1021,6 +1029,7 @@
 
             10: {
                 title: "Classroom Word Search",
+                status: "ready",
                 description:
                     "Find hidden vocabulary words and compete against the opposing team in a classroom word search battle.",
                 icon: "fa-magnifying-glass",
@@ -1064,6 +1073,9 @@
 
         const subcourseButtons =
             document.querySelectorAll(".subcourse-button");
+
+        const englishGameCount =
+            document.getElementById("english-game-count");
 
 
         /* =========================================================
@@ -1300,8 +1312,13 @@
             }
 
 
-            gameCount.textContent =
-                `${gameIds.length} ${gameIds.length === 1 ? "game" : "games"} available`;
+            const readyGameCount = gameIds.filter(gameId => {
+            const game = GAMES[gameId];
+                return game && game.status === "ready";
+            }).length;
+
+                gameCount.textContent =
+                `${readyGameCount} ${readyGameCount === 1 ? "game" : "games"} available`;
 
 
             gameIds.forEach(
@@ -1345,13 +1362,24 @@
                     }
 
 
-                    link.href =
-                        `games/${game.folder}/?${params.toString()}`;
+                    const isReady = game.status === "ready";
 
+                        if (isReady) {
+                            link.href =
+                            `games/${game.folder}/?${params.toString()}`;
+                        } else {
+                            link.href = "#";
+                            link.setAttribute("aria-disabled", "true");
 
-                    link.className =
-                        "game-card glass-card rounded-3xl p-6 " +
-                        "border border-[#D9D9D9]/20 block";
+                            link.addEventListener("click", event => {
+                            event.preventDefault();
+                        });
+                    }
+
+                            link.className =
+                                "game-card glass-card rounded-3xl p-6 " +
+                                "border border-[#D9D9D9]/20 block" +
+                                (isReady ? "" : " coming-soon");
 
 
                     const tags =
@@ -1391,16 +1419,16 @@
                             </div>
 
 
-                            <span class="px-2.5 py-1 rounded-full
-                                         bg-green-400/10
-                                         border border-green-400/20
-                                         text-green-300
-                                         text-[9px] font-extrabold
-                                         uppercase tracking-wider">
+                           <span class="game-status-badge px-2.5 py-1 rounded-full
+             bg-green-400/10
+             border border-green-400/20
+             text-green-300
+             text-[9px] font-extrabold
+             uppercase tracking-wider">
 
-                                Available
+    ${isReady ? "Available" : "Coming Soon"}
 
-                            </span>
+</span>
 
                         </div>
 
@@ -1449,16 +1477,15 @@
                                     justify-between
                                     text-xs font-extrabold">
 
-                            <span class="text-[#F4B400]">
+                            <span class="${isReady ? "text-[#F4B400]" : "text-[#D9D9D9]/50"}">
 
-                                Play Game
+    ${isReady ? "Play Game" : "Coming Soon"}
 
-                            </span>
+</span>
 
 
-                            <i class="fa-solid
-                                      fa-arrow-right
-                                      text-[#F4B400]"></i>
+<i class="fa-solid
+          ${isReady ? "fa-arrow-right text-[#F4B400]" : "fa-lock text-[#D9D9D9]/50"}"></i>
 
                         </div>
 
@@ -1551,6 +1578,26 @@
    INITIALIZE FROM URL
    ========================================================= */
 
+function updateCourseGameCounts() {
+
+    if (!englishGameCount) {
+        return;
+    }
+
+    const englishCourse =
+        COURSES["english-practice"];
+
+    const readyCount =
+        englishCourse.games.filter(gameId => {
+            const game = GAMES[gameId];
+            return game && game.status === "ready";
+        }).length;
+
+    englishGameCount.textContent =
+        `${readyCount} ${readyCount === 1 ? "Game" : "Games"}`;
+
+}
+        
 function initializeFromURL() {
 
     const state = readURLState();
@@ -1607,6 +1654,7 @@ function initializeFromURL() {
     renderGames(course.games);
 }
 
+updateCourseGameCounts();
 initializeFromURL();
 
     </script>
