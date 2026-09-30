@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Scrabble Showdown - Interactive University Presentation</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Plus Jakarta Sans Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- HTML5 Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            800: '#132238',
+                            900: '#0b1523',
+                            950: '#060d17',
+                        },
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        .demo-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 20%, #1a3254 0%, #0b1523 70%, #060d17 100%);
+            color: #f1f5f9;
+            user-select: none;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .glass-panel {
+            background: rgba(22, 38, 62, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(30, 58, 95, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Scrabble Board Grid Styling */
+        .scrabble-board {
+            display: grid;
+            grid-template-columns: repeat(15, minmax(0, 1fr));
+            grid-template-rows: repeat(15, minmax(0, 1fr));
+            gap: 2px;
+            padding: 4px;
+            background: rgba(10, 20, 35, 0.9);
+            border: 2px solid rgba(217, 119, 6, 0.4);
+            border-radius: 8px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        .tutorial-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            grid-template-rows: repeat(7, minmax(0, 1fr));
+            gap: 3px;
+            padding: 6px;
+            background: rgba(10, 20, 35, 0.95);
+            border: 2px solid rgba(250, 204, 21, 0.5);
+            border-radius: 10px;
+        }
+
+        .board-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .board-cell:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+        }
+
+        /* Tile Multiplier Colors */
+        .cell-normal { background: rgba(30, 58, 95, 0.35); color: rgba(255,255,255,0.2); }
+        .cell-tw { background: #b91c1c; color: #fecaca; } /* Triple Word */
+        .cell-dw { background: #c2410c; color: #ffedd5; } /* Double Word */
+        .cell-tl { background: #1d4ed8; color: #bfdbfe; } /* Triple Letter */
+        .cell-dl { background: #0284c7; color: #e0f2fe; } /* Double Letter */
+        .cell-star { background: #d97706; color: #fef3c7; } /* Center Star */
+
+        /* Played & Rack Tiles */
+        .tile {
+            background: linear-gradient(135deg, #fef3c7 0%, #d97706 100%);
+            color: #1e293b;
+            font-weight: 800;
+            border-radius: 4px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: grab;
+            transition: transform 0.1s;
+        }
+
+        .tile .points {
+            position: absolute;
+            bottom: 1px;
+            right: 2px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        /* Team Played Tile Styles */
+        .tile-red {
+            background: linear-gradient(135deg, #fca5a5 0%, #dc2626 100%) !important;
+            color: #ffffff !important;
+            border: 1px solid #f87171;
+        }
+        .tile-red .points { color: #fef2f2 !important; }
+
+        .tile-green {
+            background: linear-gradient(135deg, #6ee7b7 0%, #059669 100%) !important;
+            color: #ffffff !important;
+            border: 1px solid #34d399;
+        }
+        .tile-green .points { color: #ecfdf5 !important; }
+
+        .tile-pending {
+            background: linear-gradient(135deg, #fde047 0%, #ca8a04 100%) !important;
+            color: #0f172a !important;
+            animation: pulse-border 1.5s infinite;
+        }
+
+        @keyframes tileDrop {
+            0% { transform: scale(0) translateY(-20px) rotate(-10deg); opacity: 0; }
+            70% { transform: scale(1.18) translateY(2px) rotate(2deg); opacity: 1; }
+            100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
+        }
+
+        .animate-tile-pop {
+            animation: tileDrop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes bonusGlowPulse {
+            0%, 100% { box-shadow: 0 0 6px rgba(250, 204, 21, 0.4); border-color: rgba(250, 204, 21, 0.6); }
+            50% { box-shadow: 0 0 20px rgba(250, 204, 21, 1); border-color: rgba(250, 204, 21, 1); }
+        }
+
+        .glow-bonus-pulse {
+            animation: bonusGlowPulse 1.2s infinite ease-in-out;
+        }
+
+        @keyframes progressBarRun {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .animate-progress-bar {
+            animation: progressBarRun 5s linear forwards;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.8); }
+            50% { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.3); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(11, 21, 35, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(217, 119, 6, 0.4); border-radius: 3px; }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen overflow-hidden antialiased">
+
+    <div id="setupModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/90 backdrop-blur-md">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 border border-gold-500/30 shadow-2xl flex flex-col gap-5 max-h-[95vh] overflow-y-auto">
+            <div class="text-center border-b border-white/10 pb-4">
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-amber-200 to-yellow-500">
+                    <i class="fa-solid fa-spell-check mr-2"></i> CLASSROOM SCRABBLE SHOWDOWN
+                </h1>
+                <p class="text-xs md:text-sm text-slate-300 mt-1">Interactive University Word-Building Battle System</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Vocabulary Topic Selection -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gold-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-book-open mr-1"></i> Vocabulary Topic
+                    </label>
+                    <select id="topicSelect" class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
+                        <option value="public_policy">Public Policy & Governance</option>
+                        <option value="business">Business & Economics</option>
+                        <option value="computer_science">Computer Science & AI</option>
+                        <option value="healthcare">Healthcare & Medicine</option>
+                        <option value="custom">Custom Word Bank...</option>
+                    </select>
+                </div>
+
+                <!-- Timer Settings -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gold-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-clock mr-1"></i> Turn Time Limit
+                    </label>
+                    <select id="timerSelect" class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
+                        <option value="60">60 Seconds</option>
+                        <option value="90" selected>90 Seconds</option>
+                        <option value="120">120 Seconds</option>
+                        <option value="180">180 Seconds</option>
+                    </select>
+                </div>
+
+                <!-- Game Rounds -->
+                <div class="flex flex-col gap-1.5 md:col-span-2">
+                    <label class="text-xs font-bold text-gold-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-flag-checkered mr-1"></i> Match Duration (Rounds)
+                    </label>
+                    <select id="roundsSelect" class="bg-navy-900 border border-white/15 rounded-xl p-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-gold-400">
+                        <option value="5">5 Rounds</option>
+                        <option value="8" selected>8 Rounds</option>
+                        <option value="10">10 Rounds</option>
+                        <option value="12">12 Rounds</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Custom Word Bank Container -->
+            <div id="customWordContainer" class="hidden flex-col gap-1.5">
+                <label class="text-xs font-bold text-amber-300 uppercase tracking-wider">Custom Vocabulary (Comma Separated)</label>
+                <input type="text" id="customWordsInput" placeholder="LAW, POLICY, CITIZEN, VOTING, REFORM" class="w-full bg-navy-900 border border-amber-500/30 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none">
+            </div>
+
+            <!-- Team Rosters Setup -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-card p-3.5 rounded-xl border-l-4 border-rose-500">
+                    <div class="flex items-center gap-2 mb-2 text-rose-400 font-bold text-xs">
+                        <i class="fa-solid fa-shield-halved"></i> Team Red (Rose Squad)
+                    </div>
+                    <input type="text" id="teamRedName" value="Team Red" class="w-full bg-navy-900/90 border border-rose-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
+                    <input type="text" id="teamRedPlayers" value="Alex, Jordan, Taylor" placeholder="Roster comma separated" class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
+                </div>
+
+                <div class="glass-card p-3.5 rounded-xl border-l-4 border-emerald-500">
+                    <div class="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-xs">
+                        <i class="fa-solid fa-shield-halved"></i> Team Green (Emerald Squad)
+                    </div>
+                    <input type="text" id="teamGreenName" value="Team Green" class="w-full bg-navy-900/90 border border-emerald-500/30 rounded-lg p-2 text-xs text-slate-100 mb-2 font-semibold focus:outline-none">
+                    <input type="text" id="teamGreenPlayers" value="Sam, Morgan, Casey" placeholder="Roster comma separated" class="w-full bg-navy-900/50 border border-white/10 rounded-lg p-2 text-xs text-slate-300 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                <button id="openInteractiveHowToPlayBtn" class="w-full sm:w-1/2 py-3 bg-navy-800 hover:bg-navy-700 text-gold-300 border border-gold-500/40 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-play text-gold-400 text-base"></i> How To Play Demo
+                </button>
+                <button id="startGameBtn" class="w-full sm:w-1/2 py-3 bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-extrabold rounded-xl shadow-lg shadow-gold-500/20 text-sm transition-all transform active:scale-98">
+                    START MATCH <i class="fa-solid fa-play ml-1.5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <header class="h-14 px-4 glass-panel border-b border-white/10 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <span class="text-lg font-black text-gold-400 flex items-center gap-2">
+                <i class="fa-solid fa-cubes-stacked"></i> SCRABBLE
+            </span>
+            <span id="topicBadge" class="bg-navy-800/80 border border-gold-500/30 text-gold-300 text-xs px-2.5 py-1 rounded-full font-bold">
+                Public Policy
+            </span>
+        </div>
+
+        <!-- Center Turn & Timer HUD -->
+        <div class="flex items-center gap-4">
+            <div id="turnIndicator" class="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500 text-rose-400 font-extrabold text-xs transition-all">
+                <i class="fa-solid fa-flag"></i> <span id="activeTeamDisplay">TEAM RED'S TURN</span>
+            </div>
+
+            <div class="flex items-center gap-2 bg-navy-900/80 px-3 py-1 rounded-full border border-white/15">
+                <i class="fa-solid fa-clock text-gold-400 text-xs"></i>
+                <span id="timerDisplay" class="font-mono font-bold text-sm text-amber-300">01:30</span>
+                <button id="pauseTimerBtn" class="text-xs text-slate-400 hover:text-white ml-1">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Facilitator Quick Action Shortcuts -->
+        <div class="flex items-center gap-2">
+            <button id="btnOpenInteractiveTutorial" class="px-3 py-1 bg-gradient-to-r from-amber-500 to-gold-500 hover:from-amber-400 hover:to-gold-400 text-navy-950 text-xs font-black rounded-lg shadow flex items-center gap-1.5">
+                <i class="fa-solid fa-graduation-cap"></i> Demo Rules
+            </button>
+            <button id="btnSwitchTurn" title="Switch Turn (Hotkey: T)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-600 text-slate-200 flex items-center gap-1">
+                <i class="fa-solid fa-rotate"></i> Turn [T]
+            </button>
+            <button id="btnAwardBonus" title="Award Bonus +10 (Hotkey: C)" class="px-2.5 py-1 bg-emerald-900/60 hover:bg-emerald-800 text-xs rounded-lg border border-emerald-600 text-emerald-300 flex items-center gap-1">
+                +10 [C]
+            </button>
+            <button id="btnPenalty" title="Deduct Penalty -5 (Hotkey: W)" class="px-2.5 py-1 bg-rose-900/60 hover:bg-rose-800 text-xs rounded-lg border border-rose-600 text-rose-300 flex items-center gap-1">
+                -5 [W]
+            </button>
+            <button id="btnHelp" title="Keyboard Shortcuts" class="p-1.5 bg-navy-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-white/10 text-xs">
+                <i class="fa-solid fa-keyboard"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 grid grid-cols-12 gap-3 p-3 h-[calc(100vh-3.5rem)] overflow-hidden">
+
+        <!-- Left Column: Team Red Scoreboard & Log -->
+        <section class="col-span-3 flex flex-col gap-3 h-full overflow-hidden">
+            <!-- Team Red Score Panel -->
+            <div id="teamRedPanel" class="glass-panel p-3.5 rounded-2xl border-l-4 border-rose-500 flex flex-col justify-between transition-all">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="teamRedTitle" class="font-black text-rose-400 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-shield"></i> Team Red
+                        </h2>
+                        <p id="teamRedMembers" class="text-[11px] text-slate-400 truncate max-w-[180px]">Alex, Jordan, Taylor</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="teamRedScore" class="text-3xl font-black text-rose-400 tracking-tight">0</span>
+                        <span class="text-[10px] block text-slate-400 font-bold uppercase">Points</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Green Score Panel -->
+            <div id="teamGreenPanel" class="glass-panel p-3.5 rounded-2xl border-l-4 border-emerald-500 flex flex-col justify-between transition-all opacity-70">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="teamGreenTitle" class="font-black text-emerald-400 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-shield"></i> Team Green
+                        </h2>
+                        <p id="teamGreenMembers" class="text-[11px] text-slate-400 truncate max-w-[180px]">Sam, Morgan, Casey</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="teamGreenScore" class="text-3xl font-black text-emerald-400 tracking-tight">0</span>
+                        <span class="text-[10px] block text-slate-400 font-bold uppercase">Points</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Word History Log -->
+            <div class="glass-panel p-3 rounded-2xl flex-1 flex flex-col min-h-0">
+                <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
+                    <span class="text-xs font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check"></i> Move History
+                    </span>
+                    <span id="roundCounter" class="text-[10px] font-bold bg-navy-900 px-2 py-0.5 rounded-full border border-white/10 text-slate-300">
+                        Round 1 / 8
+                    </span>
+                </div>
+                <div id="historyList" class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs">
+                    <div class="text-center text-slate-500 py-6 text-[11px]">
+                        No words submitted yet.<br>Place tiles and click Submit Word!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Center Column: Scrabble Board Container -->
+        <section class="col-span-6 flex flex-col items-center justify-center h-full overflow-hidden">
+            <div class="relative w-full max-w-[540px] aspect-square flex items-center justify-center p-1">
+                <div id="scrabbleBoard" class="scrabble-board w-full h-full">
+                    <!-- 15x15 Cells Generated Dynamic Javascript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Tile Rack, Control Deck & Word Validation -->
+        <section class="col-span-3 flex flex-col gap-3 h-full overflow-hidden">
+
+            <!-- Dynamic Rack Control Panel -->
+            <div class="glass-panel p-3.5 rounded-2xl flex flex-col gap-3">
+                <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                    <span class="text-xs font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-grip-lines"></i> Active Player Rack
+                    </span>
+                    <span id="bagCountDisplay" class="text-[10px] font-bold bg-navy-900 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">
+                        Bag: 98 Tiles
+                    </span>
+                </div>
+
+                <!-- Tile Rack Display -->
+                <div id="playerRack" class="flex items-center justify-center gap-1.5 py-2 px-1 bg-navy-950/70 border border-white/10 rounded-xl min-h-[56px]">
+                    <!-- 7 Letter Tiles dynamically rendered -->
+                </div>
+
+                <!-- Rack Action Buttons -->
+                <div class="grid grid-cols-3 gap-2 text-xs font-semibold">
+                    <button id="btnShuffle" class="py-2 bg-navy-800 hover:bg-navy-700 border border-white/15 rounded-lg text-slate-200 transition-all flex items-center justify-center gap-1" title="Shortcut: S">
+                        <i class="fa-solid fa-shuffle text-gold-400"></i> Shuffle
+                    </button>
+                    <button id="btnClearTiles" class="py-2 bg-navy-800 hover:bg-navy-700 border border-white/15 rounded-lg text-slate-200 transition-all flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-undo text-rose-400"></i> Recall
+                    </button>
+                    <button id="btnExchange" class="py-2 bg-navy-800 hover:bg-navy-700 border border-white/15 rounded-lg text-slate-200 transition-all flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-arrows-rotate text-emerald-400"></i> Swap
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current Word Submission Box -->
+            <div class="glass-panel p-3.5 rounded-2xl flex flex-col gap-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-slate-300 uppercase tracking-wide">
+                        Constructed Word:
+                    </span>
+                    <span id="calcPointsDisplay" class="text-xs font-black text-amber-400">
+                        0 Pts
+                    </span>
+                </div>
+
+                <div id="pendingWordText" class="text-xl font-extrabold tracking-widest text-gold-300 text-center py-2 bg-navy-950/80 border border-gold-500/30 rounded-xl min-h-[44px] flex items-center justify-center uppercase">
+                    - - -
+                </div>
+
+                <button id="btnSubmitWord" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-xl shadow-lg shadow-emerald-900/30 text-sm transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-circle"></i> SUBMIT WORD
+                </button>
+            </div>
+
+            <!-- Topic Reference Vocabulary Quick Search -->
+            <div class="glass-panel p-3 rounded-2xl flex-1 flex flex-col min-h-0">
+                <div class="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
+                    <span class="text-[11px] font-bold text-gold-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-book"></i> Vocabulary Topic Hints
+                    </span>
+                    <span class="text-[10px] text-slate-400">Bonus Words</span>
+                </div>
+                <div id="topicHintsContainer" class="flex-1 overflow-y-auto flex flex-wrap gap-1.5 align-content-start text-[11px]">
+                    <!-- Topic hints loaded here -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <div id="interactiveTutorialModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/95 backdrop-blur-md">
+        <div class="glass-panel w-full max-w-4xl rounded-2xl p-6 border border-gold-500/40 shadow-2xl flex flex-col gap-4 max-h-[95vh] overflow-hidden">
+            
+            <!-- Header with Clean Layout & No Overlapping Text -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-black text-gold-400 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap"></i> INTERACTIVE HOW TO PLAY DEMO
+                    </span>
+                    <span id="tutorialStepTitle" class="text-xs text-amber-300 font-semibold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                        Step 1 of 4: First Word on Center Star (★)
+                    </span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="tutToggleAutoplayBtn" class="px-3 py-1.5 bg-gold-500/20 hover:bg-gold-500/30 text-gold-300 border border-gold-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-pause" id="tutAutoplayIcon"></i> <span id="tutAutoplayText">Pause Autoplay</span>
+                    </button>
+                    <button id="closeTutorialBtn" class="w-8 h-8 rounded-lg bg-navy-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Autoplay Progress Bar Indicator -->
+            <div class="w-full bg-navy-900 rounded-full h-1 overflow-hidden border border-white/5">
+                <div id="tutAutoplayProgress" class="bg-gradient-to-r from-gold-400 to-amber-500 h-full w-0"></div>
+            </div>
+
+            <!-- Interactive Step Progress Dots -->
+            <div class="grid grid-cols-4 gap-2">
+                <button class="tut-step-btn py-1.5 text-xs font-extrabold rounded-lg border border-gold-500/50 bg-gold-500/20 text-gold-300" data-step="1">
+                    1. Center Star
+                </button>
+                <button class="tut-step-btn py-1.5 text-xs font-extrabold rounded-lg border border-white/10 bg-navy-900 text-slate-400" data-step="2">
+                    2. Connecting Words
+                </button>
+                <button class="tut-step-btn py-1.5 text-xs font-extrabold rounded-lg border border-white/10 bg-navy-900 text-slate-400" data-step="3">
+                    3. Multipliers
+                </button>
+                <button class="tut-step-btn py-1.5 text-xs font-extrabold rounded-lg border border-white/10 bg-navy-900 text-slate-400" data-step="4">
+                    4. Team Tactics
+                </button>
+            </div>
+
+            <!-- Tutorial Content Body: Left Visual Grid Simulator + Right Explanation -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center flex-1 overflow-hidden">
+                
+                <!-- Left Column: Mini Interactive Grid Simulator -->
+                <div class="md:col-span-6 flex flex-col items-center justify-center bg-navy-900/60 p-4 rounded-xl border border-white/10 relative">
+                    <div id="tutorialGrid" class="tutorial-grid w-full max-w-[280px] aspect-square">
+                        <!-- 7x7 Mini grid cells rendered via JS -->
+                    </div>
+                    <div id="tutorialActionText" class="mt-3 text-xs font-bold text-amber-300 text-center bg-navy-950/80 px-3 py-1.5 rounded-lg border border-gold-500/30 w-full flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-gold-400"></i>
+                        <span>Watching Autoplay Animation...</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Description & Mechanics -->
+                <div class="md:col-span-6 flex flex-col justify-between h-full space-y-4">
+                    <div id="tutorialDescriptionBox" class="glass-card p-4 rounded-xl space-y-3 text-sm text-slate-200">
+                        <!-- Dynamic step content updated by JS -->
+                    </div>
+
+                    <div class="glass-card p-3 rounded-xl border border-gold-500/30 bg-gold-500/10 space-y-1">
+                        <div class="flex items-center gap-2 text-xs font-extrabold text-gold-400 uppercase">
+                            <i class="fa-solid fa-lightbulb"></i> Pro Tip:
+                        </div>
+                        <p id="tutorialProTip" class="text-xs text-slate-300">
+                            The first player or team MUST cover the Center Star (★). The word receives a Double Word (DW) multiplier bonus automatically!
+                        </p>
+                    </div>
+
+                    <!-- Step Navigation Buttons -->
+                    <div class="flex items-center justify-between gap-3 pt-2">
+                        <button id="tutPrevBtn" class="px-4 py-2 bg-navy-800 hover:bg-navy-700 text-slate-300 font-bold text-xs rounded-lg border border-white/10 flex items-center gap-1 disabled:opacity-40">
+                            <i class="fa-solid fa-arrow-left"></i> Previous
+                        </button>
+                        <button id="tutSimulateBtn" class="px-4 py-2 bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs rounded-lg shadow flex items-center gap-1.5">
+                            <i class="fa-solid fa-play"></i> Replay
+                        </button>
+                        <button id="tutNextBtn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-lg flex items-center gap-1">
+                            Next <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Hotkeys Help Modal -->
+    <div id="helpModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-5 border border-white/20 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                <h3 class="font-extrabold text-gold-400 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-keyboard"></i> Facilitator Hotkeys
+                </h3>
+                <button id="closeHelpBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="text-xs space-y-2 text-slate-200">
+                <div class="flex justify-between py-1 border-b border-white/5">
+                    <span class="font-bold text-amber-300">Spacebar</span>
+                    <span>Toggle Timer / Pause</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-white/5">
+                    <span class="font-bold text-amber-300">T</span>
+                    <span>Switch Active Team</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-white/5">
+                    <span class="font-bold text-amber-300">C</span>
+                    <span>Award +10 Bonus Points</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-white/5">
+                    <span class="font-bold text-amber-300">W</span>
+                    <span>Deduct -5 Penalty Points</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-white/5">
+                    <span class="font-bold text-amber-300">S</span>
+                    <span>Shuffle Rack Tiles</span>
+                </div>
+            </div>
+            <button id="closeHelpModalBtn" class="w-full py-2 bg-navy-800 hover:bg-navy-700 text-slate-200 text-xs font-bold rounded-lg border border-white/10">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* Scrabble Constants & Letter Distributions */
+        const LETTER_VALUES = {
+            'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4, 'I': 1, 'J': 8,
+            'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3, 'Q': 10, 'R': 1, 'S': 1, 'T': 1,
+            'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10
+        };
+
+        const INITIAL_BAG = [
+            ...'AAAAAAAAANNNNNNOOOOOOOOOEEEEEERRRRRRTTTTTTLLLLSSSSUUUUDDDDGGGBBBCCCMPPPFFHHVVWWYYKJXQZ'
+        ];
+
+        /* Special Board Multiplier Coordinates */
+        const SPECIAL_CELLS = {
+            '0,0': 'TW', '0,7': 'TW', '0,14': 'TW', '7,0': 'TW', '7,14': 'TW', '14,0': 'TW', '14,7': 'TW', '14,14': 'TW',
+            '1,1': 'DW', '2,2': 'DW', '3,3': 'DW', '4,4': 'DW', '1,13': 'DW', '2,12': 'DW', '3,11': 'DW', '4,10': 'DW',
+            '13,1': 'DW', '12,2': 'DW', '11,3': 'DW', '10,4': 'DW', '13,13': 'DW', '12,12': 'DW', '11,11': 'DW', '10,10': 'DW',
+            '1,5': 'TL', '1,9': 'TL', '5,1': 'TL', '5,5': 'TL', '5,9': 'TL', '5,13': 'TL',
+            '9,1': 'TL', '9,5': 'TL', '9,9': 'TL', '9,13': 'TL', '13,5': 'TL', '13,9': 'TL',
+            '0,3': 'DL', '0,11': 'DL', '2,6': 'DL', '2,8': 'DL', '3,0': 'DL', '3,7': 'DL', '3,14': 'DL',
+            '6,2': 'DL', '6,6': 'DL', '6,8': 'DL', '6,12': 'DL', '7,3': 'DL', '7,11': 'DL',
+            '8,2': 'DL', '8,6': 'DL', '8,8': 'DL', '8,12': 'DL', '11,0': 'DL', '11,7': 'DL', '11,14': 'DL',
+            '12,6': 'DL', '12,8': 'DL', '14,3': 'DL', '14,11': 'DL',
+            '7,7': 'STAR'
+        };
+
+        const VOCAB_BANKS = {
+            public_policy: ['POLICY', 'VOTE', 'LAW', 'SENATE', 'RIGHTS', 'JUSTICE', 'DEBATE', 'CIVIC', 'ETHICS', 'PUBLIC', 'LEADER', 'BILL', 'ACT', 'COURT'],
+            business: ['ASSET', 'PROFIT', 'MARKET', 'EQUITY', 'TRADE', 'BUDGET', 'SHARE', 'BOND', 'TAX', 'STOCK', 'CAPITAL', 'LOAN'],
+            computer_science: ['CODE', 'DATA', 'LOGIC', 'ARRAY', 'MODEL', 'CACHE', 'STACK', 'INPUT', 'CYBER', 'PIXEL', 'QUERY', 'BYTE'],
+            healthcare: ['CLINIC', 'HEALTH', 'CARE', 'MEDS', 'VIRUS', 'PULSE', 'NURSE', 'ORGAN', 'GENE', 'BLOOD', 'DOSE']
+        };
+
+        class SoundFX {
+            constructor() {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioCtx();
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1) {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            place() { this.playTone(520, 'triangle', 0.08); }
+            recall() { this.playTone(340, 'sine', 0.08); }
+            success() {
+                this.playTone(440, 'sine', 0.1);
+                setTimeout(() => this.playTone(554.37, 'sine', 0.1), 80);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.2), 160);
+            }
+            error() {
+                this.playTone(200, 'sawtooth', 0.15);
+                setTimeout(() => this.playTone(150, 'sawtooth', 0.2), 100);
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        let gameState = {
+            activeTeam: 'RED',
+            scores: { RED: 0, GREEN: 0 },
+            rosters: {
+                RED: { name: 'Team Red', players: 'Alex, Jordan, Taylor' },
+                GREEN: { name: 'Team Green', players: 'Sam, Morgan, Casey' }
+            },
+            currentRound: 1,
+            maxRounds: 8,
+            timerDuration: 90,
+            timerRemaining: 90,
+            timerInterval: null,
+            timerRunning: false,
+            tileBag: [...INITIAL_BAG],
+            playerRack: [],
+            boardState: Array(15).fill(null).map(() => Array(15).fill(null)),
+            pendingTiles: [],
+            selectedRackIdx: null,
+            history: [],
+            topic: 'public_policy',
+            customWords: []
+        };
+
+        function renderBoard() {
+            const boardEl = document.getElementById('scrabbleBoard');
+            boardEl.innerHTML = '';
+
+            for (let r = 0; r < 15; r++) {
+                for (let c = 0; c < 15; c++) {
+                    const cell = document.createElement('div');
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    
+                    const key = `${r},${c}`;
+                    const bonus = SPECIAL_CELLS[key];
+                    
+                    let cellClass = 'board-cell cell-normal';
+                    let label = '';
+
+                    if (bonus === 'TW') { cellClass = 'board-cell cell-tw'; label = 'TW'; }
+                    else if (bonus === 'DW') { cellClass = 'board-cell cell-dw'; label = 'DW'; }
+                    else if (bonus === 'TL') { cellClass = 'board-cell cell-tl'; label = 'TL'; }
+                    else if (bonus === 'DL') { cellClass = 'board-cell cell-dl'; label = 'DL'; }
+                    else if (bonus === 'STAR') { cellClass = 'board-cell cell-star'; label = '★'; }
+
+                    cell.className = cellClass;
+
+                    const permTile = gameState.boardState[r][c];
+                    const pendingTile = gameState.pendingTiles.find(pt => pt.r === r && pt.c === c);
+
+                    if (permTile) {
+                        const tileDiv = createTileElement(permTile.letter, permTile.team);
+                        cell.appendChild(tileDiv);
+                    } else if (pendingTile) {
+                        const tileDiv = createTileElement(pendingTile.letter, 'PENDING');
+                        cell.appendChild(tileDiv);
+                    } else {
+                        cell.textContent = label;
+                    }
+
+                    cell.addEventListener('click', () => handleCellClick(r, c));
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function createTileElement(letter, teamState) {
+            const tileDiv = document.createElement('div');
+            let colorClass = 'tile';
+            if (teamState === 'RED') colorClass += ' tile-red';
+            else if (teamState === 'GREEN') colorClass += ' tile-green';
+            else if (teamState === 'PENDING') colorClass += ' tile-pending';
+
+            tileDiv.className = `${colorClass} w-full h-full text-xs md:text-sm font-extrabold`;
+            tileDiv.innerHTML = `${letter}<span class="points">${LETTER_VALUES[letter] || 1}</span>`;
+            return tileDiv;
+        }
+
+        function renderRack() {
+            const rackEl = document.getElementById('playerRack');
+            rackEl.innerHTML = '';
+
+            gameState.playerRack.forEach((letter, idx) => {
+                const isPending = gameState.pendingTiles.some(pt => pt.rackIdx === idx);
+                const isSelected = gameState.selectedRackIdx === idx;
+
+                const tile = document.createElement('div');
+                tile.className = `tile w-9 h-10 text-base font-black ${isPending ? 'opacity-30 pointer-events-none' : ''} ${isSelected ? 'ring-2 ring-gold-400 scale-105' : ''}`;
+                tile.innerHTML = `${letter}<span class="points">${LETTER_VALUES[letter] || 1}</span>`;
+
+                tile.addEventListener('click', () => {
+                    if (isPending) return;
+                    sfx.place();
+                    if (gameState.selectedRackIdx === idx) {
+                        gameState.selectedRackIdx = null;
+                    } else {
+                        gameState.selectedRackIdx = idx;
+                    }
+                    renderRack();
+                });
+
+                rackEl.appendChild(tile);
+            });
+
+            document.getElementById('bagCountDisplay').textContent = `Bag: ${gameState.tileBag.length} Tiles`;
+        }
+
+        function handleCellClick(r, c) {
+            if (gameState.boardState[r][c]) return;
+
+            const pendingIndex = gameState.pendingTiles.findIndex(pt => pt.r === r && pt.c === c);
+            if (pendingIndex !== -1) {
+                sfx.recall();
+                gameState.pendingTiles.splice(pendingIndex, 1);
+                updatePendingWord();
+                renderBoard();
+                renderRack();
+                return;
+            }
+
+            if (gameState.selectedRackIdx !== null) {
+                const letter = gameState.playerRack[gameState.selectedRackIdx];
+                gameState.pendingTiles.push({
+                    r, c, letter, rackIdx: gameState.selectedRackIdx
+                });
+                sfx.place();
+                gameState.selectedRackIdx = null;
+                updatePendingWord();
+                renderBoard();
+                renderRack();
+            }
+        }
+
+        function updatePendingWord() {
+            if (gameState.pendingTiles.length === 0) {
+                document.getElementById('pendingWordText').textContent = '- - -';
+                document.getElementById('calcPointsDisplay').textContent = '0 Pts';
+                return;
+            }
+
+            const tiles = [...gameState.pendingTiles];
+            const isHorizontal = tiles.every(t => t.r === tiles[0].r);
+            const isVertical = tiles.every(t => t.c === tiles[0].c);
+
+            if (isHorizontal) {
+                tiles.sort((a, b) => a.c - b.c);
+            } else if (isVertical) {
+                tiles.sort((a, b) => a.r - b.r);
+            }
+
+            const word = tiles.map(t => t.letter).join('');
+            document.getElementById('pendingWordText').textContent = word;
+
+            let wordMultiplier = 1;
+            let totalPoints = 0;
+
+            tiles.forEach(t => {
+                let letterPts = LETTER_VALUES[t.letter] || 1;
+                const bonus = SPECIAL_CELLS[`${t.r},${t.c}`];
+
+                if (bonus === 'DL') letterPts *= 2;
+                else if (bonus === 'TL') letterPts *= 3;
+                else if (bonus === 'DW') wordMultiplier *= 2;
+                else if (bonus === 'TW') wordMultiplier *= 3;
+                else if (bonus === 'STAR') wordMultiplier *= 2;
+
+                totalPoints += letterPts;
+            });
+
+            totalPoints *= wordMultiplier;
+            if (tiles.length === 7) totalPoints += 50;
+
+            document.getElementById('calcPointsDisplay').textContent = `${totalPoints} Pts`;
+        }
+
+        function submitWord() {
+            if (gameState.pendingTiles.length === 0) {
+                sfx.error();
+                return;
+            }
+
+            const tiles = [...gameState.pendingTiles];
+            const isHorizontal = tiles.every(t => t.r === tiles[0].r);
+            const isVertical = tiles.every(t => t.c === tiles[0].c);
+
+            if (!isHorizontal && !isVertical) {
+                sfx.error();
+                return;
+            }
+
+            const word = tiles.map(t => t.letter).join('');
+            let points = parseInt(document.getElementById('calcPointsDisplay').textContent) || 0;
+
+            tiles.forEach(t => {
+                gameState.boardState[t.r][t.c] = {
+                    letter: t.letter,
+                    team: gameState.activeTeam
+                };
+            });
+
+            const usedIndices = tiles.map(t => t.rackIdx).sort((a, b) => b - a);
+            usedIndices.forEach(idx => {
+                gameState.playerRack.splice(idx, 1);
+            });
+            refillRack();
+
+            gameState.scores[gameState.activeTeam] += points;
+            
+            gameState.history.unshift({
+                team: gameState.activeTeam,
+                word: word,
+                points: points,
+                round: gameState.currentRound
+            });
+
+            sfx.success();
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+
+            gameState.pendingTiles = [];
+            gameState.selectedRackIdx = null;
+
+            switchTurn();
+            updateHUD();
+            renderBoard();
+            renderRack();
+            renderHistory();
+        }
+
+        function refillRack() {
+            while (gameState.playerRack.length < 7 && gameState.tileBag.length > 0) {
+                const randIndex = Math.floor(Math.random() * gameState.tileBag.length);
+                gameState.playerRack.push(gameState.tileBag.splice(randIndex, 1)[0]);
+            }
+        }
+
+        function switchTurn() {
+            if (gameState.activeTeam === 'RED') {
+                gameState.activeTeam = 'GREEN';
+            } else {
+                gameState.activeTeam = 'RED';
+                gameState.currentRound++;
+            }
+            gameState.timerRemaining = gameState.timerDuration;
+            updateHUD();
+        }
+
+        function updateHUD() {
+            document.getElementById('teamRedScore').textContent = gameState.scores.RED;
+            document.getElementById('teamGreenScore').textContent = gameState.scores.GREEN;
+
+            const redPanel = document.getElementById('teamRedPanel');
+            const greenPanel = document.getElementById('teamGreenPanel');
+            const indicator = document.getElementById('turnIndicator');
+            const activeText = document.getElementById('activeTeamDisplay');
+
+            if (gameState.activeTeam === 'RED') {
+                redPanel.classList.remove('opacity-70');
+                greenPanel.classList.add('opacity-70');
+                indicator.className = 'flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500 text-rose-400 font-extrabold text-xs transition-all';
+                activeText.textContent = `${gameState.rosters.RED.name.toUpperCase()}'S TURN`;
+            } else {
+                greenPanel.classList.remove('opacity-70');
+                redPanel.classList.add('opacity-70');
+                indicator.className = 'flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-extrabold text-xs transition-all';
+                activeText.textContent = `${gameState.rosters.GREEN.name.toUpperCase()}'S TURN`;
+            }
+
+            document.getElementById('roundCounter').textContent = `Round ${gameState.currentRound} / ${gameState.maxRounds}`;
+        }
+
+        function renderHistory() {
+            const listEl = document.getElementById('historyList');
+            if (gameState.history.length === 0) {
+                listEl.innerHTML = `<div class="text-center text-slate-500 py-6 text-[11px]">No words submitted yet.<br>Place tiles and click Submit Word!</div>`;
+                return;
+            }
+
+            listEl.innerHTML = gameState.history.map(item => `
+                <div class="glass-card p-2 rounded-xl flex items-center justify-between border-l-2 ${item.team === 'RED' ? 'border-rose-500' : 'border-emerald-500'}">
+                    <div>
+                        <span class="font-extrabold text-slate-100 tracking-wide">${item.word}</span>
+                        <span class="text-[10px] text-slate-400 block">${item.team === 'RED' ? gameState.rosters.RED.name : gameState.rosters.GREEN.name} • R${item.round}</span>
+                    </div>
+                    <span class="font-black ${item.team === 'RED' ? 'text-rose-400' : 'text-emerald-400'} text-sm">+${item.points}</span>
+                </div>
+            `).join('');
+        }
+
+        function startTimer() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            gameState.timerRunning = true;
+            gameState.timerInterval = setInterval(() => {
+                if (!gameState.timerRunning || gameState.timerDuration === 0) return;
+
+                if (gameState.timerRemaining > 0) {
+                    gameState.timerRemaining--;
+                    const mins = Math.floor(gameState.timerRemaining / 60).toString().padStart(2, '0');
+                    const secs = (gameState.timerRemaining % 60).toString().padStart(2, '0');
+                    document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
+                } else {
+                    sfx.error();
+                    switchTurn();
+                }
+            }, 1000);
+        }
+
+        function loadTopicHints() {
+            const container = document.getElementById('topicHintsContainer');
+            let words = VOCAB_BANKS[gameState.topic] || [];
+            if (gameState.topic === 'custom' && gameState.customWords.length > 0) {
+                words = gameState.customWords;
+            }
+
+            container.innerHTML = words.map(w => `
+                <span class="bg-navy-900 border border-white/10 hover:border-gold-500/50 text-slate-300 px-2 py-0.5 rounded-md font-mono text-[11px]">
+                    ${w}
+                </span>
+            `).join('');
+        }
+
+        let currentTutStep = 1;
+        let isTutAutoplay = true;
+        let tutAutoplayTimer = null;
+        let tutTileAnimTimeouts = [];
+
+        const TUTORIAL_STEPS_DATA = {
+            1: {
+                title: "Step 1 of 4: First Word on Center Star (★)",
+                desc: `
+                    <p class="font-bold text-amber-300">The Opening Move Rule:</p>
+                    <p>The first word placed on the board by Team Red or Team Green <strong>MUST cover the Center Star (★)</strong> cell.</p>
+                    <ul class="list-disc list-inside space-y-1 text-xs text-slate-300 pt-1">
+                        <li>Tiles can be placed horizontally or vertically.</li>
+                        <li>The Center Star doubles the total score of the first word (2x Word Bonus).</li>
+                        <li>Watch the animated tiles drop letter-by-letter onto the star!</li>
+                    </ul>
+                `,
+                proTip: "Center star acts as a Double Word (DW) multiplier for the opening word of the match!",
+                gridLetters: [
+                    { r: 3, c: 1, letter: 'P' },
+                    { r: 3, c: 2, letter: 'O' },
+                    { r: 3, c: 3, letter: 'L', star: true },
+                    { r: 3, c: 4, letter: 'I' },
+                    { r: 3, c: 5, letter: 'C' },
+                    { r: 3, c: 6, letter: 'Y' }
+                ],
+                actionMsg: "Autoplay: P-O-L-I-C-Y placed across Center Star = 22 Points!"
+            },
+            2: {
+                title: "Step 2 of 4: Connecting Intersecting Words",
+                desc: `
+                    <p class="font-bold text-emerald-300">Connecting Rules:</p>
+                    <p>Subsequent words must hook onto or connect to existing tiles on the board, just like a crossword puzzle.</p>
+                    <ul class="list-disc list-inside space-y-1 text-xs text-slate-300 pt-1">
+                        <li>Use an existing letter on the board as an anchor point.</li>
+                        <li>Watch Team Green attach <strong>L-A-W</strong> vertically using 'L' in POLICY!</li>
+                    </ul>
+                `,
+                proTip: "Valid words can be created both horizontally and vertically simultaneously on adjacent tiles.",
+                gridLetters: [
+                    { r: 3, c: 1, letter: 'P' },
+                    { r: 3, c: 2, letter: 'O' },
+                    { r: 3, c: 3, letter: 'L', star: true },
+                    { r: 3, c: 4, letter: 'I' },
+                    { r: 3, c: 5, letter: 'C' },
+                    { r: 3, c: 6, letter: 'Y' },
+                    { r: 4, c: 3, letter: 'A', team: 'GREEN' },
+                    { r: 5, c: 3, letter: 'W', team: 'GREEN' }
+                ],
+                actionMsg: "Autoplay: Team Green hooks L-A-W vertically using 'L' = +8 Points!"
+            },
+            3: {
+                title: "Step 3 of 4: Bonus Multiplier Squares",
+                desc: `
+                    <p class="font-bold text-rose-300">Score Multipliers:</p>
+                    <p>Place tiles on colored bonus squares to multiply individual letter points or entire word totals:</p>
+                    <div class="grid grid-cols-2 gap-2 text-xs font-bold pt-1">
+                        <div class="p-1.5 rounded bg-blue-900/60 border border-blue-400 text-blue-200">DL = 2x Letter Value</div>
+                        <div class="p-1.5 rounded bg-blue-700/80 border border-blue-300 text-blue-100">TL = 3x Letter Value</div>
+                        <div class="p-1.5 rounded bg-orange-900/60 border border-orange-400 text-orange-200">DW = 2x Total Word</div>
+                        <div class="p-1.5 rounded bg-red-900/80 border border-red-400 text-red-200">TW = 3x Total Word</div>
+                    </div>
+                `,
+                proTip: "Using all 7 rack tiles in a single turn awards a 50-POINT BINGO BONUS!",
+                gridLetters: [
+                    { r: 3, c: 1, letter: 'P', dl: true },
+                    { r: 3, c: 2, letter: 'O' },
+                    { r: 3, c: 3, letter: 'L', star: true },
+                    { r: 3, c: 4, letter: 'I' },
+                    { r: 3, c: 5, letter: 'C' },
+                    { r: 3, c: 6, letter: 'Y', tw: true }
+                ],
+                actionMsg: "Autoplay: Multipliers triggered: DL on 'P' + TW on 'Y'!"
+            },
+            4: {
+                title: "Step 4 of 4: University Team Battle & Hotkeys",
+                desc: `
+                    <p class="font-bold text-gold-400">Classroom Presentation Controls:</p>
+                    <p>Facilitators can easily moderate live classroom battles with built-in hotkeys:</p>
+                    <ul class="list-disc list-inside space-y-1 text-xs text-slate-300 pt-1">
+                        <li><strong>Spacebar:</strong> Pause or resume the active turn timer.</li>
+                        <li><strong>T Key:</strong> Toggle turn manually between Team Red & Team Green.</li>
+                        <li><strong>C Key / W Key:</strong> Award +10 bonus points or apply -5 deduction.</li>
+                    </ul>
+                `,
+                proTip: "Encourage students to consult the Vocabulary Topic Hints panel on the right sidebar for inspiration!",
+                gridLetters: [
+                    { r: 1, c: 3, letter: 'A', team: 'RED' },
+                    { r: 2, c: 3, letter: 'I', team: 'RED' },
+                    { r: 3, c: 3, letter: 'D', team: 'RED', star: true },
+                    { r: 3, c: 4, letter: 'A' },
+                    { r: 3, c: 5, letter: 'T' },
+                    { r: 3, c: 6, letter: 'A' }
+                ],
+                actionMsg: "You're all set! Click 'Start Match' to begin the showdown."
+            }
+        };
+
+        function clearTutTimeouts() {
+            tutTileAnimTimeouts.forEach(t => clearTimeout(t));
+            tutTileAnimTimeouts = [];
+            if (tutAutoplayTimer) {
+                clearTimeout(tutAutoplayTimer);
+                tutAutoplayTimer = null;
+            }
+        }
+
+        function renderTutorialGrid(step, animateTiles = true) {
+            clearTutTimeouts();
+            const gridEl = document.getElementById('tutorialGrid');
+            gridEl.innerHTML = '';
+
+            const stepData = TUTORIAL_STEPS_DATA[step];
+
+            const cellMap = {};
+            for (let r = 0; r < 7; r++) {
+                for (let c = 0; c < 7; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'board-cell cell-normal';
+
+                    if (r === 3 && c === 3) {
+                        cell.className = 'board-cell cell-star glow-bonus-pulse';
+                        cell.textContent = '★';
+                    }
+
+                    if (step === 3 && r === 3 && c === 1) {
+                        cell.className = 'board-cell cell-dl glow-bonus-pulse';
+                        cell.textContent = 'DL';
+                    } else if (step === 3 && r === 3 && c === 6) {
+                        cell.className = 'board-cell cell-tw glow-bonus-pulse';
+                        cell.textContent = 'TW';
+                    }
+
+                    gridEl.appendChild(cell);
+                    cellMap[`${r},${c}`] = cell;
+                }
+            }
+
+            const items = stepData.gridLetters;
+
+            if (animateTiles) {
+                items.forEach((item, index) => {
+                    const timeout = setTimeout(() => {
+                        const targetCell = cellMap[`${item.r},${item.c}`];
+                        if (targetCell) {
+                            targetCell.textContent = '';
+                            const tileDiv = document.createElement('div');
+                            let colorClass = 'tile';
+                            if (item.team === 'GREEN') colorClass += ' tile-green';
+                            else colorClass += ' tile-red';
+
+                            tileDiv.className = `${colorClass} w-full h-full text-xs font-extrabold animate-tile-pop`;
+                            tileDiv.innerHTML = `${item.letter}<span class="points">${LETTER_VALUES[item.letter] || 1}</span>`;
+                            targetCell.appendChild(tileDiv);
+                            sfx.place();
+                        }
+                    }, index * 260);
+
+                    tutTileAnimTimeouts.push(timeout);
+                });
+            } else {
+                items.forEach(item => {
+                    const targetCell = cellMap[`${item.r},${item.c}`];
+                    if (targetCell) {
+                        targetCell.textContent = '';
+                        const tileDiv = document.createElement('div');
+                        let colorClass = 'tile';
+                        if (item.team === 'GREEN') colorClass += ' tile-green';
+                        else colorClass += ' tile-red';
+
+                        tileDiv.className = `${colorClass} w-full h-full text-xs font-extrabold`;
+                        tileDiv.innerHTML = `${item.letter}<span class="points">${LETTER_VALUES[item.letter] || 1}</span>`;
+                        targetCell.appendChild(tileDiv);
+                    }
+                });
+            }
+
+            document.getElementById('tutorialStepTitle').textContent = stepData.title;
+            document.getElementById('tutorialDescriptionBox').innerHTML = stepData.desc;
+            document.getElementById('tutorialProTip').textContent = stepData.proTip;
+            document.getElementById('tutorialActionText').innerHTML = `
+                <i class="fa-solid fa-play text-gold-400"></i> ${stepData.actionMsg}
+            `;
+
+            document.querySelectorAll('.tut-step-btn').forEach(btn => {
+                const bStep = parseInt(btn.dataset.step);
+                if (bStep === step) {
+                    btn.className = 'tut-step-btn py-1.5 text-xs font-extrabold rounded-lg border border-gold-500/50 bg-gold-500/20 text-gold-300 ring-2 ring-gold-400/50';
+                } else {
+                    btn.className = 'tut-step-btn py-1.5 text-xs font-extrabold rounded-lg border border-white/10 bg-navy-900 text-slate-400';
+                }
+            });
+
+            document.getElementById('tutPrevBtn').disabled = step === 1;
+            document.getElementById('tutNextBtn').disabled = step === 4;
+
+            const progressBar = document.getElementById('tutAutoplayProgress');
+            progressBar.classList.remove('animate-progress-bar');
+            void progressBar.offsetWidth;
+            
+            if (isTutAutoplay) {
+                progressBar.classList.add('animate-progress-bar');
+                const totalAnimDuration = (items.length * 260) + 2600;
+                tutAutoplayTimer = setTimeout(() => {
+                    if (isTutAutoplay) {
+                        currentTutStep = (currentTutStep % 4) + 1;
+                        renderTutorialGrid(currentTutStep, true);
+                    }
+                }, totalAnimDuration);
+            }
+        }
+
+        function toggleAutoplay() {
+            isTutAutoplay = !isTutAutoplay;
+            const icon = document.getElementById('tutAutoplayIcon');
+            const text = document.getElementById('tutAutoplayText');
+            const progress = document.getElementById('tutAutoplayProgress');
+
+            if (isTutAutoplay) {
+                icon.className = 'fa-solid fa-pause';
+                text.textContent = 'Pause Autoplay';
+                renderTutorialGrid(currentTutStep, true);
+            } else {
+                icon.className = 'fa-solid fa-play';
+                text.textContent = 'Resume Autoplay';
+                progress.classList.remove('animate-progress-bar');
+                clearTutTimeouts();
+            }
+        }
+
+        function openTutorialModal() {
+            currentTutStep = 1;
+            isTutAutoplay = true;
+            document.getElementById('tutAutoplayIcon').className = 'fa-solid fa-pause';
+            document.getElementById('tutAutoplayText').textContent = 'Pause Autoplay';
+            renderTutorialGrid(currentTutStep, true);
+            document.getElementById('interactiveTutorialModal').classList.remove('hidden');
+        }
+
+        document.getElementById('openInteractiveHowToPlayBtn').addEventListener('click', openTutorialModal);
+        document.getElementById('btnOpenInteractiveTutorial').addEventListener('click', openTutorialModal);
+        document.getElementById('tutToggleAutoplayBtn').addEventListener('click', toggleAutoplay);
+
+        document.getElementById('closeTutorialBtn').addEventListener('click', () => {
+            clearTutTimeouts();
+            document.getElementById('interactiveTutorialModal').classList.add('hidden');
+        });
+
+        document.querySelectorAll('.tut-step-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                isTutAutoplay = false;
+                document.getElementById('tutAutoplayIcon').className = 'fa-solid fa-play';
+                document.getElementById('tutAutoplayText').textContent = 'Resume Autoplay';
+                currentTutStep = parseInt(e.currentTarget.dataset.step);
+                renderTutorialGrid(currentTutStep, true);
+            });
+        });
+
+        document.getElementById('tutPrevBtn').addEventListener('click', () => {
+            if (currentTutStep > 1) {
+                isTutAutoplay = false;
+                document.getElementById('tutAutoplayIcon').className = 'fa-solid fa-play';
+                document.getElementById('tutAutoplayText').textContent = 'Resume Autoplay';
+                currentTutStep--;
+                renderTutorialGrid(currentTutStep, true);
+            }
+        });
+
+        document.getElementById('tutNextBtn').addEventListener('click', () => {
+            if (currentTutStep < 4) {
+                isTutAutoplay = false;
+                document.getElementById('tutAutoplayIcon').className = 'fa-solid fa-play';
+                document.getElementById('tutAutoplayText').textContent = 'Resume Autoplay';
+                currentTutStep++;
+                renderTutorialGrid(currentTutStep, true);
+            }
+        });
+
+        document.getElementById('tutSimulateBtn').addEventListener('click', () => {
+            renderTutorialGrid(currentTutStep, true);
+            sfx.success();
+            confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
+        });
+
+        function initGame() {
+            gameState.topic = document.getElementById('topicSelect').value;
+            if (gameState.topic === 'custom') {
+                const customRaw = document.getElementById('customWordsInput').value;
+                gameState.customWords = customRaw.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+            }
+
+            gameState.timerDuration = parseInt(document.getElementById('timerSelect').value);
+            gameState.timerRemaining = gameState.timerDuration;
+            gameState.maxRounds = parseInt(document.getElementById('roundsSelect').value);
+
+            gameState.rosters.RED.name = document.getElementById('teamRedName').value || 'Team Red';
+            gameState.rosters.RED.players = document.getElementById('teamRedPlayers').value;
+            gameState.rosters.GREEN.name = document.getElementById('teamGreenName').value || 'Team Green';
+            gameState.rosters.GREEN.players = document.getElementById('teamGreenPlayers').value;
+
+            document.getElementById('teamRedTitle').innerHTML = `<i class="fa-solid fa-shield"></i> ${gameState.rosters.RED.name}`;
+            document.getElementById('teamRedMembers').textContent = gameState.rosters.RED.players;
+            document.getElementById('teamGreenTitle').innerHTML = `<i class="fa-solid fa-shield"></i> ${gameState.rosters.GREEN.name}`;
+            document.getElementById('teamGreenMembers').textContent = gameState.rosters.GREEN.players;
+
+            document.getElementById('topicBadge').textContent = document.getElementById('topicSelect').options[document.getElementById('topicSelect').selectedIndex].text;
+
+            gameState.tileBag = [...INITIAL_BAG];
+            gameState.playerRack = [];
+            refillRack();
+
+            renderBoard();
+            renderRack();
+            updateHUD();
+            loadTopicHints();
+            startTimer();
+
+            document.getElementById('setupModal').classList.add('hidden');
+        }
+
+        document.getElementById('startGameBtn').addEventListener('click', initGame);
+
+        document.getElementById('topicSelect').addEventListener('change', (e) => {
+            const customBox = document.getElementById('customWordContainer');
+            if (e.target.value === 'custom') {
+                customBox.classList.remove('hidden');
+                customBox.classList.add('flex');
+            } else {
+                customBox.classList.add('hidden');
+                customBox.classList.remove('flex');
+            }
+        });
+
+        document.getElementById('btnSubmitWord').addEventListener('click', submitWord);
+
+        document.getElementById('btnShuffle').addEventListener('click', () => {
+            sfx.place();
+            for (let i = gameState.playerRack.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameState.playerRack[i], gameState.playerRack[j]] = [gameState.playerRack[j], gameState.playerRack[i]];
+            }
+            renderRack();
+        });
+
+        document.getElementById('btnClearTiles').addEventListener('click', () => {
+            sfx.recall();
+            gameState.pendingTiles = [];
+            gameState.selectedRackIdx = null;
+            updatePendingWord();
+            renderBoard();
+            renderRack();
+        });
+
+        document.getElementById('btnExchange').addEventListener('click', () => {
+            if (gameState.playerRack.length === 0) return;
+            sfx.place();
+            gameState.tileBag.push(...gameState.playerRack);
+            gameState.playerRack = [];
+            refillRack();
+            renderRack();
+            switchTurn();
+        });
+
+        document.getElementById('btnSwitchTurn').addEventListener('click', () => {
+            switchTurn();
+            updateHUD();
+        });
+
+        document.getElementById('btnAwardBonus').addEventListener('click', () => {
+            gameState.scores[gameState.activeTeam] += 10;
+            sfx.success();
+            updateHUD();
+        });
+
+        document.getElementById('btnPenalty').addEventListener('click', () => {
+            gameState.scores[gameState.activeTeam] = Math.max(0, gameState.scores[gameState.activeTeam] - 5);
+            sfx.error();
+            updateHUD();
+        });
+
+        document.getElementById('pauseTimerBtn').addEventListener('click', () => {
+            gameState.timerRunning = !gameState.timerRunning;
+            document.getElementById('pauseTimerBtn').innerHTML = gameState.timerRunning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play text-amber-400"></i>';
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+            switch (e.key.toLowerCase()) {
+                case ' ':
+                    e.preventDefault();
+                    document.getElementById('pauseTimerBtn').click();
+                    break;
+                case 't':
+                    switchTurn();
+                    break;
+                case 'c':
+                    document.getElementById('btnAwardBonus').click();
+                    break;
+                case 'w':
+                    document.getElementById('btnPenalty').click();
+                    break;
+                case 's':
+                    document.getElementById('btnShuffle').click();
+                    break;
+            }
+        });
+
+        document.getElementById('btnHelp').addEventListener('click', () => {
+            document.getElementById('helpModal').classList.remove('hidden');
+        });
+        document.getElementById('closeHelpBtn').addEventListener('click', () => {
+            document.getElementById('helpModal').classList.add('hidden');
+        });
+        document.getElementById('closeHelpModalBtn').addEventListener('click', () => {
+            document.getElementById('helpModal').classList.add('hidden');
+        });
+
+        // Initialize board grid preview on load
+        renderBoard();
+    </script>
+</body>
+</html>
