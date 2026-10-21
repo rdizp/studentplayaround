@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Reaction Race: Social Expressions Warm-Up</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        navy: {
+                            800: '#132238',
+                            900: '#0b1523',
+                            950: '#060d17',
+                        },
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#f4b400',
+                            600: '#e6a100',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 20%, #1a3254 0%, #0b1523 70%, #060d17 100%);
+            color: #f1f5f9;
+            user-select: none;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .glass-panel {
+            background: rgba(22, 38, 62, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(30, 58, 95, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hud-border {
+            border: 1px solid rgba(244, 180, 0, 0.3);
+            box-shadow: inset 0 0 12px rgba(244, 180, 0, 0.1);
+        }
+
+        .option-btn {
+            transition: all 0.15s ease-in-out;
+        }
+
+        .option-btn:hover {
+            border-color: rgba(244, 180, 0, 0.6);
+            background: rgba(244, 180, 0, 0.1);
+        }
+
+        .option-btn.selected {
+            border-color: #facc15 !important;
+            background: rgba(244, 180, 0, 0.22) !important;
+            box-shadow: 0 0 15px rgba(244, 180, 0, 0.35);
+        }
+
+        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        ::-webkit-scrollbar-track { background: rgba(11, 21, 35, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(244, 180, 0, 0.4); border-radius: 3px; }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen overflow-hidden antialiased">
+
+    <!-- LOBBY / SETUP MODAL HUD (ENLARGED & PROMINENT) -->
+    <div id="setupScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/95 backdrop-blur-md">
+        <div class="glass-panel w-full max-w-3xl rounded-2xl p-6 md:p-8 border-2 border-gold-500/50 shadow-2xl flex flex-col gap-6 hud-border animate-in fade-in zoom-in duration-200">
+            
+            <!-- Setup Header HUD -->
+            <div class="flex items-center justify-between border-b-2 border-gold-500/30 pb-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gold-500/20 border-2 border-gold-400 flex items-center justify-center text-gold-400 font-black text-xl shadow-lg shadow-gold-500/10">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                            SOCIAL REACTION RACE <span class="text-xs px-2.5 py-1 rounded-md bg-gold-500/20 text-gold-300 font-extrabold border border-gold-500/40">GAME A2 HUD</span>
+                        </h1>
+                        <p class="text-xs text-slate-300 font-medium mt-0.5">Classroom Social Expressions Register & Pragmatic Speed Challenge</p>
+                    </div>
+                </div>
+                <div class="text-right hidden sm:block">
+                    <span class="text-[10px] font-mono text-slate-400 block uppercase tracking-widest font-bold">System Status</span>
+                    <span class="text-xs font-black text-emerald-400 flex items-center justify-end gap-1.5 mt-0.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ONLINE
+                    </span>
+                </div>
+            </div>
+
+            <!-- Setup Form Controls (Enlarged) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Team Roster Config -->
+                <div class="glass-card p-4 rounded-xl space-y-3.5 border border-white/15">
+                    <h3 class="font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-2 text-xs">
+                        <i class="fa-solid fa-users text-rose-400 text-sm"></i> Team Roster Setup
+                    </h3>
+                    <div>
+                        <label class="block text-slate-200 font-bold mb-1 text-xs">Team Alpha Name</label>
+                        <input type="text" id="setupTeamA" value="Team Alpha" class="w-full bg-navy-950 border-2 border-rose-500/50 rounded-xl px-3.5 py-2.5 text-rose-300 font-bold text-sm focus:outline-none focus:border-rose-400 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-slate-200 font-bold mb-1 text-xs">Team Beta Name</label>
+                        <input type="text" id="setupTeamB" value="Team Beta" class="w-full bg-navy-950 border-2 border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400 transition-all">
+                    </div>
+                </div>
+
+                <!-- Match Rules Config -->
+                <div class="glass-card p-4 rounded-xl space-y-3.5 border border-white/15">
+                    <h3 class="font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-2 text-xs">
+                        <i class="fa-solid fa-sliders text-amber-400 text-sm"></i> Match Rules & Timer
+                    </h3>
+                    <div>
+                        <label class="block text-slate-200 font-bold mb-1 text-xs">Round Timer</label>
+                        <select id="setupTimer" class="w-full bg-navy-950 border-2 border-white/20 rounded-xl px-3.5 py-2.5 text-slate-100 font-semibold text-sm focus:outline-none focus:border-gold-400 transition-all">
+                            <option value="15">15 Seconds (Fast-Paced)</option>
+                            <option value="20" selected>20 Seconds (Standard)</option>
+                            <option value="30">30 Seconds (Extended)</option>
+                            <option value="0">No Timer (Relaxed Mode)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-200 font-bold mb-1 text-xs">Total Scenarios / Length</label>
+                        <select id="setupRounds" class="w-full bg-navy-950 border-2 border-white/20 rounded-xl px-3.5 py-2.5 text-slate-100 font-semibold text-sm focus:outline-none focus:border-gold-400 transition-all">
+                            <option value="6">6 Rounds (Quick Warm-Up)</option>
+                            <option value="10" selected>10 Rounds (Standard Match)</option>
+                            <option value="15">15 Rounds (Full 15-Scenario Marathon)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Student Guide Card -->
+            <div class="p-3.5 bg-amber-500/10 border-2 border-amber-500/30 rounded-xl space-y-2 text-xs">
+                <div class="flex items-center gap-2 text-gold-300 font-black uppercase text-xs tracking-wider">
+                    <i class="fa-solid fa-lightbulb text-amber-400 text-sm"></i> How To Play Social Reaction Race
+                </div>
+                <div class="grid grid-cols-3 gap-3 text-xs">
+                    <div class="bg-navy-950/80 p-2.5 rounded-lg border border-white/10 flex items-start gap-2">
+                        <span class="w-5 h-5 rounded-full bg-amber-500/30 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">1</span>
+                        <span class="text-slate-200 leading-tight">Read the social situation prompt.</span>
+                    </div>
+                    <div class="bg-navy-950/80 p-2.5 rounded-lg border border-white/10 flex items-start gap-2">
+                        <span class="w-5 h-5 rounded-full bg-amber-500/30 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">2</span>
+                        <span class="text-slate-200 leading-tight">Select response matching target tone (A, B, C).</span>
+                    </div>
+                    <div class="bg-navy-950/80 p-2.5 rounded-lg border border-white/10 flex items-start gap-2">
+                        <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 font-black flex items-center justify-center shrink-0 text-xs">3</span>
+                        <span class="text-slate-200 leading-tight">Score <b>+10 PTS</b> for optimal context match!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Game Button -->
+            <button id="btnStartGame" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-gold-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-navy-950 font-black rounded-xl shadow-xl text-sm tracking-wider uppercase transition-all transform hover:scale-[1.01] flex items-center justify-center gap-2">
+                <i class="fa-solid fa-play text-base"></i> LAUNCH MATCH SESSION
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN NAVBAR HEADER HUD -->
+    <header class="h-12 px-4 glass-panel border-b border-white/10 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <span class="text-base font-black text-gold-400 flex items-center gap-2 tracking-tight">
+                <i class="fa-solid fa-bolt-lightning text-amber-400 text-sm"></i> SOCIAL REACTION RACE
+            </span>
+            <span class="bg-navy-900 border border-gold-500/30 text-gold-300 text-[10px] px-2 py-0.5 rounded-full font-bold hidden sm:inline-block">
+                Social Expression Warm-Up
+            </span>
+        </div>
+
+        <!-- Center HUD: Team Turn & Timer -->
+        <div class="flex items-center gap-3">
+            <div id="teamTurnIndicator" class="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-rose-500/20 border border-rose-500 text-rose-400 font-extrabold text-xs transition-all">
+                <i class="fa-solid fa-fire text-[10px]"></i> <span id="activeTeamDisplay">TEAM ALPHA'S TURN</span>
+            </div>
+
+            <div id="leadBanner" class="bg-gold-500/10 border border-gold-500/40 text-gold-300 text-[11px] px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <i class="fa-solid fa-crown text-amber-400 text-[10px]"></i> <span id="leadStatus">TIED MATCH</span>
+            </div>
+
+            <div class="flex items-center gap-1.5 bg-navy-900/80 px-2.5 py-0.5 rounded-full border border-white/15">
+                <i class="fa-solid fa-stopwatch text-gold-400 text-[10px]"></i>
+                <span id="timerDisplay" class="font-mono font-bold text-xs text-amber-300">00:20</span>
+                <button id="pauseTimerBtn" class="text-[10px] text-slate-400 hover:text-white ml-0.5" title="Pause Timer">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Facilitator Actions & Shortcuts -->
+        <div class="flex items-center gap-1.5">
+            <button id="btnOpenSetup" class="px-2 py-1 bg-navy-800 hover:bg-slate-700 text-[11px] rounded-lg border border-slate-600 text-slate-200 flex items-center gap-1">
+                <i class="fa-solid fa-sliders text-amber-400 text-[10px]"></i> Setup
+            </button>
+            <button id="btnHint" title="Show Context Hint (H)" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[11px] font-bold rounded-lg border border-amber-500/40 flex items-center gap-1">
+                <i class="fa-solid fa-lightbulb text-[10px]"></i> Hint [H]
+            </button>
+            <button id="btnSwitchTurn" title="Pass Turn (P)" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded-lg border border-slate-600 text-slate-200 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-rotate-right text-[10px]"></i> Pass [P]
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CANVAS CONTENT (STRICT ZERO-SCROLL 100VH LAYOUT) -->
+    <main class="flex-1 grid grid-cols-12 gap-2.5 p-2.5 h-[calc(100vh-3rem)] overflow-hidden">
+
+        <!-- Left Column: Team Scoreboard & History -->
+        <section class="col-span-3 flex flex-col gap-2 h-full overflow-hidden">
+            <!-- Team Alpha Card -->
+            <div id="teamAPanel" class="glass-panel p-2.5 rounded-xl border-l-4 border-rose-500 flex flex-col justify-between transition-all">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="displayTeamAName" class="font-black text-rose-400 text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-xs"></i> Team Alpha
+                        </h2>
+                        <span id="streakBadgeA" class="text-[9px] font-bold text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded-full border border-amber-500/30 inline-block mt-0.5">
+                            Streak: 0 🔥
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <span id="teamAScore" class="text-2xl font-black text-rose-400 tracking-tight">0</span>
+                        <span class="text-[9px] block text-slate-400 font-bold uppercase">Points</span>
+                    </div>
+                </div>
+                <div class="flex gap-1 mt-1.5">
+                    <button onclick="adjustScore('A', 10)" class="flex-1 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/40 rounded text-[10px] font-bold">+10 Opt</button>
+                    <button onclick="adjustScore('A', 3)" class="flex-1 py-0.5 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 rounded text-[10px] font-bold">+3 Form</button>
+                </div>
+            </div>
+
+            <!-- Team Beta Card -->
+            <div id="teamBPanel" class="glass-panel p-2.5 rounded-xl border-l-4 border-emerald-500 flex flex-col justify-between transition-all opacity-70">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="displayTeamBName" class="font-black text-emerald-400 text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-xs"></i> Team Beta
+                        </h2>
+                        <span id="streakBadgeB" class="text-[9px] font-bold text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded-full border border-amber-500/30 inline-block mt-0.5">
+                            Streak: 0 🔥
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <span id="teamBScore" class="text-2xl font-black text-emerald-400 tracking-tight">0</span>
+                        <span class="text-[9px] block text-slate-400 font-bold uppercase">Points</span>
+                    </div>
+                </div>
+                <div class="flex gap-1 mt-1.5">
+                    <button onclick="adjustScore('B', 10)" class="flex-1 py-0.5 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-500/40 rounded text-[10px] font-bold">+10 Opt</button>
+                    <button onclick="adjustScore('B', 3)" class="flex-1 py-0.5 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 rounded text-[10px] font-bold">+3 Form</button>
+                </div>
+            </div>
+
+            <!-- Round History Log -->
+            <div class="glass-panel p-2.5 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">
+                <div class="flex items-center justify-between border-b border-white/10 pb-1.5 mb-1.5 shrink-0">
+                    <span class="text-[10px] font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Match Log
+                    </span>
+                    <span id="roundCounter" class="text-[9px] font-bold bg-navy-900 px-1.5 py-0.5 rounded-full border border-white/10 text-slate-300">
+                        Round 1 / 10
+                    </span>
+                </div>
+                <div id="roundHistory" class="flex-1 overflow-y-auto space-y-1.5 pr-0.5 text-[11px] text-slate-300">
+                    <p class="italic text-slate-400 text-[10px]">Answer choices & register feedback will log here.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Center Column: Social Scenario Prompt & 3 Ultra-Compact Response Choices -->
+        <section class="col-span-6 flex flex-col gap-2 h-full overflow-hidden">
+            
+            <!-- Scenario Prompt Box -->
+            <div class="glass-panel p-3 rounded-xl flex flex-col gap-1.5 shrink-0">
+                <div class="flex items-center justify-between border-b border-white/10 pb-1">
+                    <span class="text-[10px] font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-comment-dots text-amber-400"></i> Real-World Social Scenario
+                    </span>
+                    <span id="scenarioCategory" class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        ACADEMIC EMAIL
+                    </span>
+                </div>
+
+                <div id="scenarioBox" class="p-2.5 bg-navy-950/80 border border-white/10 rounded-lg text-xs md:text-sm font-semibold text-slate-100 leading-snug">
+                    "You missed a major paper deadline due to illness and need to email your university professor requesting an extension."
+                </div>
+
+                <!-- Context Hint Box (Toggled by H) -->
+                <div id="contextHintCard" class="hidden p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg text-[11px] text-amber-200 flex items-start gap-1.5">
+                    <i class="fa-solid fa-lightbulb text-amber-400 mt-0.5 text-xs"></i>
+                    <div>
+                        <span class="font-bold block text-[10px]">Pragmatic Hint:</span>
+                        <span id="hintText">Target a polite, formal academic register acknowledging the delay with accountability.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Options Container (3 Ultra-Compact Choices strictly fitted inside 100vh) -->
+            <div class="glass-panel p-3 rounded-xl flex-1 flex flex-col gap-1.5 min-h-0 overflow-hidden">
+                <div class="flex items-center justify-between border-b border-white/10 pb-1 shrink-0">
+                    <span class="text-[10px] font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-list-check"></i> Select Reaction Option (A, B, C)
+                    </span>
+                    <span class="text-[9px] text-slate-400 italic">Select tone & confirm [Space]</span>
+                </div>
+
+                <div id="optionsContainer" class="flex-1 flex flex-col justify-evenly gap-1.5 overflow-hidden">
+                    <!-- Option Buttons Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="btnLockAnswer" class="flex-1 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black rounded-xl shadow-md text-xs transition-all flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-check-double text-xs"></i> CONFIRM REACTION [Space]
+                </button>
+                <button id="btnNextScenario" class="py-2 px-3.5 bg-navy-800 hover:bg-navy-700 border border-white/15 text-slate-200 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-forward text-gold-400 text-xs"></i> Next
+                </button>
+            </div>
+        </section>
+
+        <!-- Right Column: Register & Pragmatic Feedback Report -->
+        <section class="col-span-3 flex flex-col gap-2 h-full overflow-hidden">
+            <!-- Register Feedback Card -->
+            <div class="glass-panel p-3 rounded-xl flex flex-col gap-2 flex-1 min-h-0 overflow-hidden">
+                <div class="flex items-center justify-between border-b border-white/10 pb-1 shrink-0">
+                    <span class="text-[10px] font-extrabold text-gold-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-square-poll-vertical"></i> Register Analysis
+                    </span>
+                    <span id="feedbackBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                        Awaiting Response
+                    </span>
+                </div>
+
+                <div id="feedbackContent" class="flex-1 bg-navy-950/70 border border-white/10 rounded-lg p-2.5 flex flex-col justify-center items-center text-center gap-1.5 overflow-y-auto">
+                    <i class="fa-solid fa-comments text-2xl text-slate-600"></i>
+                    <p class="text-[11px] text-slate-400 italic">Select option (A, B, C) and click Confirm to evaluate register tone.</p>
+                </div>
+            </div>
+
+            <!-- Register Legend Rules -->
+            <div class="glass-panel p-2.5 rounded-xl space-y-1.5 text-xs shrink-0">
+                <div class="border-b border-white/10 pb-1">
+                    <span class="text-[10px] font-bold text-gold-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-award"></i> Scoring Breakdown
+                    </span>
+                </div>
+                <div class="space-y-1 text-[10px]">
+                    <div class="p-1 bg-emerald-500/10 border border-emerald-500/30 rounded flex items-center justify-between">
+                        <span class="font-bold text-emerald-300">Optimal Context Match</span>
+                        <span class="font-mono font-black text-emerald-400">+10 PTS</span>
+                    </div>
+                    <div class="p-1 bg-amber-500/10 border border-amber-500/30 rounded flex items-center justify-between">
+                        <span class="font-bold text-amber-300">Overly Rigid / Awkward Formal</span>
+                        <span class="font-mono font-black text-amber-400">+3 PTS</span>
+                    </div>
+                    <div class="p-1 bg-rose-500/10 border border-rose-500/30 rounded flex items-center justify-between">
+                        <span class="font-bold text-rose-300">Social Slip (Rude / Off-Topic)</span>
+                        <span class="font-mono font-black text-rose-400">0 PTS</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        /* 15 Academic & Professional Social Scenarios with 3 Compact Options Each */
+        const SCENARIOS = [
+            {
+                category: "ACADEMIC EMAIL",
+                prompt: "You missed a major paper deadline due to a sudden illness and need to email your university professor requesting a 2-day extension.",
+                hint: "Aim for a respectful tone acknowledging the deadline while offering documentation.",
+                choices: [
+                    {
+                        text: "Dear Professor Sterling, I sincerely apologize for missing the deadline due to an illness. May I request a 2-day extension? I have attached my medical note.",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Polite, accountable, and appropriate formal academic tone."
+                    },
+                    {
+                        text: "To the Esteemed Educator Sterling, I humbly beg for your merciful forgiveness regarding my late submission.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Grammatically correct, but sounds archaic and unnaturally dramatic."
+                    },
+                    {
+                        text: "Hey Prof! Was sick yesterday so couldn't send the project. Will drop it in your inbox by Friday, cool?",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Overly casual! 'Hey Prof' and 'cool?' lack academic respect."
+                    }
+                ]
+            },
+            {
+                category: "DECLINING AN INVITATION",
+                prompt: "A classmate invites you to a late-night study group, but you already have an urgent family engagement.",
+                hint: "Decline politely with appreciation and offer a brief reason.",
+                choices: [
+                    {
+                        text: "Thanks so much for thinking of me! I'd love to join, but I have a prior family commitment tonight. Good luck with the session!",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Warm, polite, expresses gratitude, and declines gracefully."
+                    },
+                    {
+                        text: "It is hereby declared impossible for my presence to be manifested at your study gathering tonight.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Too robotic and distant for peer interaction."
+                    },
+                    {
+                        text: "No way, I'm way too busy with better things tonight.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Blunt and offensive to a classmate."
+                    }
+                ]
+            },
+            {
+                category: "INTERRUPTING A MEETING",
+                prompt: "You need to deliver an urgent message to a seminar speaker while they are currently lecturing.",
+                hint: "Excuse yourself politely and keep the interruption concise.",
+                choices: [
+                    {
+                        text: "Excuse me for interrupting, Professor, but there is an urgent security announcement for the department.",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Professional, respectful, and establishes immediate urgency."
+                    },
+                    {
+                        text: "I humbly pray that your honorable lecture may pause briefly for my humble utterance.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Excessively subservient."
+                    },
+                    {
+                        text: "Yo hold on a sec! Stop talking, I need to say something real quick!",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Disrespectful to both speaker and audience."
+                    }
+                ]
+            },
+            {
+                category: "CUSTOMER SERVICE",
+                prompt: "You received the wrong textbook order from the university bookstore and want a replacement.",
+                hint: "State the issue clearly and request a solution firmly yet politely.",
+                choices: [
+                    {
+                        text: "Hello, I received a different title from what I ordered online. Could you please help me exchange it for the correct textbook?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Clear, polite, and constructive request."
+                    },
+                    {
+                        text: "I express profound sorrow regarding the tragic discrepancy in this commercial exchange.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Unnecessarily theatrical for bookstore staff."
+                    },
+                    {
+                        text: "You guys messed up my order completely! Fix this right now!",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Aggressive tone that escalates friction."
+                    }
+                ]
+            },
+            {
+                category: "MAKING A SUGGESTION",
+                prompt: "During a group presentation prep, you notice an error in a team slide and want to suggest a fix.",
+                hint: "Use diplomatic language like 'What if we try...?' or 'Should we consider...?'",
+                choices: [
+                    {
+                        text: "Great work on this slide! What if we double-check this statistic on line 3 to ensure full accuracy?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Encouraging, constructive, and diplomatic."
+                    },
+                    {
+                        text: "It is my solemn duty to inform the assembly of a severe error in our visual document.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Overly dramatic for a casual group study session."
+                    },
+                    {
+                        text: "This slide looks terrible and your data is completely wrong.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Harsh criticism that demotivates teammates."
+                    }
+                ]
+            },
+            {
+                category: "INTERNSHIP NETWORKING",
+                prompt: "You are talking to a guest speaker after a campus career seminar and want to ask for their LinkedIn or email.",
+                hint: "Express appreciation for their talk before politely requesting connection details.",
+                choices: [
+                    {
+                        text: "Thank you for the inspiring talk today! May I connect with you on LinkedIn to follow your work?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Professional, appreciative, and clear."
+                    },
+                    {
+                        text: "I solicit your formal consent to establish digital correspondence via professional networking channels.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Unnaturally stiff for networking."
+                    },
+                    {
+                        text: "Gimme your email real quick, I need a job placement next month.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Demand-oriented and entitled."
+                    }
+                ]
+            },
+            {
+                category: "OFFICE HOURS VISIT",
+                prompt: "You arrive at your professor's office during scheduled office hours to ask about research topics.",
+                hint: "Greet politely, state the purpose of your visit, and check if they have a few minutes.",
+                choices: [
+                    {
+                        text: "Good afternoon, Professor. Do you have a few minutes to discuss my research topic proposal?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Polite, respectful of time, and professional."
+                    },
+                    {
+                        text: "I humbly present my physical presence at your office threshold seeking intellectual enlightenment.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Sounds like an ancient court ceremony."
+                    },
+                    {
+                        text: "Hey, are you free? Explain this research assignment to me real fast.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Imperative and lacks academic courtesy."
+                    }
+                ]
+            },
+            {
+                category: "GROUP CONFLICT RESOLUTION",
+                prompt: "A teammate has not completed their section of a project due tomorrow evening.",
+                hint: "Address the issue directly without personal attacks and ask how the team can resolve it.",
+                choices: [
+                    {
+                        text: "Hey everyone! Just checking in on line 4 of our draft—do you need any help finishing your section before tomorrow?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Supportive, proactive, and non-confrontational."
+                    },
+                    {
+                        text: "Official warning: Failure to submit your designated tasks shall result in immediate report to the dean.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Overly legalistic for peer group work."
+                    },
+                    {
+                        text: "You are slacking off and ruin our group grade every single time.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Personal attack that damages team morale."
+                    }
+                ]
+            },
+            {
+                category: "CONFERENCE Q&A",
+                prompt: "You want to ask a question during the open floor session at an international academic conference.",
+                hint: "Commend the speaker's research brief and formulate a focused question.",
+                choices: [
+                    {
+                        text: "Thank you for a compelling presentation. Could you elaborate on how your model handles small sample sizes?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Articulate, respectful, and academically precise."
+                    },
+                    {
+                        text: "I offer my highest commendations and request permission to utter a query regarding sample size methodologies.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Excessive preambles slow down Q&A flow."
+                    },
+                    {
+                        text: "Honestly, your data looks doubtful. Prove that your small sample even works.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Combative and unprofessional."
+                    }
+                ]
+            },
+            {
+                category: "ASKING FOR DIRECTION",
+                prompt: "You are lost on campus and need to ask a faculty member where the Main Auditorium is.",
+                hint: "Excuse yourself politely and ask for directions concisely.",
+                choices: [
+                    {
+                        text: "Excuse me, could you tell me where the Main Auditorium is located?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Simple, direct, and polite."
+                    },
+                    {
+                        text: "Pardon my intrusion, noble scholar, but pray tell where lies the grand hall of assemblies?",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Shakespearean register in a modern hallway."
+                    },
+                    {
+                        text: "Where's the auditorium? Point me there fast.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Abrupt and demanding."
+                    }
+                ]
+            },
+            {
+                category: "APOLOGIZING TO A PEER",
+                prompt: "You accidentally spilled coffee near a friend's lecture notes during lunch.",
+                hint: "Apologize immediately, check for damage, and offer to help clean or reprint.",
+                choices: [
+                    {
+                        text: "Oh no, I'm so sorry! Let me grab napkins right away—are your notes okay? I can reprint them if needed!",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Sincere, immediate, and solution-focused."
+                    },
+                    {
+                        text: "I express profound regret for this tragic fluid spill incident upon your educational materials.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Sounds like an insurance document."
+                    },
+                    {
+                        text: "Oops. Well, paper dries anyway, so no big deal.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Dismissive of the friend's property."
+                    }
+                ]
+            },
+            {
+                category: "RECEIVING A COMPLIMENT",
+                prompt: "Your lecturer praises your recent thesis outline in front of the class.",
+                hint: "Acknowledge the compliment modestly and express gratitude.",
+                choices: [
+                    {
+                        text: "Thank you so much, Professor! I really appreciate your feedback and guidance on the topic.",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Gracious, respectful, and balanced."
+                    },
+                    {
+                        text: "Your high praise bestows upon me an unbearable weight of supreme honor and gratitude.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Overly dramatic reaction."
+                    },
+                    {
+                        text: "Yeah, I know it was great. I'm always the best at thesis writing.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Arrogant and lacking humility."
+                    }
+                ]
+            },
+            {
+                category: "BORROWING EQUIPMENT",
+                prompt: "You need to borrow a USB presenter clicker from the department secretary for 10 minutes.",
+                hint: "Ask politely, state the duration needed, and assure prompt return.",
+                choices: [
+                    {
+                        text: "Hi Ms. Davis, could I borrow a presenter clicker for about 10 minutes? I'll return it right after my talk.",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Courteous, specifies time, and guarantees return."
+                    },
+                    {
+                        text: "I formally request temporary custody of your electronic presentation apparatus for a brief duration.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Excessive legalistic wording."
+                    },
+                    {
+                        text: "Hand over the clicker key, I have a presentation right now.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Rude command."
+                    }
+                ]
+            },
+            {
+                category: "GIVING CRITIQUE",
+                prompt: "A classmate asks you to review their essay intro and it lacks a clear thesis statement.",
+                hint: "Praise the existing effort first, then constructively point out the missing thesis.",
+                choices: [
+                    {
+                        text: "Your introduction is really engaging! To make it even stronger, maybe try adding a clear thesis sentence at the end?",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Constructive 'sandwich' critique method."
+                    },
+                    {
+                        text: "Upon thorough analysis, I conclude that your introductory paragraph suffers from a critical thesis deficiency.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Sounds like a clinical medical diagnosis."
+                    },
+                    {
+                        text: "This intro is super weak. You didn't even write a thesis statement.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Blunt and discouraging."
+                    }
+                ]
+            },
+            {
+                category: "DIPLOMATIC REFUSAL",
+                prompt: "A peer asks you to share your completed assignment answers before the submission portal closes.",
+                hint: "Refuse firmly to maintain academic integrity while offering to study together instead.",
+                choices: [
+                    {
+                        text: "I can't share my completed draft, but I'm happy to walk through the main concepts together if you want!",
+                        type: "OPTIMAL",
+                        pts: 10,
+                        feedback: "<b>Optimal Match (+10 PTS)</b>: Maintains integrity firmly while offering genuine support."
+                    },
+                    {
+                        text: "I am obligated by institutional regulations to decline your request for homework sharing.",
+                        type: "OVERLY_FORMAL",
+                        pts: 3,
+                        feedback: "<b>Awkwardly Formal (+3 PTS)</b>: Sounds like a court order."
+                    },
+                    {
+                        text: "Are you crazy? Do your own work and stop asking me.",
+                        type: "CASUAL_RUDE",
+                        pts: 0,
+                        feedback: "<b>Social Slip (0 PTS)</b>: Unnecessarily aggressive reaction."
+                    }
+                ]
+            }
+        ];
+
+        /* Sound FX System via Web Audio API */
+        class SoundFX {
+            constructor() {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioCtx();
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1) {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            click() { this.playTone(450, 'triangle', 0.05); }
+            optimal() {
+                this.playTone(523.25, 'sine', 0.08);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.15), 80);
+            }
+            slip() {
+                this.playTone(200, 'sawtooth', 0.2);
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        /* Game State */
+        let gameState = {
+            teamAName: "Team Alpha",
+            teamBName: "Team Beta",
+            activeTeam: 'A',
+            scores: { A: 0, B: 0 },
+            streaks: { A: 0, B: 0 },
+            currentScenarioIdx: 0,
+            selectedOptionIdx: null,
+            timerRemaining: 20,
+            timerInterval: null,
+            timerRunning: true,
+            totalRounds: 10,
+            history: []
+        };
+
+        function renderScenario() {
+            const scenario = SCENARIOS[gameState.currentScenarioIdx % SCENARIOS.length];
+            document.getElementById('scenarioCategory').textContent = scenario.category;
+            document.getElementById('scenarioBox').textContent = `"${scenario.prompt}"`;
+            document.getElementById('hintText').textContent = scenario.hint;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            scenario.choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                const isSelected = gameState.selectedOptionIdx === idx;
+                btn.className = `option-btn w-full p-2.5 bg-navy-900 border ${isSelected ? 'selected border-gold-400' : 'border-white/15'} rounded-xl text-left text-xs md:text-sm text-slate-200 font-semibold flex items-center gap-2.5`;
+                
+                btn.innerHTML = `
+                    <span class="w-6 h-6 rounded-full ${isSelected ? 'bg-gold-500 text-navy-950 font-black' : 'bg-white/10 text-slate-300 font-bold'} flex items-center justify-center shrink-0 text-xs">
+                        ${String.fromCharCode(65 + idx)}
+                    </span>
+                    <span class="flex-1 leading-snug text-slate-100">${choice.text}</span>
+                `;
+
+                btn.addEventListener('click', () => {
+                    sfx.click();
+                    gameState.selectedOptionIdx = idx;
+                    renderScenario();
+                });
+
+                container.appendChild(btn);
+            });
+
+            document.getElementById('roundCounter').textContent = `Round ${gameState.currentScenarioIdx + 1} / ${gameState.totalRounds}`;
+        }
+
+        function verifyReaction() {
+            if (gameState.selectedOptionIdx === null) return;
+
+            const scenario = SCENARIOS[gameState.currentScenarioIdx % SCENARIOS.length];
+            const chosen = scenario.choices[gameState.selectedOptionIdx];
+
+            const feedbackContent = document.getElementById('feedbackContent');
+            const feedbackBadge = document.getElementById('feedbackBadge');
+
+            if (chosen.type === 'OPTIMAL') {
+                sfx.optimal();
+                gameState.streaks[gameState.activeTeam]++;
+                adjustScore(gameState.activeTeam, chosen.pts);
+                feedbackBadge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                feedbackBadge.textContent = 'OPTIMAL REGISTER';
+                confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
+            } else if (chosen.type === 'OVERLY_FORMAL') {
+                sfx.click();
+                gameState.streaks[gameState.activeTeam] = 0;
+                adjustScore(gameState.activeTeam, chosen.pts);
+                feedbackBadge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40';
+                feedbackBadge.textContent = 'AWKWARD FORMAL';
+            } else {
+                sfx.slip();
+                gameState.streaks[gameState.activeTeam] = 0;
+                feedbackBadge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40';
+                feedbackBadge.textContent = 'SOCIAL SLIP';
+            }
+
+            feedbackContent.innerHTML = `
+                <div class="text-left space-y-1.5 w-full">
+                    <p class="text-xs leading-relaxed text-slate-200">${chosen.feedback}</p>
+                    <div class="p-1.5 bg-navy-900 border border-white/10 rounded-lg text-[10px] text-slate-300">
+                        <span class="font-bold text-gold-400 block">Category:</span> ${scenario.category}
+                    </div>
+                </div>
+            `;
+
+            gameState.history.unshift({
+                team: gameState.activeTeam,
+                scenario: scenario.category,
+                type: chosen.type,
+                pts: chosen.pts
+            });
+
+            renderHistory();
+        }
+
+        function adjustScore(team, points) {
+            gameState.scores[team] += points;
+            updateHUD();
+        }
+
+        function updateHUD() {
+            document.getElementById('teamAScore').textContent = gameState.scores.A;
+            document.getElementById('teamBScore').textContent = gameState.scores.B;
+            document.getElementById('displayTeamAName').innerHTML = `<i class="fa-solid fa-shield-halved text-xs"></i> ${gameState.teamAName}`;
+            document.getElementById('displayTeamBName').innerHTML = `<i class="fa-solid fa-shield-halved text-xs"></i> ${gameState.teamBName}`;
+            document.getElementById('streakBadgeA').textContent = `Streak: ${gameState.streaks.A} 🔥`;
+            document.getElementById('streakBadgeB').textContent = `Streak: ${gameState.streaks.B} 🔥`;
+
+            const aPanel = document.getElementById('teamAPanel');
+            const bPanel = document.getElementById('teamBPanel');
+            const turnInd = document.getElementById('teamTurnIndicator');
+            const activeText = document.getElementById('activeTeamDisplay');
+
+            if (gameState.activeTeam === 'A') {
+                aPanel.classList.remove('opacity-70');
+                bPanel.classList.add('opacity-70');
+                turnInd.className = 'flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-rose-500/20 border border-rose-500 text-rose-400 font-extrabold text-xs transition-all';
+                activeText.textContent = `${gameState.teamAName.toUpperCase()}'S TURN`;
+            } else {
+                bPanel.classList.remove('opacity-70');
+                aPanel.classList.add('opacity-70');
+                turnInd.className = 'flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-extrabold text-xs transition-all';
+                activeText.textContent = `${gameState.teamBName.toUpperCase()}'S TURN`;
+            }
+
+            const leadStatus = document.getElementById('leadStatus');
+            if (gameState.scores.A > gameState.scores.B) leadStatus.textContent = `${gameState.teamAName.toUpperCase()} LEADING`;
+            else if (gameState.scores.B > gameState.scores.A) leadStatus.textContent = `${gameState.teamBName.toUpperCase()} LEADING`;
+            else leadStatus.textContent = "TIED MATCH";
+        }
+
+        function renderHistory() {
+            const historyBox = document.getElementById('roundHistory');
+            historyBox.innerHTML = gameState.history.map(item => `
+                <div class="glass-card p-1.5 rounded-lg border-l-2 ${item.team === 'A' ? 'border-rose-500' : 'border-emerald-500'}">
+                    <div class="flex justify-between font-bold text-gold-400 text-[10px]">
+                        <span>${item.scenario} (${item.team === 'A' ? gameState.teamAName : gameState.teamBName})</span>
+                        <span class="${item.pts > 0 ? 'text-emerald-400' : 'text-rose-400'}">+${item.pts} Pts</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startTimer() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            const initialTimer = parseInt(document.getElementById('setupTimer').value);
+            if (initialTimer === 0) {
+                document.getElementById('timerDisplay').textContent = "--:--";
+                return;
+            }
+
+            gameState.timerInterval = setInterval(() => {
+                if (!gameState.timerRunning) return;
+                if (gameState.timerRemaining > 0) {
+                    gameState.timerRemaining--;
+                    const secs = (gameState.timerRemaining % 60).toString().padStart(2, '0');
+                    document.getElementById('timerDisplay').textContent = `00:${secs}`;
+                } else {
+                    switchTurn();
+                }
+            }, 1000);
+        }
+
+        function switchTurn() {
+            gameState.activeTeam = gameState.activeTeam === 'A' ? 'B' : 'A';
+            const setupTimerVal = parseInt(document.getElementById('setupTimer').value);
+            gameState.timerRemaining = setupTimerVal > 0 ? setupTimerVal : 20;
+            updateHUD();
+        }
+
+        /* Keyboard Hotkeys */
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                verifyReaction();
+            } else if (e.key === 'p' || e.key === 'P') {
+                switchTurn();
+            } else if (e.key === 'h' || e.key === 'H') {
+                document.getElementById('contextHintCard').classList.toggle('hidden');
+            } else if (e.key === 'r' || e.key === 'R') {
+                const setupTimerVal = parseInt(document.getElementById('setupTimer').value);
+                gameState.timerRemaining = setupTimerVal > 0 ? setupTimerVal : 20;
+            }
+        });
+
+        /* Setup Event Listeners */
+        document.getElementById('btnStartGame').addEventListener('click', () => {
+            gameState.teamAName = document.getElementById('setupTeamA').value.trim() || "Team Alpha";
+            gameState.teamBName = document.getElementById('setupTeamB').value.trim() || "Team Beta";
+            gameState.totalRounds = parseInt(document.getElementById('setupRounds').value) || 10;
+            const setupTimerVal = parseInt(document.getElementById('setupTimer').value);
+            gameState.timerRemaining = setupTimerVal > 0 ? setupTimerVal : 20;
+
+            document.getElementById('setupScreen').classList.add('hidden');
+            updateHUD();
+            renderScenario();
+            startTimer();
+        });
+
+        document.getElementById('btnOpenSetup').addEventListener('click', () => {
+            document.getElementById('setupScreen').classList.remove('hidden');
+        });
+
+        document.getElementById('btnLockAnswer').addEventListener('click', verifyReaction);
+
+        document.getElementById('btnNextScenario').addEventListener('click', () => {
+            gameState.currentScenarioIdx++;
+            gameState.selectedOptionIdx = null;
+            renderScenario();
+            document.getElementById('feedbackContent').innerHTML = '<i class="fa-solid fa-comments text-2xl text-slate-600"></i><p class="text-[11px] text-slate-400 italic">Select option (A, B, C) and click Confirm to evaluate register tone.</p>';
+            document.getElementById('feedbackBadge').textContent = 'Awaiting Response';
+        });
+
+        document.getElementById('btnSwitchTurn').addEventListener('click', switchTurn);
+
+        document.getElementById('btnHint').addEventListener('click', () => {
+            document.getElementById('contextHintCard').classList.toggle('hidden');
+        });
+
+        document.getElementById('pauseTimerBtn').addEventListener('click', () => {
+            gameState.timerRunning = !gameState.timerRunning;
+            document.getElementById('pauseTimerBtn').innerHTML = gameState.timerRunning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play text-amber-400"></i>';
+        });
+
+        /* Init */
+        renderScenario();
+        updateHUD();
+    </script>
+</body>
+</html>
