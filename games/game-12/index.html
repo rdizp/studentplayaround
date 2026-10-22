@@ -189,6 +189,13 @@
 
     <!-- MAIN NAVBAR HEADER HUD -->
     <header class="h-12 px-4 glass-panel border-b border-white/10 flex items-center justify-between z-20 shrink-0">
+                <a id="backToCourseBtn"
+           href="../../?course=english-practice"
+           class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-navy-900/80 border border-white/15 text-slate-100 hover:bg-navy-800 hover:border-gold-500/50 transition-all text-xs font-bold"
+           title="Back to Course">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span class="hidden sm:inline">Back to Course</span>
+        </a>
         <div class="flex items-center gap-3">
             <span class="text-base font-black text-gold-400 flex items-center gap-2 tracking-tight">
                 <i class="fa-solid fa-bolt-lightning text-amber-400 text-sm"></i> SOCIAL REACTION RACE
@@ -1031,6 +1038,61 @@
             gameState.timerRunning = !gameState.timerRunning;
             document.getElementById('pauseTimerBtn').innerHTML = gameState.timerRunning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play text-amber-400"></i>';
         });
+
+                /* ==========================================================================
+           COURSE CONTEXT / NAVIGATION
+           ========================================================================== */
+
+        const GAME_CONTEXT = {
+            course: 'english-practice',
+            subcourse: null
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const currentCourse = urlParams.get('course');
+        const currentSubCourse = urlParams.get('subcourse');
+
+        function getBackToCourseURL() {
+            const params = new URLSearchParams();
+
+            if (currentCourse) {
+                params.set('course', currentCourse);
+
+                if (currentSubCourse) {
+                    params.set('subcourse', currentSubCourse);
+                }
+            } else {
+                params.set('course', GAME_CONTEXT.course);
+            }
+
+            return `../../?${params.toString()}`;
+        }
+
+        const backToCourseBtn =
+            document.getElementById('backToCourseBtn');
+
+        if (backToCourseBtn) {
+            backToCourseBtn.href = getBackToCourseURL();
+        }
+
+        /* Validate course context */
+
+        const hasContext = currentCourse || currentSubCourse;
+
+        const isValidContext =
+            currentCourse === GAME_CONTEXT.course &&
+            currentSubCourse === GAME_CONTEXT.subcourse;
+
+        if (hasContext && !isValidContext) {
+            const normalizedParams = new URLSearchParams();
+
+            normalizedParams.set('course', GAME_CONTEXT.course);
+
+            window.location.replace(
+                `./?${normalizedParams.toString()}`
+            );
+        }
 
         /* Init */
         renderScenario();
