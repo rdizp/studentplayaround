@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Chat Simulator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#1E3A5F',
+                        gold: '#F4B400',
+                        offwhite: '#F8F9FA',
+                        slateborder: '#D9D9D9'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom scrollbar for chat log */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(30, 58, 95, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(244, 180, 0, 0.4);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(244, 180, 0, 0.8);
+        }
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(30, 58, 95, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(217, 217, 217, 0.15);
+        }
+        /* Message animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-msg {
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#0b131e] text-[#F8F9FA] h-screen w-screen overflow-hidden font-sans antialiased select-none flex flex-col">
+
+    <!-- MAIN APP WRAPPER (100vh Zero-Scroll) -->
+    <div class="h-full w-full flex flex-col max-w-5xl mx-auto shadow-2xl relative bg-[#132237] border-x border-[#D9D9D9]/10">
+        
+        <!-- TOP NAVIGATION BAR -->
+        <header class="h-16 px-4 md:px-6 bg-[#1E3A5F] border-b border-[#D9D9D9]/20 flex items-center justify-between z-10 shrink-0">
+            <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <div id="contactAvatar" class="w-10 h-10 rounded-full bg-[#F4B400] text-[#1E3A5F] flex items-center justify-center font-bold text-lg shadow-md">
+                        ?
+                    </div>
+                    <span id="statusDot" class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#1E3A5F] rounded-full"></span>
+                </div>
+                <div>
+                    <h1 id="contactName" class="font-bold text-base md:text-lg text-[#F8F9FA] leading-tight">Social Simulator</h1>
+                    <p id="scenarioTitle" class="text-xs text-[#D9D9D9]/80 truncate max-w-[180px] sm:max-w-xs md:max-w-sm">Select scenario to start</p>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center space-x-2">
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="p-2.5 rounded-lg bg-[#132237] text-[#F8F9FA] hover:text-[#F4B400] border border-[#D9D9D9]/20 transition-all text-sm flex items-center gap-1.5" title="Toggle Audio">
+                    <i id="soundIcon" class="fas fa-volume-up"></i>
+                </button>
+                <button onclick="openSetupModal()" class="px-3 py-1.5 rounded-lg bg-[#F4B400] text-[#1E3A5F] font-semibold text-xs md:text-sm hover:bg-yellow-400 transition-all shadow-md flex items-center gap-1.5">
+                    <i class="fas fa-redo-alt"></i>
+                    <span class="hidden sm:inline">New Chat</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- SOCIAL METERS BAR -->
+        <div class="bg-[#1E3A5F]/80 backdrop-blur-md border-b border-[#D9D9D9]/15 px-4 py-2.5 grid grid-cols-3 gap-3 md:gap-6 shrink-0 z-10">
+            <!-- Politeness Meter -->
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-[#D9D9D9] font-medium flex items-center gap-1"><i class="fas fa-handshake text-xs text-[#F4B400]"></i> Politeness</span>
+                    <span id="politenessVal" class="font-bold text-[#F8F9FA]">70%</span>
+                </div>
+                <div class="w-full bg-[#132237] h-2 rounded-full overflow-hidden border border-[#D9D9D9]/10">
+                    <div id="politenessBar" class="bg-gradient-to-r from-yellow-500 to-amber-400 h-full w-[70%] transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <!-- Clarity Meter -->
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-[#D9D9D9] font-medium flex items-center gap-1"><i class="fas fa-bullseye text-xs text-[#F4B400]"></i> Clarity</span>
+                    <span id="clarityVal" class="font-bold text-[#F8F9FA]">70%</span>
+                </div>
+                <div class="w-full bg-[#132237] h-2 rounded-full overflow-hidden border border-[#D9D9D9]/10">
+                    <div id="clarityBar" class="bg-gradient-to-r from-blue-400 to-indigo-400 h-full w-[70%] transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <!-- Rapport Meter -->
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-[#D9D9D9] font-medium flex items-center gap-1"><i class="fas fa-heart text-xs text-[#F4B400]"></i> Rapport</span>
+                    <span id="rapportVal" class="font-bold text-[#F8F9FA]">70%</span>
+                </div>
+                <div class="w-full bg-[#132237] h-2 rounded-full overflow-hidden border border-[#D9D9D9]/10">
+                    <div id="rapportBar" class="bg-gradient-to-r from-emerald-400 to-teal-400 h-full w-[70%] transition-all duration-500"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAT HISTORY DISPLAY AREA -->
+        <main id="chatLog" class="flex-1 overflow-y-auto p-4 space-y-3.5 custom-scrollbar bg-[#0f1b2b]/90 relative">
+            <!-- Dynamic Messages injected here -->
+        </main>
+
+        <!-- TYPING INDICATOR AREA -->
+        <div id="typingIndicator" class="hidden px-4 py-1.5 bg-[#0f1b2b]/90 text-xs text-[#D9D9D9]/70 flex items-center gap-2 italic">
+            <span id="typingName">Contact</span> is typing
+            <span class="inline-flex gap-1">
+                <span class="w-1.5 h-1.5 bg-[#F4B400] rounded-full animate-bounce"></span>
+                <span class="w-1.5 h-1.5 bg-[#F4B400] rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                <span class="w-1.5 h-1.5 bg-[#F4B400] rounded-full animate-bounce [animation-delay:0.4s]"></span>
+            </span>
+        </div>
+
+        <!-- BOTTOM INTERACTION / CHOICE PANEL -->
+        <footer id="interactionPanel" class="bg-[#1E3A5F] border-t border-[#D9D9D9]/20 p-3 md:p-4 shrink-0 z-10">
+            <div id="choicesContainer" class="flex flex-col gap-2 max-w-4xl mx-auto">
+                <!-- Response Option Buttons dynamic insertion -->
+                <p class="text-center text-xs text-[#D9D9D9]/60 py-2">Select a scenario from setup to start practicing...</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- SETUP LOBBY MODAL (No Blur on Card, Solid Sharp UI) -->
+    <div id="setupOverlay" class="fixed inset-0 bg-[#0a111e]/85 backdrop-blur-md flex items-center justify-center p-4 z-50 transition-opacity duration-300">
+        
+        <!-- SOLID CARD WITH NO INTERNAL BLUR FOR CRISP TEXT -->
+        <div id="setupCard" class="bg-[#1E3A5F] border-2 border-[#F4B400]/40 rounded-xl shadow-2xl max-w-xl w-full p-5 md:p-6 text-[#F8F9FA] relative flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-[#D9D9D9]/20 pb-3 mb-4 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <i class="fas fa-comments text-[#F4B400] text-xl"></i>
+                    <h2 class="text-xl font-bold tracking-tight text-[#F8F9FA]">Chat Scenario Lobby</h2>
+                </div>
+                <span class="text-xs bg-[#132237] text-[#F4B400] px-2.5 py-1 rounded-full border border-[#F4B400]/30 font-semibold">Sim Engine v2.0</span>
+            </div>
+
+            <!-- Modal Form Body -->
+            <div class="space-y-4 overflow-y-auto custom-scrollbar pr-1 flex-1">
+                <!-- User Profile Input -->
+                <div>
+                    <label class="block text-xs font-semibold text-[#D9D9D9] uppercase tracking-wider mb-1">Your Name / Persona</label>
+                    <input type="text" id="playerNameInput" value="Alex" placeholder="Enter your name..." class="w-full bg-[#132237] border border-[#D9D9D9]/30 rounded-lg px-3.5 py-2 text-sm text-[#F8F9FA] focus:outline-none focus:border-[#F4B400] transition-all">
+                </div>
+
+                <!-- Scenario Selection -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-semibold text-[#D9D9D9] uppercase tracking-wider">Select Scenario Path</label>
+                        <button onclick="pickRandomScenario()" class="text-xs text-[#F4B400] hover:underline font-semibold flex items-center gap-1">
+                            <i class="fas fa-dice"></i> 🎲 Random Scenario
+                        </button>
+                    </div>
+
+                    <!-- Scenario Options List -->
+                    <div id="scenarioList" class="space-y-2">
+                        <!-- Dynamic Scenarios Rendered Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="border-t border-[#D9D9D9]/20 pt-4 mt-4 flex items-center justify-end gap-3 shrink-0">
+                <button id="startSimBtn" onclick="confirmScenarioSelection()" class="w-full py-2.5 bg-[#F4B400] hover:bg-yellow-400 text-[#1E3A5F] font-bold rounded-lg shadow-lg text-sm transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Launch Simulation
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- AUDIO SYNTHESIS & ENGINE SCRIPT -->
+    <script>
+        // Web Audio API Sound Effects Generator
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playMsgReceived() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08); // A5
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+            playMsgSent() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now); // A4
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.08); // E5
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            }
+            playPenalty() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+        }
+
+        const soundFX = new SoundEngine();
+
+        function toggleAudio() {
+            soundFX.muted = !soundFX.muted;
+            const icon = document.getElementById('soundIcon');
+            if (soundFX.muted) {
+                icon.className = 'fas fa-volume-mute text-red-400';
+            } else {
+                icon.className = 'fas fa-volume-up text-[#F4B400]';
+                soundFX.playMsgSent();
+            }
+        }
+
+        // SCENARIOS DATABASE WITH MULTI-TURN BRANCHES AND CONSEQUENCE METERS
+        const SCENARIOS = [
+            {
+                id: 'prof_grade',
+                title: 'Professor Grade Dispute',
+                category: 'Formal / Academic',
+                contact: 'Prof. Miller',
+                role: 'Academic Advisor',
+                avatar: 'PM',
+                initialMsg: "Alex, I reviewed your final submission for CS401. Your score is 68% due to missing required bibliography formatting.",
+                nodes: {
+                    start: [
+                        {
+                            text: "Dear Prof. Miller, thank you for grading my paper. May I ask how much weight was placed on the bibliography format?",
+                            politeness: 15, clarity: 15, rapport: 10,
+                            next: 'prof_polite'
+                        },
+                        {
+                            text: "Wait, a 68% just for bibliography? I spent 40 hours on the actual code and algorithm logic!",
+                            politeness: -30, clarity: -10, rapport: -25,
+                            next: 'prof_defensive'
+                        },
+                        {
+                            text: "Is there any extra credit assignment available to offset this penalty?",
+                            politeness: 5, clarity: 10, rapport: 0,
+                            next: 'prof_extracredit'
+                        }
+                    ],
+                    prof_polite: {
+                        msg: "I appreciate your polite inquiry. The syllabus states formatting accounts for 20% of technical rigor. However, if you resubmit the corrected citations by 5 PM today, I can restore up to half those lost points.",
+                        choices: [
+                            {
+                                text: "Thank you so much! I will make those exact citations fixes and re-submit before 5 PM.",
+                                politeness: 15, clarity: 15, rapport: 20,
+                                ending: 'diplomat',
+                                finalMsg: "Excellent work showing accountability. Grade updated to 82%!"
+                            },
+                            {
+                                text: "5 PM is pretty tight. Can I just email them to you tomorrow morning instead?",
+                                politeness: -15, clarity: -10, rapport: -15,
+                                ending: 'friction',
+                                finalMsg: "Deadlines are firm. The 68% score stands as initially posted."
+                            }
+                        ]
+                    },
+                    prof_defensive: {
+                        msg: "Tone matters when addressing faculty. Following guidelines is part of professional evaluation. I do not appreciate aggressive pushback on syllabus rules.",
+                        choices: [
+                            {
+                                text: "I apologize for my tone, Professor. I was stressed. Could you advise if any revision is possible?",
+                                politeness: 20, clarity: 10, rapport: 10,
+                                next: 'prof_recovery'
+                            },
+                            {
+                                text: "This is completely unfair. I will be bringing this up with the department head.",
+                                politeness: -35, clarity: -20, rapport: -40,
+                                ending: 'burned',
+                                finalMsg: "Formal grievance noted. Further communication will go through the Dean's office."
+                            }
+                        ]
+                    },
+                    prof_extracredit: {
+                        msg: "I do not offer individual extra credit. However, I allow one bibliography correction resubmission if requested professionally.",
+                        choices: [
+                            {
+                                text: "Understood. I would be very grateful for the chance to submit the bibliography corrections.",
+                                politeness: 15, clarity: 15, rapport: 15,
+                                ending: 'diplomat',
+                                finalMsg: "Resubmission accepted. Score adjusted upward."
+                            },
+                            {
+                                text: "Never mind then, not worth the hassle for a few points.",
+                                politeness: -25, clarity: 0, rapport: -25,
+                                ending: 'friction',
+                                finalMsg: "As you wish. Conversation closed."
+                            }
+                        ]
+                    },
+                    prof_recovery: {
+                        msg: "I accept your apology. You may resubmit the bibliography by 6 PM today for partial credit recovery.",
+                        choices: [
+                            {
+                                text: "Thank you Professor, I'll submit it promptly before 6 PM.",
+                                politeness: 15, clarity: 15, rapport: 10,
+                                ending: 'diplomat',
+                                finalMsg: "Corrections received. Grade updated successfully."
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: 'hr_salary',
+                title: 'HR Job Offer Negotiation',
+                category: 'Corporate / Formal',
+                contact: 'Sarah Jenkins',
+                role: 'Senior Tech Recruiter',
+                avatar: 'SJ',
+                initialMsg: "Hi Alex! We are thrilled to offer you the Junior Developer role at $70,000/year base salary. Let us know if you accept!",
+                nodes: {
+                    start: [
+                        {
+                            text: "Thank you Sarah! I'm very excited about the offer. Based on industry market benchmarks, is there flexibility to reach $78,000?",
+                            politeness: 15, clarity: 20, rapport: 15,
+                            next: 'hr_counter'
+                        },
+                        {
+                            text: "Honestly $70k is way too low for this area. Other companies are offering at least $85k.",
+                            politeness: -30, clarity: 5, rapport: -35,
+                            next: 'hr_blunt'
+                        },
+                        {
+                            text: "Looks good to me, I accept!",
+                            politeness: 10, clarity: 10, rapport: 10,
+                            ending: 'diplomat',
+                            finalMsg: "Fantastic! Welcome aboard. Formal contract sent to your email."
+                        }
+                    ],
+                    hr_counter: {
+                        msg: "We appreciate your enthusiasm! I checked with management. We can stretch the base salary to $75,000 plus a $3,000 signing bonus. How does that sound?",
+                        choices: [
+                            {
+                                text: "That is a very fair offer! I am delighted to accept and look forward to joining the team.",
+                                politeness: 20, clarity: 20, rapport: 20,
+                                ending: 'diplomat',
+                                finalMsg: "Wonderful! Welcome to the company, Alex!"
+                            },
+                            {
+                                text: "Still not $78k. Add another $3k or I walk.",
+                                politeness: -35, clarity: -10, rapport: -35,
+                                ending: 'burned',
+                                finalMsg: "We regret to inform you that we are withdrawing the offer due to misaligned expectations."
+                            }
+                        ]
+                    },
+                    hr_blunt: {
+                        msg: "We benchmark our compensation competitively for entry positions. Ultimatums or aggressive comparisons make us question fit.",
+                        choices: [
+                            {
+                                text: "I apologize if that sounded harsh. I am genuinely interested in the team. Is there any room for negotiation?",
+                                politeness: 20, clarity: 10, rapport: 10,
+                                next: 'hr_reset'
+                            },
+                            {
+                                text: "Fine, keep your low offer. I'll look elsewhere.",
+                                politeness: -40, clarity: -20, rapport: -40,
+                                ending: 'burned',
+                                finalMsg: "Application closed. Best of luck in your search."
+                            }
+                        ]
+                    },
+                    hr_reset: {
+                        msg: "Thank you for resetting. We can meet at $74,000 as our final best offer.",
+                        choices: [
+                            {
+                                text: "Thank you Sarah, I accept $74,000 and appreciate your flexibility.",
+                                politeness: 15, clarity: 15, rapport: 15,
+                                ending: 'diplomat',
+                                finalMsg: "Great result! Onboarding details incoming."
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: 'genz_project',
+                title: 'Canceling Group Project Role',
+                category: 'Informal / Gen Z Peer',
+                contact: 'Jordan Lee',
+                role: 'Project Teammate',
+                avatar: 'JL',
+                initialMsg: "Yo Alex, presentation is tomorrow at 9 AM. Did you finish your slides for the front-end design section?",
+                nodes: {
+                    start: [
+                        {
+                            text: "Hey Jordan! Slides are 90% done, finishing speaker notes right now. Sending over link in 20 mins!",
+                            politeness: 15, clarity: 20, rapport: 20,
+                            next: 'genz_smooth'
+                        },
+                        {
+                            text: "Bro I'm super burnt out, honestly didn't do my part. Can you just present my section?",
+                            politeness: -35, clarity: -10, rapport: -35,
+                            next: 'genz_mad'
+                        },
+                        {
+                            text: "Working on it, don't worry about it.",
+                            politeness: -10, clarity: -20, rapport: -10,
+                            next: 'genz_vague'
+                        }
+                    ],
+                    genz_smooth: {
+                        msg: "Awesome, thanks for pulling through! Send the link whenever, I'll merge it with my main deck.",
+                        choices: [
+                            {
+                                text: "Just sent the link in group chat! Let's do a quick 5-min review call if you're free?",
+                                politeness: 15, clarity: 20, rapport: 20,
+                                ending: 'diplomat',
+                                finalMsg: "Crushed it! Group grade: A+"
+                            }
+                        ]
+                    },
+                    genz_mad: {
+                        msg: "Are you serious right now? We had 2 weeks for this and you tell me 12 hours before presentation?!",
+                        choices: [
+                            {
+                                text: "My bad man, totally uncool of me. I'll stay up tonight and get them done so you don't suffer.",
+                                politeness: 20, clarity: 15, rapport: 15,
+                                next: 'genz_salvage'
+                            },
+                            {
+                                text: "Chill out, it's just a class presentation. It's not that deep.",
+                                politeness: -40, clarity: -30, rapport: -40,
+                                ending: 'burned',
+                                finalMsg: "Jordan removed you from the group deck and reported non-contribution to instructor."
+                            }
+                        ]
+                    },
+                    genz_vague: {
+                        msg: "I kinda need to worry about it because if you flop, our whole group grade tanks. Are slides done or not?",
+                        choices: [
+                            {
+                                text: "They will be done in 1 hour guaranteed. Sending preview screenshot now.",
+                                politeness: 10, clarity: 20, rapport: 10,
+                                ending: 'diplomat',
+                                finalMsg: "Crisis averted. Slides delivered."
+                            },
+                            {
+                                text: "Stop pressing me, I said I'll do it.",
+                                politeness: -30, clarity: -20, rapport: -30,
+                                ending: 'friction',
+                                finalMsg: "Tense presentation atmosphere resulted in lost peer evaluation points."
+                            }
+                        ]
+                    },
+                    genz_salvage: {
+                        msg: "Alright, make sure link is in group chat by midnight. Don't ghost.",
+                        choices: [
+                            {
+                                text: "Done. Midnight deadline locked in. Thanks for giving me a chance to fix it.",
+                                politeness: 15, clarity: 15, rapport: 10,
+                                ending: 'diplomat',
+                                finalMsg: "Project finished on time."
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: 'landlord_repairs',
+                title: 'Landlord Maintenance Urgent Request',
+                category: 'Formal / Practical',
+                contact: 'Mr. Henderson',
+                role: 'Property Owner',
+                avatar: 'MH',
+                initialMsg: "Alex, got your text. What exactly is the issue with the bathroom plumbing in Unit 4B?",
+                nodes: {
+                    start: [
+                        {
+                            text: "Good morning Mr. Henderson. The sink drain is leaking water onto the floor when turned on. It needs a plumber visit.",
+                            politeness: 15, clarity: 20, rapport: 15,
+                            next: 'landlord_cooperative'
+                        },
+                        {
+                            text: "Your apartment is flooding my bathroom! Fix this right now or I'm withholding rent payment!",
+                            politeness: -35, clarity: -10, rapport: -30,
+                            next: 'landlord_hostile'
+                        }
+                    ],
+                    landlord_cooperative: {
+                        msg: "Thank you for the clear details. I can have my technician stop by tomorrow between 10 AM and 12 PM. Will you be home?",
+                        choices: [
+                            {
+                                text: "Yes, I will be home at 10 AM to let them in. Thanks for the quick response!",
+                                politeness: 15, clarity: 15, rapport: 20,
+                                ending: 'diplomat',
+                                finalMsg: "Plumber repaired sink promptly. Great communication!"
+                            }
+                        ]
+                    },
+                    landlord_hostile: {
+                        msg: "Withholding rent without written notice violates your lease terms. State the problem calmly or send photos.",
+                        choices: [
+                            {
+                                text: "Apologies for panicking. Water leaked from the pipe joint under the sink. Here is a photo.",
+                                politeness: 15, clarity: 20, rapport: 5,
+                                ending: 'diplomat',
+                                finalMsg: "Repair scheduled after clarification."
+                            },
+                            {
+                                text: "I don't care about lease terms, fix it today or see you in small claims court!",
+                                politeness: -40, clarity: -20, rapport: -40,
+                                ending: 'burned',
+                                finalMsg: "Formal legal notice issued by landlord management."
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: 'stream_collab',
+                title: 'Twitch/Discord Collab Flake',
+                category: 'Informal / Gaming',
+                contact: 'KairoStream',
+                role: 'Content Creator',
+                avatar: 'KS',
+                initialMsg: "Hey Alex! We scheduled our co-stream event for 7 PM tonight. Are you ready for live lobby setup?",
+                nodes: {
+                    start: [
+                        {
+                            text: "Hey Kairo! All audio and game captures configured. Ready to jump on Discord call at 6:45 PM!",
+                            politeness: 20, clarity: 20, rapport: 20,
+                            ending: 'diplomat',
+                            finalMsg: "Stream hit peak viewers! Fantastic collab."
+                        },
+                        {
+                            text: "Oh shoot bro I forgot, I pledged to do something else tonight. Can we push to next week?",
+                            politeness: -25, clarity: -10, rapport: -30,
+                            next: 'stream_annoyed'
+                        }
+                    ],
+                    stream_annoyed: {
+                        msg: "Dude... I promoted this event to 5,000 followers all week. Bailing 30 mins before is super bad look.",
+                        choices: [
+                            {
+                                text: "I am really sorry Kairo. I'll postpone my other plans and hop on stream right now to make it right.",
+                                politeness: 20, clarity: 15, rapport: 10,
+                                ending: 'diplomat',
+                                finalMsg: "Stream saved with quick pivot!"
+                            },
+                            {
+                                text: "It's just Twitch bro, chill. My real life comes first.",
+                                politeness: -40, clarity: -20, rapport: -40,
+                                ending: 'burned',
+                                finalMsg: "Kairo blacklisted you from future creator collabs."
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: 'boss_leave',
+                title: 'Emergency Leave Notice to Manager',
+                category: 'Corporate / Workplace',
+                contact: 'David Vance',
+                role: 'Operations Director',
+                avatar: 'DV',
+                initialMsg: "Alex, I noticed you aren't at your desk for the 9 AM client briefing. Everything alright?",
+                nodes: {
+                    start: [
+                        {
+                            text: "Good morning David. I had a family medical emergency this morning. I uploaded my briefing slides to the shared drive.",
+                            politeness: 15, clarity: 20, rapport: 15,
+                            next: 'boss_understanding'
+                        },
+                        {
+                            text: "Can't make it today. Something personal came up, talk tomorrow.",
+                            politeness: -30, clarity: -30, rapport: -25,
+                            next: 'boss_concerned'
+                        }
+                    ],
+                    boss_understanding: {
+                        msg: "Thanks for informing me and securing your deck. Hope everything turns out okay. Take the day to handle your family matter.",
+                        choices: [
+                            {
+                                text: "Thank you for understanding, David. I'll check emails tonight and keep you posted.",
+                                politeness: 20, clarity: 20, rapport: 20,
+                                ending: 'diplomat',
+                                finalMsg: "Emergency leave approved smoothly."
+                            }
+                        ]
+                    },
+                    boss_concerned: {
+                        msg: "Alex, abrupt absence without coverage details during client calls is unacceptable professional conduct.",
+                        choices: [
+                            {
+                                text: "I apologize David. It's a sudden medical emergency. I've asked Sarah to present my 2 slides.",
+                                politeness: 20, clarity: 20, rapport: 10,
+                                ending: 'diplomat',
+                                finalMsg: "Coverage confirmed. Take care."
+                            },
+                            {
+                                text: "I don't need a lecture right now. I'll be back when I'm back.",
+                                politeness: -40, clarity: -30, rapport: -40,
+                                ending: 'burned',
+                                finalMsg: "HR written reprimand added to employee file."
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: 'friend_loan',
+                title: 'Awkward Money Loan Request',
+                category: 'Peer / Personal',
+                contact: 'Marcus',
+                role: 'Childhood Friend',
+                avatar: 'M',
+                initialMsg: "Hey Alex... kinda awkward to ask, but can you spot me $150 until next Friday? Car repair unexpected bill.",
+                nodes: {
+                    start: [
+                        {
+                            text: "Hey Marcus! I can help out. What's your Venmo? Just send it back whenever payday hits next week.",
+                            politeness: 15, clarity: 15, rapport: 20,
+                            ending: 'diplomat',
+                            finalMsg: "Friend repaid on time. Trust deepened!"
+                        },
+                        {
+                            text: "Hey man, budget is really tight for me this month so I can't lend cash, but I can drive you around if needed!",
+                            politeness: 20, clarity: 20, rapport: 15,
+                            ending: 'diplomat',
+                            finalMsg: "Polite boundaries preserved friendship!"
+                        },
+                        {
+                            text: "You still owe me $40 from last month bro. No way.",
+                            politeness: -25, clarity: 10, rapport: -25,
+                            next: 'friend_offended'
+                        }
+                    ],
+                    friend_offended: {
+                        msg: "Damn, alright... I thought we were close enough to help each other in tight spots.",
+                        choices: [
+                            {
+                                text: "I value our friendship Marcus, but I have strict money rules with friends to avoid friction.",
+                                politeness: 15, clarity: 20, rapport: 10,
+                                ending: 'diplomat',
+                                finalMsg: "Understood. Boundaries acknowledged."
+                            },
+                            {
+                                text: "Get a job and manage your money better then.",
+                                politeness: -40, clarity: -10, rapport: -40,
+                                ending: 'burned',
+                                finalMsg: "Friendship severely strained."
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: 'party_rsvp',
+                title: 'Party RSVP Flake Decision',
+                category: 'Informal / Social',
+                contact: 'Chloe',
+                role: 'Friend Group Host',
+                avatar: 'C',
+                initialMsg: "Hey Alex! Party starts at 8 PM tonight. Are you coming? Need final head count for catering pizza!",
+                nodes: {
+                    start: [
+                        {
+                            text: "Hey Chloe! Yes I'm coming! Count me in for 1 person. Should I bring snacks or drinks?",
+                            politeness: 20, clarity: 20, rapport: 20,
+                            ending: 'diplomat',
+                            finalMsg: "Great party night with high social score!"
+                        },
+                        {
+                            text: "Hey Chloe, so sorry but I'm feeling exhausted today and need a quiet evening. Have an awesome party!",
+                            politeness: 20, clarity: 20, rapport: 15,
+                            ending: 'diplomat',
+                            finalMsg: "Polite decline appreciated by host."
+                        },
+                        {
+                            text: "Maybe, I'll see how I feel later tonight.",
+                            politeness: -20, clarity: -30, rapport: -15,
+                            next: 'chloe_annoyed'
+                        }
+                    ],
+                    chloe_annoyed: {
+                        msg: "I need to order the catering now though... 'maybe' makes food planning impossible.",
+                        choices: [
+                            {
+                                text: "My bad! Mark me down as a No so you don't waste food money. Have fun!",
+                                politeness: 15, clarity: 20, rapport: 10,
+                                ending: 'diplomat',
+                                finalMsg: "Clear decision appreciated!"
+                            },
+                            {
+                                text: "Whatever, don't count me then.",
+                                politeness: -35, clarity: -10, rapport: -35,
+                                ending: 'friction',
+                                finalMsg: "Awkward tension in social circle."
+                            }
+                        ]
+                    }
+                }
+            }
+        ];
+
+        // APP STATE MANAGERS
+        let currentState = {
+            playerName: "Alex",
+            selectedScenario: null,
+            currentNodeKey: 'start',
+            meters: {
+                politeness: 70,
+                clarity: 70,
+                rapport: 70
+            },
+            selectedScenarioIndex: 0
+        };
+
+        // RENDER SETUP MODAL LIST
+        function initSetupLobby() {
+            const listEl = document.getElementById('scenarioList');
+            listEl.innerHTML = '';
+
+            SCENARIOS.forEach((sc, idx) => {
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${
+                    currentState.selectedScenarioIndex === idx 
+                        ? 'bg-[#132237] border-[#F4B400] text-[#F8F9FA] shadow-md' 
+                        : 'bg-[#1E3A5F]/40 border-[#D9D9D9]/20 text-[#D9D9D9] hover:bg-[#132237]/60'
+                }`;
+                card.onclick = () => selectScenarioItem(idx);
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-[#132237] border border-[#F4B400]/40 flex items-center justify-center font-bold text-xs text-[#F4B400]">
+                            ${sc.avatar}
+                        </div>
+                        <div>
+                            <div class="font-semibold text-xs md:text-sm text-[#F8F9FA]">${sc.title}</div>
+                            <div class="text-[11px] text-[#D9D9D9]/70">${sc.contact} • ${sc.category}</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-xs ${currentState.selectedScenarioIndex === idx ? 'text-[#F4B400]' : 'text-[#D9D9D9]/30'}"></i>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        function selectScenarioItem(index) {
+            currentState.selectedScenarioIndex = index;
+            initSetupLobby();
+        }
+
+        function pickRandomScenario() {
+            const randIdx = Math.floor(Math.random() * SCENARIOS.length);
+            selectScenarioItem(randIdx);
+            soundFX.playMsgSent();
+        }
+
+        function openSetupModal() {
+            document.getElementById('setupOverlay').classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeSetupModal() {
+            document.getElementById('setupOverlay').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function confirmScenarioSelection() {
+            const nameInput = document.getElementById('playerNameInput').value.trim();
+            if (nameInput) currentState.playerName = nameInput;
+
+            currentState.selectedScenario = SCENARIOS[currentState.selectedScenarioIndex];
+            currentState.currentNodeKey = 'start';
+            currentState.meters = { politeness: 70, clarity: 70, rapport: 70 };
+
+            closeSetupModal();
+            updateUIHeader();
+            updateMetersUI();
+            
+            // Clear chat log
+            const chatLog = document.getElementById('chatLog');
+            chatLog.innerHTML = '';
+
+            // Post initial message
+            showTypingIndicator(currentState.selectedScenario.contact, () => {
+                appendChatMessage(currentState.selectedScenario.contact, currentState.selectedScenario.initialMsg, 'received');
+                soundFX.playMsgReceived();
+                renderChoices();
+            });
+        }
+
+        function updateUIHeader() {
+            const sc = currentState.selectedScenario;
+            document.getElementById('contactName').textContent = sc.contact;
+            document.getElementById('scenarioTitle').textContent = `${sc.title} (${sc.category})`;
+            document.getElementById('contactAvatar').textContent = sc.avatar;
+            document.getElementById('typingName').textContent = sc.contact;
+        }
+
+        function updateMetersUI() {
+            // Clamp values 0 - 100
+            currentState.meters.politeness = Math.max(0, Math.min(100, currentState.meters.politeness));
+            currentState.meters.clarity = Math.max(0, Math.min(100, currentState.meters.clarity));
+            currentState.meters.rapport = Math.max(0, Math.min(100, currentState.meters.rapport));
+
+            // DOM Elements
+            document.getElementById('politenessVal').textContent = `${currentState.meters.politeness}%`;
+            document.getElementById('politenessBar').style.width = `${currentState.meters.politeness}%`;
+
+            document.getElementById('clarityVal').textContent = `${currentState.meters.clarity}%`;
+            document.getElementById('clarityBar').style.width = `${currentState.meters.clarity}%`;
+
+            document.getElementById('rapportVal').textContent = `${currentState.meters.rapport}%`;
+            document.getElementById('rapportBar').style.width = `${currentState.meters.rapport}%`;
+        }
+
+        function appendChatMessage(sender, text, type) {
+            const chatLog = document.getElementById('chatLog');
+            const msgWrapper = document.createElement('div');
+            msgWrapper.className = `flex flex-col ${type === 'sent' ? 'items-end' : 'items-start'} animate-msg`;
+
+            const isUser = type === 'sent';
+            
+            msgWrapper.innerHTML = `
+                <div class="flex items-end gap-2 max-w-[85%] md:max-w-[75%] ${isUser ? 'flex-row-reverse' : 'flex-row'}">
+                    <div class="w-7 h-7 rounded-full ${isUser ? 'bg-[#F4B400] text-[#1E3A5F]' : 'bg-[#1E3A5F] border border-[#D9D9D9]/30 text-[#F4B400]'} flex items-center justify-center font-bold text-xs shrink-0 shadow">
+                        ${isUser ? currentState.playerName.charAt(0).toUpperCase() : currentState.selectedScenario.avatar}
+                    </div>
+                    <div class="${isUser ? 'bg-[#F4B400] text-[#1E3A5F] rounded-2xl rounded-br-none' : 'glass-panel text-[#F8F9FA] rounded-2xl rounded-bl-none'} px-4 py-2.5 shadow-md text-xs md:text-sm leading-relaxed">
+                        <div class="font-bold text-[10px] opacity-75 mb-0.5">${sender}</div>
+                        <div>${text}</div>
+                    </div>
+                </div>
+            `;
+
+            chatLog.appendChild(msgWrapper);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function showTypingIndicator(name, callback) {
+            const typing = document.getElementById('typingIndicator');
+            typing.classList.remove('hidden');
+            const chatLog = document.getElementById('chatLog');
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            setTimeout(() => {
+                typing.classList.add('hidden');
+                if (callback) callback();
+            }, 1100);
+        }
+
+        function renderChoices() {
+            const container = document.getElementById('choicesContainer');
+            container.innerHTML = '';
+
+            const sc = currentState.selectedScenario;
+            const currentChoices = sc.nodes[currentState.currentNodeKey];
+
+            // If array of choices
+            let options = [];
+            if (Array.isArray(currentChoices)) {
+                options = currentChoices;
+            } else if (currentChoices && currentChoices.choices) {
+                options = currentChoices.choices;
+            }
+
+            if (!options || options.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-[#D9D9D9]/50 py-2">Simulation completed. Start a new scenario above.</p>`;
+                return;
+            }
+
+            options.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-xl bg-[#132237] hover:bg-[#132237]/80 border border-[#D9D9D9]/20 hover:border-[#F4B400]/60 text-[#F8F9FA] text-xs md:text-sm transition-all shadow hover:shadow-lg flex items-center justify-between group";
+                
+                btn.innerHTML = `
+                    <span class="pr-2 leading-snug">${opt.text}</span>
+                    <i class="fas fa-paper-plane text-[#F4B400] opacity-0 group-hover:opacity-100 transition-opacity text-xs shrink-0"></i>
+                `;
+
+                btn.onclick = () => handleChoiceSelect(opt);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleChoiceSelect(option) {
+            soundFX.playMsgSent();
+
+            // Append User Message
+            appendChatMessage(currentState.playerName, option.text, 'sent');
+
+            // Adjust Social Meters
+            currentState.meters.politeness += option.politeness || 0;
+            currentState.meters.clarity += option.clarity || 0;
+            currentState.meters.rapport += option.rapport || 0;
+
+            if ((option.politeness || 0) < 0 || (option.rapport || 0) < 0) {
+                soundFX.playPenalty();
+            }
+
+            updateMetersUI();
+
+            // Clear choices while processing
+            document.getElementById('choicesContainer').innerHTML = `<p class="text-center text-xs text-[#D9D9D9]/50 py-2">Waiting for response...</p>`;
+
+            // Route to next node or ending
+            const sc = currentState.selectedScenario;
+
+            if (option.ending) {
+                triggerEnding(option.ending, option.finalMsg);
+            } else if (option.next) {
+                currentState.currentNodeKey = option.next;
+                const nextNode = sc.nodes[option.next];
+
+                showTypingIndicator(sc.contact, () => {
+                    appendChatMessage(sc.contact, nextNode.msg, 'received');
+                    soundFX.playMsgReceived();
+                    renderChoices();
+                });
+            }
+        }
+
+        function triggerEnding(endingType, finalReply) {
+            const sc = currentState.selectedScenario;
+
+            showTypingIndicator(sc.contact, () => {
+                if (finalReply) {
+                    appendChatMessage(sc.contact, finalReply, 'received');
+                    soundFX.playMsgReceived();
+                }
+
+                setTimeout(() => {
+                    // Create Banner Outcome
+                    const chatLog = document.getElementById('chatLog');
+                    const banner = document.createElement('div');
+                    banner.className = "my-4 p-4 rounded-xl text-center border shadow-xl animate-msg max-w-lg mx-auto";
+
+                    const avgMeter = Math.round((currentState.meters.politeness + currentState.meters.clarity + currentState.meters.rapport) / 3);
+
+                    if (endingType === 'diplomat' && avgMeter >= 60) {
+                        banner.className += " bg-emerald-950/80 border-emerald-500/50 text-emerald-100";
+                        banner.innerHTML = `
+                            <div class="text-2xl mb-1">🌟</div>
+                            <h3 class="font-bold text-base text-emerald-300 uppercase tracking-wider">Outcome: True Diplomat</h3>
+                            <p class="text-xs mt-1 text-emerald-200">You navigated the conversation with high social intelligence, clarity, and respect.</p>
+                            <div class="mt-2 text-xs font-semibold bg-emerald-900/60 py-1 px-3 rounded-full inline-block border border-emerald-500/30">Overall Social Score: ${avgMeter}%</div>
+                        `;
+                    } else if (endingType === 'burned' || avgMeter < 45) {
+                        banner.className += " bg-red-950/80 border-red-500/50 text-red-100";
+                        banner.innerHTML = `
+                            <div class="text-2xl mb-1">🔥</div>
+                            <h3 class="font-bold text-base text-red-300 uppercase tracking-wider">Outcome: Bridge Burned</h3>
+                            <p class="text-xs mt-1 text-red-200">Defensive or disrespectful responses eroded trust, ending the interaction poorly.</p>
+                            <div class="mt-2 text-xs font-semibold bg-red-900/60 py-1 px-3 rounded-full inline-block border border-red-500/30">Overall Social Score: ${avgMeter}%</div>
+                        `;
+                    } else {
+                        banner.className += " bg-amber-950/80 border-amber-500/50 text-amber-100";
+                        banner.innerHTML = `
+                            <div class="text-2xl mb-1">⚡</div>
+                            <h3 class="font-bold text-base text-amber-300 uppercase tracking-wider">Outcome: Awkward Friction</h3>
+                            <p class="text-xs mt-1 text-amber-200">The dialogue reached a resolution, but lack of clarity or warmth left unresolved tension.</p>
+                            <div class="mt-2 text-xs font-semibold bg-amber-900/60 py-1 px-3 rounded-full inline-block border border-amber-500/30">Overall Social Score: ${avgMeter}%</div>
+                        `;
+                    }
+
+                    chatLog.appendChild(banner);
+                    chatLog.scrollTop = chatLog.scrollHeight;
+
+                    // Interaction panel restart button
+                    document.getElementById('choicesContainer').innerHTML = `
+                        <button onclick="openSetupModal()" class="w-full py-3 bg-[#F4B400] hover:bg-yellow-400 text-[#1E3A5F] font-bold rounded-xl shadow-lg text-sm transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-play"></i> Try Another Scenario
+                        </button>
+                    `;
+                }, 600);
+            });
+        }
+
+        // INITIALIZE ON LOAD
+        window.addEventListener('DOMContentLoaded', () => {
+            initSetupLobby();
+        });
+    </script>
+</body>
+</html>
