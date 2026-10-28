@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Perfect - Extended Logic Grid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0b1320; color: #f8f9fa; }
+    
+    .glass-card {
+      background: rgba(30, 58, 95, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(217, 217, 217, 0.15);
+    }
+    
+    .cell-hover:hover {
+      background: rgba(244, 180, 0, 0.15);
+      border-color: rgba(244, 180, 0, 0.5);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 180, 0, 0.3); border-radius: 4px; }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-[#0b1320] text-[#f8f9fa] relative">
+
+  <!-- TOP HEADER HUD -->
+  <header class="h-14 bg-[#1E3A5F] border-b border-[#D9D9D9]/20 px-4 flex items-center justify-between z-20 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-[#F4B400]/20 border border-[#F4B400]/50 flex items-center justify-center text-[#F4B400]">
+        <i class="fa-solid fa-puzzle-piece font-bold text-lg"></i>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold tracking-wide text-[#f8f9fa] uppercase flex items-center gap-2">
+          Profile Perfect
+          <span class="text-[10px] bg-[#F4B400]/20 text-[#F4B400] border border-[#F4B400]/40 px-2 py-0.5 rounded-full font-mono font-bold">LEVEL 23</span>
+        </h1>
+        <p class="text-[11px] text-[#D9D9D9]">Logic Grid Deduction Game</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1 bg-[#0b1320]/60 px-3 py-1 rounded-full border border-[#D9D9D9]/20">
+        <i class="fa-solid fa-heart text-rose-500 text-sm"></i>
+        <i class="fa-solid fa-heart text-rose-500 text-sm"></i>
+        <i class="fa-solid fa-heart text-slate-600 text-sm"></i>
+      </div>
+
+      <div class="flex items-center gap-1.5 bg-[#0b1320]/60 px-3 py-1 rounded-full border border-[#F4B400]/30 text-[#F4B400] font-bold text-xs">
+        <i class="fa-solid fa-coins"></i>
+        <span id="coinCount">875</span>
+      </div>
+
+      <button onclick="resetPuzzle()" class="px-3 py-1.5 bg-[#1E3A5F] hover:bg-slate-700 text-[#f8f9fa] rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-[#D9D9D9]/20 transition">
+        <i class="fa-solid fa-rotate-right"></i> Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN GAME AREA -->
+  <main class="flex-1 flex flex-col p-4 overflow-hidden gap-3 max-w-6xl w-full mx-auto">
+    
+    <!-- GRID MATRIX TABLE -->
+    <div class="glass-card rounded-2xl p-3 shadow-2xl border border-[#D9D9D9]/20 overflow-x-auto custom-scrollbar shrink-0">
+      <table class="w-full text-center border-collapse min-w-[650px]">
+        <thead>
+          <tr>
+            <th class="p-2 w-32 bg-[#1E3A5F]/80 rounded-tl-xl text-xs font-bold text-[#F4B400] uppercase tracking-wider border-b border-r border-[#D9D9D9]/20">
+              Profiles
+            </th>
+            <th class="p-2 border-b border-r border-[#D9D9D9]/20 bg-[#1E3A5F]/50">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-[#f8f9fa] flex items-center gap-1"><i class="fa-solid fa-building text-blue-400"></i> A: Office</span>
+                <span class="text-[10px] text-[#D9D9D9]/70 font-mono">2 Office</span>
+              </div>
+            </th>
+            <th class="p-2 border-b border-r border-[#D9D9D9]/20 bg-[#1E3A5F]/50">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-[#f8f9fa] flex items-center gap-1"><i class="fa-solid fa-gamepad text-purple-400"></i> B: Game Center</span>
+                <span class="text-[10px] text-[#D9D9D9]/70 font-mono">1+ Game</span>
+              </div>
+            </th>
+            <th class="p-2 border-b border-r border-[#D9D9D9]/20 bg-[#1E3A5F]/50">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-[#f8f9fa] flex items-center gap-1"><i class="fa-solid fa-dumbbell text-amber-400"></i> C: Gym</span>
+                <span class="text-[10px] text-[#D9D9D9]/70 font-mono">5 Gym</span>
+              </div>
+            </th>
+            <th class="p-2 border-b border-[#D9D9D9]/20 bg-[#1E3A5F]/50 rounded-tr-xl">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-[#f8f9fa] flex items-center gap-1"><i class="fa-solid fa-hospital text-emerald-400"></i> D: Hospital</span>
+                <span class="text-[10px] text-[#D9D9D9]/70 font-mono">4 Medical</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="gridBody">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CLUES & DEDUCTION PANEL -->
+    <div class="flex-1 glass-card rounded-2xl p-4 flex flex-col gap-2.5 overflow-hidden border border-[#D9D9D9]/20">
+      <div class="flex items-center justify-between border-b border-[#D9D9D9]/20 pb-2">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-lightbulb text-[#F4B400] text-base"></i>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-[#f8f9fa]">Deductive Logic Clues</h2>
+          <span id="clueCounter" class="text-[11px] bg-[#F4B400]/20 text-[#F4B400] px-2 py-0.5 rounded-full font-mono font-bold">0 / 5 Solved</span>
+        </div>
+        <button onclick="useHint()" class="px-3 py-1 bg-[#F4B400] hover:bg-amber-400 text-[#0b1320] rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Use Hint (-30 Coins)
+        </button>
+      </div>
+
+      <div id="cluesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-y-auto custom-scrollbar p-1">
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ITEM SELECTION MODAL -->
+  <div id="itemModal" class="fixed inset-0 z-50 bg-[#0b1320]/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-[#1E3A5F] border border-[#F4B400]/50 w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4 text-[#f8f9fa]">
+      <div class="flex items-center justify-between border-b border-[#D9D9D9]/20 pb-3">
+        <h3 id="modalTitle" class="text-sm font-bold text-[#F4B400] uppercase tracking-wider">Select Attribute</h3>
+        <button onclick="closeModal()" class="text-[#D9D9D9] hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div id="modalOptions" class="grid grid-cols-2 gap-2.5">
+      </div>
+
+      <button onclick="clearCurrentCell()" class="w-full py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-bold transition">
+        <i class="fa-solid fa-trash-can mr-1"></i> Clear Cell
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'select') {
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } else if (type === 'unlock') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+      }
+    }
+
+    const CATEGORIES = [
+      {
+        id: 'color',
+        name: 'Color',
+        options: [
+          { id: 'blue', label: 'Blue', icon: 'fa-circle text-blue-500' },
+          { id: 'brown', label: 'Brown', icon: 'fa-circle text-amber-700' },
+          { id: 'orange', label: 'Orange', icon: 'fa-circle text-orange-500' },
+          { id: 'white', label: 'White', icon: 'fa-circle text-slate-100' }
+        ]
+      },
+      {
+        id: 'use',
+        name: 'Use',
+        options: [
+          { id: 'computer', label: 'Desk Work', icon: 'fa-desktop text-blue-300' },
+          { id: 'gaming', label: 'Gaming', icon: 'fa-gamepad text-purple-300' },
+          { id: 'gym', label: 'Fitness', icon: 'fa-dumbbell text-amber-300' },
+          { id: 'medical', label: 'Medical', icon: 'fa-notes-medical text-rose-400' }
+        ]
+      },
+      {
+        id: 'door',
+        name: 'Door',
+        options: [
+          { id: 'wooden', label: 'Wooden', icon: 'fa-door-closed text-amber-600' },
+          { id: 'glass', label: 'Glass', icon: 'fa-window-maximize text-sky-300' },
+          { id: 'curtain', label: 'Curtain', icon: 'fa-border-all text-blue-400' },
+          { id: 'steel', label: 'Steel', icon: 'fa-shield-halved text-slate-300' }
+        ]
+      },
+      {
+        id: 'crowd',
+        name: 'Crowd',
+        options: [
+          { id: 'empty', label: 'Low (1)', icon: 'fa-user text-slate-300' },
+          { id: 'medium', label: 'Medium (3)', icon: 'fa-user-group text-sky-400' },
+          { id: 'high', label: 'High (5)', icon: 'fa-users text-amber-400' },
+          { id: 'packed', label: 'Packed (8)', icon: 'fa-people-group text-emerald-400' }
+        ]
+      },
+      {
+        id: 'parking',
+        name: 'Parking',
+        options: [
+          { id: 'p1', label: '1 Space', icon: 'fa-car text-slate-300' },
+          { id: 'p2', label: '2 Spaces', icon: 'fa-cars text-[#F4B400]' },
+          { id: 'p3', label: '3 Spaces', icon: 'fa-square-parking text-blue-400' },
+          { id: 'p4', label: '4 Spaces', icon: 'fa-warehouse text-emerald-400' }
+        ]
+      }
+    ];
+
+    const SOLUTION = {
+      A: { color: 'blue', use: 'computer', door: 'wooden', crowd: 'empty', parking: 'p2' },
+      B: { color: 'brown', use: 'gaming', door: 'glass', crowd: 'medium', parking: 'p1' },
+      C: { color: 'orange', use: 'gym', door: 'curtain', crowd: 'high', parking: 'p3' },
+      D: { color: 'white', use: 'medical', door: 'steel', crowd: 'packed', parking: 'p4' }
+    };
+
+    const CLUES = [
+      {
+        id: 1,
+        title: "Medical Facility",
+        desc: "Building D is the Hospital and treats sick people.",
+        isLocked: false,
+        requiresSolved: 0,
+        check: (grid) => grid.D.use === 'medical'
+      },
+      {
+        id: 2,
+        title: "Curtain Door Entry",
+        desc: "Building C (Gym) has a Curtain door.",
+        isLocked: false,
+        requiresSolved: 0,
+        check: (grid) => grid.C.door === 'curtain'
+      },
+      {
+        id: 3,
+        title: "Steel Door & Parking",
+        desc: "The Steel door building (Hospital) has 4 Parking Spaces.",
+        isLocked: true,
+        requiresSolved: 2,
+        check: (grid) => grid.D.door === 'steel' && grid.D.parking === 'p4'
+      },
+      {
+        id: 4,
+        title: "Office Setup",
+        desc: "Building A (Office) uses Blue color and Wooden door.",
+        isLocked: true,
+        requiresSolved: 2,
+        check: (grid) => grid.A.color === 'blue' && grid.A.door === 'wooden'
+      },
+      {
+        id: 5,
+        title: "Crowd vs Parking Ratio",
+        desc: "The building with the biggest crowd (Hospital) has 4 parking spaces.",
+        isLocked: true,
+        requiresSolved: 2,
+        check: (grid) => grid.D.crowd === 'packed' && grid.D.parking === 'p4'
+      }
+    ];
+
+    let userGrid = {
+      A: { color: null, use: null, door: null, crowd: null, parking: null },
+      B: { color: null, use: null, door: null, crowd: null, parking: null },
+      C: { color: null, use: null, door: null, crowd: null, parking: null },
+      D: { color: null, use: null, door: null, crowd: null, parking: null }
+    };
+
+    let activeTarget = { col: null, catId: null };
+    let coins = 875;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderGrid();
+      updateClues();
+    });
+
+    function renderGrid() {
+      const tbody = document.getElementById("gridBody");
+      tbody.innerHTML = "";
+
+      CATEGORIES.forEach(cat => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-[#D9D9D9]/10 hover:bg-[#1E3A5F]/20 transition";
+
+        tr.innerHTML = `<td class="p-2.5 bg-[#1E3A5F]/60 font-bold text-xs text-[#F4B400] text-left border-r border-[#D9D9D9]/20 uppercase">${cat.name}</td>`;
+
+        ['A', 'B', 'C', 'D'].forEach(col => {
+          const val = userGrid[col][cat.id];
+          const selectedOpt = cat.options.find(o => o.id === val);
+
+          const td = document.createElement("td");
+          td.className = "p-2 border-r border-[#D9D9D9]/10 cursor-pointer cell-hover transition text-center";
+          td.onclick = () => openPickerModal(col, cat.id);
+
+          if (selectedOpt) {
+            td.innerHTML = `
+              <div class="inline-flex items-center gap-1.5 bg-[#0b1320] border border-[#F4B400]/40 px-2.5 py-1 rounded-xl text-xs font-bold text-[#f8f9fa] shadow-inner">
+                <i class="fa-solid ${selectedOpt.icon}"></i>
+                <span>${selectedOpt.label}</span>
+              </div>
+            `;
+          } else {
+            td.innerHTML = `<span class="text-slate-600 text-[11px] italic font-mono">+ Select</span>`;
+          }
+
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openPickerModal(col, catId) {
+      activeTarget = { col, catId };
+      const cat = CATEGORIES.find(c => c.id === catId);
+      document.getElementById("modalTitle").innerText = `Select ${cat.name} for Building ${col}`;
+
+      const usedInOtherCols = [];
+      ['A', 'B', 'C', 'D'].forEach(c => {
+        if (c !== col && userGrid[c][catId]) {
+          usedInOtherCols.push(userGrid[c][catId]);
+        }
+      });
+
+      const optionsDiv = document.getElementById("modalOptions");
+      optionsDiv.innerHTML = "";
+
+      const availableOptions = cat.options.filter(opt => !usedInOtherCols.includes(opt.id));
+
+      if (availableOptions.length === 0) {
+        optionsDiv.innerHTML = `<p class="col-span-2 text-center text-xs text-rose-400 py-2">All options in this category are assigned to other buildings!</p>`;
+      } else {
+        availableOptions.forEach(opt => {
+          const btn = document.createElement("button");
+          const isCurrent = userGrid[col][catId] === opt.id;
+          btn.className = `p-3 rounded-xl border text-xs font-bold flex items-center gap-2.5 transition ${
+            isCurrent ? 'bg-[#F4B400] text-[#0b1320] border-[#F4B400]' : 'bg-[#0b1320] border-[#D9D9D9]/20 text-[#f8f9fa] hover:border-[#F4B400]/60'
+          }`;
+          btn.onclick = () => selectAttribute(opt.id);
+          btn.innerHTML = `
+            <i class="fa-solid ${opt.icon} text-base"></i>
+            <span>${opt.label}</span>
+          `;
+          optionsDiv.appendChild(btn);
+        });
+      }
+
+      document.getElementById("itemModal").classList.remove("hidden");
+    }
+
+    function selectAttribute(optId) {
+      playSound('select');
+      userGrid[activeTarget.col][activeTarget.catId] = optId;
+      closeModal();
+      renderGrid();
+      updateClues();
+    }
+
+    function clearCurrentCell() {
+      if (activeTarget.col && activeTarget.catId) {
+        userGrid[activeTarget.col][activeTarget.catId] = null;
+        closeModal();
+        renderGrid();
+        updateClues();
+      }
+    }
+
+    function closeModal() {
+      document.getElementById("itemModal").classList.add("hidden");
+    }
+
+    function updateClues() {
+      const container = document.getElementById("cluesContainer");
+      container.innerHTML = "";
+
+      let solvedCount = 0;
+
+      CLUES.forEach(clue => {
+        if (clue.check(userGrid)) {
+          solvedCount++;
+        }
+      });
+
+      CLUES.forEach(clue => {
+        if (clue.isLocked && solvedCount >= clue.requiresSolved) {
+          clue.isLocked = false;
+          playSound('unlock');
+        }
+      });
+
+      document.getElementById("clueCounter").innerText = `${solvedCount} / ${CLUES.length} Solved`;
+
+      CLUES.forEach(clue => {
+        const isSolved = clue.check(userGrid);
+        const card = document.createElement("div");
+
+        if (clue.isLocked) {
+          card.className = "p-2.5 rounded-xl bg-slate-900/50 border border-slate-800 text-slate-500 flex items-center gap-3 opacity-60";
+          card.innerHTML = `
+            <div class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 font-bold shrink-0">
+              <i class="fa-solid fa-lock text-xs"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Locked Clue</div>
+              <div class="text-[10px]">Solve 2 parent clues to unlock this hint</div>
+            </div>
+          `;
+        } else {
+          card.className = `p-2.5 rounded-xl border transition flex items-start gap-2.5 ${
+            isSolved ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-200' : 'bg-[#1E3A5F]/40 border-[#D9D9D9]/20 text-[#f8f9fa]'
+          }`;
+
+          card.innerHTML = `
+            <div class="w-7 h-7 rounded-lg ${isSolved ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-[#F4B400]/10 text-[#F4B400] border border-[#F4B400]/30'} flex items-center justify-center font-bold shrink-0 mt-0.5">
+              ${isSolved ? '<i class="fa-solid fa-check text-xs"></i>' : '<i class="fa-solid fa-puzzle-piece text-xs"></i>'}
+            </div>
+            <div class="flex-1">
+              <div class="text-xs font-bold uppercase tracking-wider ${isSolved ? 'text-emerald-300' : 'text-[#F4B400]'}">${clue.title}</div>
+              <p class="text-[11px] mt-0.5 leading-relaxed text-slate-300">${clue.desc}</p>
+            </div>
+          `;
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function resetPuzzle() {
+      userGrid = {
+        A: { color: null, use: null, door: null, crowd: null, parking: null },
+        B: { color: null, use: null, door: null, crowd: null, parking: null },
+        C: { color: null, use: null, door: null, crowd: null, parking: null },
+        D: { color: null, use: null, door: null, crowd: null, parking: null }
+      };
+      CLUES[2].isLocked = true;
+      CLUES[3].isLocked = true;
+      CLUES[4].isLocked = true;
+      renderGrid();
+      updateClues();
+    }
+
+    function useHint() {
+      if (coins >= 30) {
+        coins -= 30;
+        document.getElementById("coinCount").innerText = coins;
+
+        for (let col of ['A', 'B', 'C', 'D']) {
+          for (let cat of ['color', 'use', 'door', 'crowd', 'parking']) {
+            if (userGrid[col][cat] !== SOLUTION[col][cat]) {
+              userGrid[col][cat] = SOLUTION[col][cat];
+              renderGrid();
+              updateClues();
+              playSound('select');
+              return;
+            }
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
